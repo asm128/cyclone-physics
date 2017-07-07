@@ -203,7 +203,7 @@ void FlightSimDemo::display()
     glPopMatrix();
 
     char buffer[256];
-    sprintf(
+    sprintf_s(
         buffer,
         "Altitude: %.1f | Speed %.1f",
         aircraft.getPosition().y,
@@ -212,7 +212,7 @@ void FlightSimDemo::display()
     glColor3f(0,0,0);
     renderText(10.0f, 24.0f, buffer);
 
-    sprintf(
+    sprintf_s(
         buffer,
         "Left Wing: %.1f | Right Wing: %.1f | Rudder %.1f",
         left_wing_control, right_wing_control, rudder_control

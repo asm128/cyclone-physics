@@ -166,7 +166,7 @@ void SailboatDemo::display()
     glPopMatrix();
 
     char buffer[256];
-    sprintf(
+    sprintf_s(
         buffer,
         "Speed %.1f",
         sailboat.getVelocity().magnitude()
@@ -174,7 +174,7 @@ void SailboatDemo::display()
     glColor3f(0,0,0);
     renderText(10.0f, 24.0f, buffer);
 
-    sprintf(
+    sprintf_s(
         buffer,
         "Sail Control: %.1f",
         sail_control
