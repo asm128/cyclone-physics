@@ -81,7 +81,7 @@ windspeed(0,0,0)
 
     sailboat.setDamping(0.8f, 0.8f);
 
-    sailboat.setAcceleration(cyclone::Vector3::GRAVITY);
+    sailboat.Acceleration = cyclone::Vector3::GRAVITY;
     sailboat.calculateDerivedData();
 
     sailboat.setAwake();
@@ -133,7 +133,7 @@ void SailboatDemo::display()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
 
-    cyclone::Vector3 pos = sailboat.getPosition();
+    cyclone::Vector3 pos = sailboat.Position;
     cyclone::Vector3 offset(4.0f, 0, 0);
     offset = sailboat.getTransform().transformDirection(offset);
     gluLookAt(pos.x+offset.x, pos.y+5.0f, pos.z+offset.z,
@@ -169,7 +169,7 @@ void SailboatDemo::display()
     sprintf_s(
         buffer,
         "Speed %.1f",
-        sailboat.getVelocity().magnitude()
+        sailboat.Velocity.magnitude()
         );
     glColor3f(0,0,0);
     renderText(10.0f, 24.0f, buffer);

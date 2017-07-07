@@ -144,25 +144,25 @@ public:
     }
 
     /** Sets the box to a specific location. */
-    void setState(cyclone::real z)
+    void setState(::cyclone::real z)
     {
         body->setPosition(0, 3, z);
         body->setOrientation(1,0,0,0);
         body->setVelocity(0,0,0);
-        body->setRotation(cyclone::Vector3(0,0,0));
-        halfSize = cyclone::Vector3(1,1,1);
+        body->Rotation = ::cyclone::Vector3(0,0,0);
+        halfSize = ::cyclone::Vector3(1,1,1);
 
-        cyclone::real mass = halfSize.x * halfSize.y * halfSize.z * 8.0f;
+        ::cyclone::real mass = halfSize.x * halfSize.y * halfSize.z * 8.0f;
         body->setMass(mass);
 
-        cyclone::Matrix3 tensor;
+        ::cyclone::Matrix3 tensor;
         tensor.setBlockInertiaTensor(halfSize, mass);
         body->setInertiaTensor(tensor);
 
-        body->setLinearDamping(0.95f);
-        body->setAngularDamping(0.8f);
-        body->clearAccumulators();
-        body->setAcceleration(0,-10.0f,0);
+        body->LinearDamping		= 0.95f;
+        body->AngularDamping	= 0.8f;
+        body->clearAccumulators	();
+        body->setAcceleration	(0,-10.0f,0);
 
         body->setCanSleep(false);
         body->setAwake();
@@ -178,37 +178,15 @@ public:
  */
 class BigBallisticDemo : public RigidBodyApplication
 {
-    /**
-     * Holds the maximum number of  rounds that can be
-     * fired.
-     */
-    const static unsigned ammoRounds = 256;
-
-    /** Holds the particle data. */
-    AmmoRound ammo[ammoRounds];
-
-    /**
-    * Holds the number of boxes in the simulation.
-    */
-    const static unsigned boxes = 2;
-
-    /** Holds the box data. */
-    Box boxData[boxes];
-
-    /** Holds the current shot type. */
-    ShotType currentShotType;
-
-    /** Resets the position of all the boxes and primes the explosion. */
-    virtual void reset();
-
-    /** Build the contacts for the current situation. */
-    virtual void generateContacts();
-
-    /** Processes the objects in the simulation forward in time. */
-    virtual void updateObjects(cyclone::real duration);
-
-    /** Dispatches a round. */
-    void fire();
+    const static unsigned	ammoRounds = 256;	// Holds the maximum number of  rounds that can be fired.
+    AmmoRound				ammo[ammoRounds];	// Holds the particle data.
+    const static unsigned	boxes = 2;	// Holds the number of boxes in the simulation.
+    Box						boxData[boxes];	// Holds the box data. 
+    ShotType				currentShotType;	// Holds the current shot type. 
+    virtual void			reset();	// Resets the position of all the boxes and primes the explosion. 
+    virtual void			generateContacts();	// Build the contacts for the current situation. 
+    virtual void			updateObjects(cyclone::real duration);	// Processes the objects in the simulation forward in time. 
+    void					fire();	// Dispatches a round. 
 
 public:
     /** Creates a new demo object. */
@@ -305,9 +283,9 @@ void BigBallisticDemo::updateObjects(cyclone::real duration)
             shot->calculateInternals();
 
             // Check if the particle is now invalid
-            if (shot->body->getPosition().y < 0.0f ||
+            if (shot->body->Position.y < 0.0f ||
                 shot->startTime+5000 < TimingData::get().lastFrameTimestamp ||
-                shot->body->getPosition().z > 200.0f)
+                shot->body->Position.z > 200.0f)
             {
                 // We simply set the shot type to be unused, so the
                 // memory it occupies can be reused by another shot.

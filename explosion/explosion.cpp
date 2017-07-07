@@ -49,7 +49,7 @@ public:
         GLfloat mat[16];
         body->getGLTransform(mat);
 
-        if (body->getAwake()) glColor3f(1.0f,0.7f,0.7f);
+        if (body->IsAwake) glColor3f(1.0f,0.7f,0.7f);
         else glColor3f(0.7f,0.7f,1.0f);
 
         glPushMatrix();
@@ -78,11 +78,11 @@ public:
                   cyclone::real radius,
                   cyclone::Vector3 velocity)
     {
-        body->setPosition(position);
-        body->setOrientation(orientation);
-        body->setVelocity(velocity);
-        body->setRotation(cyclone::Vector3(0,0,0));
-        Ball::radius = radius;
+        body->Position			= position;
+        body->Orientation		= orientation;
+        body->Velocity			= velocity;
+        body->Rotation			= cyclone::Vector3(0,0,0);
+        Ball::radius			= radius;
 
         cyclone::real mass = 4.0f*0.3333f*3.1415f * radius*radius*radius;
         body->setMass(mass);
@@ -92,8 +92,8 @@ public:
         tensor.setInertiaTensorCoeffs(coeff,coeff,coeff);
         body->setInertiaTensor(tensor);
 
-        body->setLinearDamping(0.95f);
-        body->setAngularDamping(0.8f);
+        body->LinearDamping		= 0.95f;
+        body->AngularDamping	= 0.8f;
         body->clearAccumulators();
         body->setAcceleration(0,-10.0f,0);
 
@@ -141,7 +141,7 @@ public:
         body->getGLTransform(mat);
 
         if (isOverlapping) glColor3f(0.7f,1.0f,0.7f);
-        else if (body->getAwake()) glColor3f(1.0f,0.7f,0.7f);
+        else if (body->IsAwake) glColor3f(1.0f,0.7f,0.7f);
         else glColor3f(0.7f,0.7f,1.0f);
 
         glPushMatrix();
@@ -172,10 +172,10 @@ public:
                   const cyclone::Vector3 &extents,
                   const cyclone::Vector3 &velocity)
     {
-        body->setPosition(position);
+        body->Position = position;
         body->setOrientation(orientation);
-        body->setVelocity(velocity);
-        body->setRotation(cyclone::Vector3(0,0,0));
+        body->Velocity = velocity;
+		body->Rotation = {};
         halfSize = extents;
 
         cyclone::real mass = halfSize.x * halfSize.y * halfSize.z * 8.0f;
@@ -185,8 +185,8 @@ public:
         tensor.setBlockInertiaTensor(halfSize, mass);
         body->setInertiaTensor(tensor);
 
-        body->setLinearDamping(0.95f);
-        body->setAngularDamping(0.8f);
+        body->LinearDamping		= 0.95f;
+        body->AngularDamping	= 0.8f;
         body->clearAccumulators();
         body->setAcceleration(0,-10.0f,0);
 
@@ -286,7 +286,7 @@ const char* ExplosionDemo::getTitle()
 
 void ExplosionDemo::fire()
 {
-    cyclone::Vector3 pos = ballData[0].body->getPosition();
+    cyclone::Vector3 pos = ballData[0].body->Position;
     pos.normalise();
 
     ballData[0].body->addForce(pos * -1000.0f);
@@ -520,30 +520,15 @@ void ExplosionDemo::display()
 
 void ExplosionDemo::mouseDrag(int x, int y)
 {
-    if (editMode)
-    {
-        boxData[0].body->setPosition(boxData[0].body->getPosition() +
-            cyclone::Vector3(
-                (x-last_x) * 0.125f,
-                0,
-                (y-last_y) * 0.125f
-                )
-            );
+    if (editMode) {
+        boxData[0].body->Position = boxData[0].body->Position + cyclone::Vector3((x-last_x) * 0.125f, 0, (y-last_y) * 0.125f);
         boxData[0].body->calculateDerivedData();
     }
-    else if (upMode)
-    {
-        boxData[0].body->setPosition(boxData[0].body->getPosition() +
-            cyclone::Vector3(
-                0,
-                (y-last_y) * 0.125f,
-                0
-                )
-            );
+    else if (upMode) {
+        boxData[0].body->Position = boxData[0].body->Position + cyclone::Vector3(0, (y-last_y) * 0.125f, 0);
         boxData[0].body->calculateDerivedData();
     }
-    else
-    {
+    else {
         RigidBodyApplication::mouseDrag(x, y);
     }
 

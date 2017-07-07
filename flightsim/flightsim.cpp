@@ -93,7 +93,7 @@ windspeed(0,0,0)
 
     aircraft.setDamping(0.8f, 0.8f);
 
-    aircraft.setAcceleration(cyclone::Vector3::GRAVITY);
+    aircraft.Acceleration = ::cyclone::Vector3::GRAVITY;
     aircraft.calculateDerivedData();
 
     aircraft.setAwake();
@@ -162,8 +162,8 @@ void FlightSimDemo::display()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
 
-    cyclone::Vector3 pos = aircraft.getPosition();
-    cyclone::Vector3 offset(4.0f+aircraft.getVelocity().magnitude(), 0, 0);
+    cyclone::Vector3 pos = aircraft.Position;
+    cyclone::Vector3 offset(4.0f+aircraft.Velocity.magnitude(), 0, 0);
     offset = aircraft.getTransform().transformDirection(offset);
     gluLookAt(pos.x+offset.x, pos.y+5.0f, pos.z+offset.z,
               pos.x, pos.y, pos.z,
@@ -206,8 +206,8 @@ void FlightSimDemo::display()
     sprintf_s(
         buffer,
         "Altitude: %.1f | Speed %.1f",
-        aircraft.getPosition().y,
-        aircraft.getVelocity().magnitude()
+        aircraft.Position.y,
+        aircraft.Velocity.magnitude()
         );
     glColor3f(0,0,0);
     renderText(10.0f, 24.0f, buffer);
@@ -241,13 +241,13 @@ void FlightSimDemo::update()
     aircraft.integrate(duration);
 
     // Do a very basic collision detection and response with the ground.
-    cyclone::Vector3 pos = aircraft.getPosition();
+    cyclone::Vector3 pos = aircraft.Position;
     if (pos.y < 0.0f)
     {
         pos.y = 0.0f;
-        aircraft.setPosition(pos);
+        aircraft.Position = pos;
 
-        if (aircraft.getVelocity().y < -10.0f)
+        if (aircraft.Velocity.y < -10.0f)
         {
             resetPlane();
         }

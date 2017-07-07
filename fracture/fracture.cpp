@@ -45,7 +45,7 @@ public:
         GLfloat mat[16];
         body->getGLTransform(mat);
 
-        if (body->getAwake()) glColor3f(1.0f,0.7f,0.7f);
+        if (body->IsAwake) glColor3f(1.0f,0.7f,0.7f);
         else glColor3f(0.7f,0.7f,1.0f);
 
         glPushMatrix();
@@ -61,10 +61,10 @@ public:
                   const cyclone::Vector3 &extents,
                   const cyclone::Vector3 &velocity)
     {
-        body->setPosition(position);
+        body->Position = position;
         body->setOrientation(orientation);
-        body->setVelocity(velocity);
-        body->setRotation(cyclone::Vector3(0,0,0));
+        body->Velocity = velocity;
+		body->Rotation = {};
         halfSize = extents;
 
         cyclone::real mass = halfSize.x * halfSize.y * halfSize.z * 8.0f;
@@ -74,8 +74,8 @@ public:
         tensor.setBlockInertiaTensor(halfSize, mass);
         body->setInertiaTensor(tensor);
 
-        body->setLinearDamping(0.95f);
-        body->setAngularDamping(0.8f);
+        body->LinearDamping	 = 0.95f;
+        body->AngularDamping = 0.8f;
         body->clearAccumulators();
         body->setAcceleration(0,-10.0f,0);
 
@@ -154,13 +154,13 @@ public:
 
         // Take a copy also of the body's other data.
         cyclone::RigidBody tempBody;
-        tempBody.setPosition(body->getPosition());
-        tempBody.setOrientation(body->getOrientation());
-        tempBody.setVelocity(body->getVelocity());
-        tempBody.setRotation(body->getRotation());
-        tempBody.setLinearDamping(body->getLinearDamping());
-        tempBody.setAngularDamping(body->getAngularDamping());
-        tempBody.setInverseInertiaTensor(body->getInverseInertiaTensor());
+        tempBody.Position				= body->Position				;
+        tempBody.Orientation			= body->Orientation				;
+        tempBody.Velocity				= body->Velocity				;
+        tempBody.Rotation				= body->Rotation				;
+        tempBody.LinearDamping			= body->LinearDamping			;
+        tempBody.AngularDamping			= body->AngularDamping			;
+        tempBody.InverseInertiaTensor	= body->InverseInertiaTensor	;
         tempBody.calculateDerivedData();
 
         // Remove the old block
@@ -212,19 +212,19 @@ public:
 
             // Set the body's properties (we assume the block has a body
             // already that we're going to overwrite).
-            blocks[i].body->setPosition(newPos);
-            blocks[i].body->setVelocity(tempBody.getVelocity() + direction * 10.0f);
-            blocks[i].body->setOrientation(tempBody.getOrientation());
-            blocks[i].body->setRotation(tempBody.getRotation());
-            blocks[i].body->setLinearDamping(tempBody.getLinearDamping());
-            blocks[i].body->setAngularDamping(tempBody.getAngularDamping());
-            blocks[i].body->setAwake(true);
-            blocks[i].body->setAcceleration(cyclone::Vector3::GRAVITY);
+            blocks[i].body->Position			= newPos;
+            blocks[i].body->Velocity			= tempBody.Velocity + direction * 10.0f;
+            blocks[i].body->setOrientation		(tempBody.Orientation);
+            blocks[i].body->Rotation			= tempBody.Rotation;
+            blocks[i].body->LinearDamping		= tempBody.LinearDamping	;
+            blocks[i].body->AngularDamping		= tempBody.AngularDamping	;
+            blocks[i].body->setAwake			(true);
+            blocks[i].body->Acceleration		= (cyclone::Vector3::GRAVITY);
             blocks[i].body->clearAccumulators();
             blocks[i].body->calculateDerivedData();
-            blocks[i].offset = cyclone::Matrix4();
-            blocks[i].exists = true;
-            blocks[i].halfSize = halfSize;
+            blocks[i].offset					= cyclone::Matrix4();
+            blocks[i].exists					= true;
+            blocks[i].halfSize					= halfSize;
 
             // Finally calculate the mass and inertia tensor of the new block
             blocks[i].calculateMassProperties(invDensity);
@@ -287,7 +287,7 @@ FractureDemo::FractureDemo()
     cyclone::Matrix3 it;
     it.setDiagonal(5.0f, 5.0f, 5.0f);
     ball.body->setInertiaTensor(it);
-    ball.body->setAcceleration(cyclone::Vector3::GRAVITY);
+    ball.body->Acceleration = cyclone::Vector3::GRAVITY;
 
     ball.body->setCanSleep(false);
     ball.body->setAwake(true);
@@ -379,7 +379,7 @@ void FractureDemo::reset()
     blocks[0].body->calculateDerivedData();
     blocks[0].calculateInternals();
 
-    blocks[0].body->setAcceleration(cyclone::Vector3::GRAVITY);
+    blocks[0].body->Acceleration = cyclone::Vector3::GRAVITY;
     blocks[0].body->setAwake(true);
     blocks[0].body->setCanSleep(true);
 
@@ -464,7 +464,7 @@ void FractureDemo::display()
     {
         glColor3f(0.4f, 0.7f, 0.4f);
         glPushMatrix();
-        cyclone::Vector3 pos = ball.body->getPosition();
+        cyclone::Vector3 pos = ball.body->Position;
         glTranslatef(pos.x, pos.y, pos.z);
         glutSolidSphere(0.25f, 16, 8);
         glPopMatrix();

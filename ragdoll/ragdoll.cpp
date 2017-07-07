@@ -56,7 +56,7 @@ public:
         GLfloat mat[16];
         body->getGLTransform(mat);
 
-        if (body->getAwake()) glColor3f(0.5f, 0.3f, 0.3f);
+        if (body->IsAwake) glColor3f(0.5f, 0.3f, 0.3f);
         else glColor3f(0.3f, 0.3f, 0.5f);
 
         glPushMatrix();
@@ -70,11 +70,11 @@ public:
     void setState(const cyclone::Vector3 &position,
                   const cyclone::Vector3 &extents)
     {
-        body->setPosition(position);
-        body->setOrientation(cyclone::Quaternion());
-        body->setVelocity(cyclone::Vector3());
-        body->setRotation(cyclone::Vector3());
-        halfSize = extents;
+        body->Position		= position;
+        body->Orientation	= {};
+        body->Velocity		= {};
+        body->Rotation		= {};
+        halfSize			= extents;
 
         cyclone::real mass = halfSize.x * halfSize.y * halfSize.z * 8.0f;
         body->setMass(mass);
@@ -83,10 +83,10 @@ public:
         tensor.setBlockInertiaTensor(halfSize, mass);
         body->setInertiaTensor(tensor);
 
-        body->setLinearDamping(0.95f);
-        body->setAngularDamping(0.8f);
+        body->LinearDamping		= 0.95f;
+        body->AngularDamping	= 0.8f;
         body->clearAccumulators();
-        body->setAcceleration(cyclone::Vector3::GRAVITY);
+        body->Acceleration = ::cyclone::Vector3::GRAVITY;
 
         body->setCanSleep(false);
         body->setAwake();

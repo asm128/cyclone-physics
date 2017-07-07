@@ -128,7 +128,7 @@ void Aero::updateForceFromTensor(RigidBody *body, real duration,
                                  const Matrix3 &tensor)
 {
     // Calculate total velocity (windspeed and body's velocity).
-    Vector3 velocity = body->getVelocity();
+    Vector3 velocity = body->Velocity;
     velocity += *windspeed;
 
     // Calculate the velocity in body coordinates
