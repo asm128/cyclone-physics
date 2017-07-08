@@ -40,7 +40,7 @@ public:
     }
 
     /** Draws the bone. */
-    void render()
+    void Render()
     {
         // Get the OpenGL transformation
         GLfloat mat[16];
@@ -94,14 +94,14 @@ class RagdollDemo : public RigidBodyApplication {
 	cyclone::Joint		joints	[NUM_JOINTS];	// Holds the joints.		
 
 	virtual void		GenerateContacts			();	// Processes the contact generation code. 
-	virtual void		updateObjects				(cyclone::real duration);	// Processes the objects in the simulation forward in time.
-	virtual void		reset						();	// Resets the position of all the bones. 
+	virtual void		UpdateObjects				(cyclone::real duration);	// Processes the objects in the simulation forward in time.
+	virtual void		Reset						();	// Resets the position of all the bones. 
 public:
 						RagdollDemo					();	// Creates a new demo object.
 
-	virtual void		initGraphics				();	// Sets up the rendering.
-	virtual const char*	getTitle					();	// Returns the window title for the demo.
-	virtual void		display						();	// Display the particle positions.
+	virtual void		InitGraphics				();	// Sets up the rendering.
+	virtual const char*	GetTitle					();	// Returns the window title for the demo.
+	virtual void		Display						();	// Display the particle positions.
 };
 
 // Method definitions
@@ -187,10 +187,10 @@ RagdollDemo::RagdollDemo()
         );
 
     // Set up the initial positions
-    reset();
+    Reset();
 }
 
-const char* RagdollDemo::getTitle()
+const char* RagdollDemo::GetTitle()
 {
     return "Cyclone > Ragdoll Demo";
 }
@@ -203,10 +203,10 @@ void RagdollDemo::GenerateContacts()
     plane.offset = 0;
 
     // Set up the collision data structure
-    cData.reset(maxContacts);
-    cData.friction = (cyclone::real)0.9;
-    cData.restitution = (cyclone::real)0.6;
-    cData.tolerance = (cyclone::real)0.1;
+    CData.reset(MaxContacts);
+    CData.friction = (cyclone::real)0.9;
+    CData.restitution = (cyclone::real)0.6;
+    CData.tolerance = (cyclone::real)0.1;
 
     // Perform exhaustive collision detection on the ground plane
     cyclone::Matrix4 transform, otherTransform;
@@ -214,22 +214,22 @@ void RagdollDemo::GenerateContacts()
     for (Bone *bone = bones; bone < bones+NUM_BONES; bone++)
     {
         // Check for collisions with the ground plane
-        if (!cData.hasMoreContacts()) return;
-        cyclone::CollisionDetector::boxAndHalfSpace(*bone, plane, &cData);
+        if (!CData.hasMoreContacts()) return;
+        cyclone::CollisionDetector::boxAndHalfSpace(*bone, plane, &CData);
 
         cyclone::CollisionSphere boneSphere = bone->getCollisionSphere();
 
         // Check for collisions with each other box
         for (Bone *other = bone+1; other < bones+NUM_BONES; other++)
         {
-            if (!cData.hasMoreContacts()) return;
+            if (!CData.hasMoreContacts()) return;
 
             cyclone::CollisionSphere otherSphere = other->getCollisionSphere();
 
             cyclone::CollisionDetector::sphereAndSphere(
                 boneSphere,
                 otherSphere,
-                &cData
+                &CData
                 );
         }
     }
@@ -237,13 +237,13 @@ void RagdollDemo::GenerateContacts()
     // Check for joint violation
     for (cyclone::Joint *joint = joints; joint < joints+NUM_JOINTS; joint++)
     {
-        if (!cData.hasMoreContacts()) return;
-        unsigned added = joint->AddContact(cData.contacts, cData.contactsLeft);
-        cData.AddContacts(added);
+        if (!CData.hasMoreContacts()) return;
+        unsigned added = joint->AddContact(CData.contacts, CData.contactsLeft);
+        CData.AddContacts(added);
     }
 }
 
-void RagdollDemo::reset()
+void RagdollDemo::Reset()
 {
 	bones[0].setState(
 	    cyclone::Vector3(0, 0.993, -0.5),
@@ -292,10 +292,10 @@ void RagdollDemo::reset()
 	    cyclone::Vector3(random.randomBinomial(4.0f), random.randomBinomial(3.0f), 0)
 	    );
 
-	cData.contactCount = 0;	// Reset the contacts
+	CData.contactCount = 0;	// Reset the contacts
 }
 
-void RagdollDemo::updateObjects(cyclone::real duration)
+void RagdollDemo::UpdateObjects(cyclone::real duration)
 {
     for (Bone *bone = bones; bone < bones+NUM_BONES; bone++)
     {
@@ -304,7 +304,7 @@ void RagdollDemo::updateObjects(cyclone::real duration)
     }
 }
 
-void RagdollDemo::initGraphics()
+void RagdollDemo::InitGraphics()
 {
     GLfloat lightAmbient[] = {0.8f,0.8f,0.8f,1.0f};
     GLfloat lightDiffuse[] = {0.9f,0.95f,1.0f,1.0f};
@@ -314,15 +314,15 @@ void RagdollDemo::initGraphics()
 
     glEnable(GL_LIGHT0);
 
-    Application::initGraphics();
+    Application::InitGraphics();
 }
 
-void RagdollDemo::display()
+void RagdollDemo::Display()
 {
     const static GLfloat lightPosition[] = {0.7f,-1,0.4f,0};
     const static GLfloat lightPositionMirror[] = {0.7f,1,0.4f,0};
 
-    RigidBodyApplication::display();
+    RigidBodyApplication::Display();
 
     // Render the bones
     glEnable(GL_DEPTH_TEST);
@@ -337,7 +337,7 @@ void RagdollDemo::display()
     glColor3f(1,0,0);
     for (unsigned i = 0; i < NUM_BONES; i++)
     {
-        bones[i].render();
+        bones[i].Render();
     }
     glDisable(GL_NORMALIZE);
 
@@ -381,7 +381,7 @@ void RagdollDemo::display()
     glVertex3f(0,0,20);
     glEnd();
 
-    RigidBodyApplication::drawDebug();
+    RigidBodyApplication::DrawDebug();
 }
 
 // Called by the common demo framework to create an application object (with new) and return a pointer.

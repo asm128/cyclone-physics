@@ -6,24 +6,24 @@
 #include "app.h"
 #include "timing.h"
 
-void Application::initGraphics()
+void Application::InitGraphics()
 {
     glClearColor(0.9f, 0.95f, 1.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
     glShadeModel(GL_SMOOTH);
 
-    setView();
+    SetView();
 }
 
-void Application::setView()
+void Application::SetView()
 {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(60.0, (double)width/(double)height, 1.0, 500.0);
+    gluPerspective(60.0, (double)Width/(double)Height, 1.0, 500.0);
     glMatrixMode(GL_MODELVIEW);
 }
 
-void Application::display()
+void Application::Display()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -33,32 +33,33 @@ void Application::display()
     glEnd();
 }
 
-const char* Application::getTitle()
+const char* Application::GetTitle()
 {
     return "Cyclone Demo";
 }
 
 
-void Application::update()
+void Application::Update()
 {
     glutPostRedisplay();
 }
 
 
-void Application::resize(int width, int height)
+void Application::Resize(int width, int height)
 {
     // Avoid the divide by zero.
-    if (height <= 0) height = 1;
+    if (height <= 0) 
+		height = 1;
 
     // Set the internal variables and update the view
-    Application::width = width;
-    Application::height = height;
+    Width				= width;
+    Height				= height;
     glViewport(0, 0, width, height);
-    setView();
+    SetView();
 }
 
 // The following methods aren't intended to be overloaded
-void Application::renderText(float x, float y, const char *text, void *font)
+void Application::RenderText(float x, float y, const char *text, void *font)
 {
     glDisable(GL_DEPTH_TEST);
 
@@ -66,7 +67,7 @@ void Application::renderText(float x, float y, const char *text, void *font)
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-    glOrtho(0.0, (double)width, 0.0, (double)height, -1.0, 1.0);
+    glOrtho(0.0, (double)Width, 0.0, (double)Height, -1.0, 1.0);
 
     // Move to modelview mode.
     glMatrixMode(GL_MODELVIEW);
@@ -105,30 +106,30 @@ void Application::renderText(float x, float y, const char *text, void *font)
 
 MassAggregateApplication::MassAggregateApplication(unsigned int particleCount)
 :
-world(particleCount*10)
+World(particleCount*10)
 {
-    particleArray = new cyclone::Particle[particleCount];
+    ParticleArray = new cyclone::Particle[particleCount];
     for (unsigned i = 0; i < particleCount; i++)
     {
-        world.getParticles().push_back(particleArray + i);
+        World.getParticles().push_back(ParticleArray + i);
     }
 
-    groundContactGenerator.Init(&world.getParticles());
-    world.getContactGenerators().push_back(&groundContactGenerator);
+    GroundContactGenerator.Init(&World.getParticles());
+    World.getContactGenerators().push_back(&GroundContactGenerator);
 }
 
 MassAggregateApplication::~MassAggregateApplication()
 {
-    delete[] particleArray;
+    delete[] ParticleArray;
 }
 
-void MassAggregateApplication::initGraphics()
+void MassAggregateApplication::InitGraphics()
 {
     // Call the superclass
-    Application::initGraphics();
+    Application::InitGraphics();
 }
 
-void MassAggregateApplication::display()
+void MassAggregateApplication::Display()
 {
     // Clear the view port and set the camera direction
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -137,7 +138,7 @@ void MassAggregateApplication::display()
 
     glColor3f(0,0,0);
 
-    cyclone::ParticleWorld::TParticles &particles = world.getParticles();
+    cyclone::ParticleWorld::TParticles &particles = World.getParticles();
     for (cyclone::ParticleWorld::TParticles::iterator p = particles.begin();
         p != particles.end();
         p++)
@@ -151,35 +152,33 @@ void MassAggregateApplication::display()
     }
 }
 
-void MassAggregateApplication::update()
+void MassAggregateApplication::Update()
 {
     // Clear accumulators
-    world.startFrame();
+    World.startFrame();
 
     // Find the duration of the last frame in seconds
     float duration = (float)TimingData::get().lastFrameDuration * 0.001f;
     if (duration <= 0.0f) return;
 
     // Run the simulation
-    world.runPhysics(duration);
+    World.runPhysics(duration);
 
-    Application::update();
+    Application::Update();
 }
 
 RigidBodyApplication::RigidBodyApplication()
-:
-    theta(0.0f),
-    phi(15.0f),
-    resolver(maxContacts*8),
-
-    renderDebugInfo(false),
-    pauseSimulation(true),
-    autoPauseSimulation(false)
+	:	Theta				(0.0f)
+	,	Phi					(15.0f)
+	,	Resolver			(MaxContacts*8)
+	,	RenderDebugInfo		(false)
+	,	PauseSimulation		(true)
+	,	AutoPauseSimulation	(false)
 {
-    cData.contactArray = contacts;
+    CData.contactArray = Contacts;
 }
 
-void RigidBodyApplication::update()
+void RigidBodyApplication::Update()
 {
     // Find the duration of the last frame in seconds
     float duration = (float)TimingData::get().lastFrameDuration * 0.001f;
@@ -187,46 +186,46 @@ void RigidBodyApplication::update()
     else if (duration > 0.05f) duration = 0.05f;
 
     // Exit immediately if we aren't running the simulation
-    if (pauseSimulation)
+    if (PauseSimulation)
     {
-        Application::update();
+        Application::Update();
         return;
     }
-    else if (autoPauseSimulation)
+    else if (AutoPauseSimulation)
     {
-        pauseSimulation = true;
-        autoPauseSimulation = false;
+        PauseSimulation = true;
+        AutoPauseSimulation = false;
     }
 
     // Update the objects
-    updateObjects(duration);
+    UpdateObjects(duration);
 
     // Perform the contact generation
     GenerateContacts();
 
     // Resolve detected contacts
-    resolver.resolveContacts(
-        cData.contactArray,
-        cData.contactCount,
+    Resolver.resolveContacts(
+        CData.contactArray,
+        CData.contactCount,
         duration
         );
 
-    Application::update();
+    Application::Update();
 }
 
-void RigidBodyApplication::display()
+void RigidBodyApplication::Display()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
     gluLookAt(18.0f, 0, 0,  0, 0, 0,  0, 1.0f, 0);
-    glRotatef(-phi, 0, 0, 1);
-    glRotatef(theta, 0, 1, 0);
+    glRotatef(-Phi, 0, 0, 1);
+    glRotatef(Theta, 0, 1, 0);
     glTranslatef(0, -5.0f, 0);
 }
 
-void RigidBodyApplication::drawDebug()
+void RigidBodyApplication::DrawDebug()
 {
-    if (!renderDebugInfo) return;
+    if (!RenderDebugInfo) return;
 
     // Recalculate the contacts, so they are current (in case we're
     // paused, for example).
@@ -234,56 +233,56 @@ void RigidBodyApplication::drawDebug()
 
     // Render the contacts, if required
     glBegin(GL_LINES);
-    for (unsigned i = 0; i < cData.contactCount; i++)
+    for (unsigned i = 0; i < CData.contactCount; i++)
     {
         // Interbody contacts are in green, floor contacts are red.
-        if (contacts[i].body[1]) {
+        if (Contacts[i].body[1]) {
             glColor3f(0,1,0);
         } else {
             glColor3f(1,0,0);
         }
 
-        cyclone::Vector3 vec = contacts[i].contactPoint;
+        cyclone::Vector3 vec = Contacts[i].contactPoint;
         glVertex3f(vec.x, vec.y, vec.z);
 
-        vec += contacts[i].contactNormal;
+        vec += Contacts[i].contactNormal;
         glVertex3f(vec.x, vec.y, vec.z);
     }
 
     glEnd();
 }
 
-void RigidBodyApplication::mouse(int button, int state, int x, int y)
+void RigidBodyApplication::Mouse(int button, int state, int x, int y)
 {
     // Set the position
-    last_x = x;
-    last_y = y;
+    Last_x = x;
+    Last_y = y;
 }
 
-void RigidBodyApplication::mouseDrag(int x, int y)
+void RigidBodyApplication::MouseDrag(int x, int y)
 {
     // Update the camera
-    theta += (x - last_x)*0.25f;
-    phi += (y - last_y)*0.25f;
+    Theta	+= (x - Last_x)*0.25f;
+    Phi		+= (y - Last_y)*0.25f;
 
     // Keep it in bounds
-    if (phi < -20.0f) phi = -20.0f;
-    else if (phi > 80.0f) phi = 80.0f;
+		 if (Phi < -20.0f) Phi = -20.0f;
+    else if (Phi >  80.0f) Phi = 80.0f;
 
     // Remember the position
-    last_x = x;
-    last_y = y;
+    Last_x = x;
+    Last_y = y;
 }
 
-void RigidBodyApplication::key(unsigned char key) {
+void RigidBodyApplication::Key(unsigned char key) {
     switch(key) {
-    case 'R': case 'r': reset();							return; // Reset the simulation
-    case 'C': case 'c': renderDebugInfo = !renderDebugInfo;	return; // Toggle rendering of contacts
-    case 'P': case 'p': pauseSimulation = !pauseSimulation; return; // Toggle running the simulation
+    case 'R': case 'r': Reset();							return; // Reset the simulation
+    case 'C': case 'c': RenderDebugInfo = !RenderDebugInfo;	return; // Toggle rendering of contacts
+    case 'P': case 'p': PauseSimulation = !PauseSimulation; return; // Toggle running the simulation
     case ' ':	// Advance one frame
-        autoPauseSimulation = true;
-        pauseSimulation		= false;
+        AutoPauseSimulation = true;
+        PauseSimulation		= false;
     }
 
-    Application::key(key);
+    Application::Key(key);
 }

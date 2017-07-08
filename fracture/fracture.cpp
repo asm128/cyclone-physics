@@ -20,7 +20,7 @@ public:
 								Block							()						: exists	(false)				{ Body = &_blockBody; }
 	
 	// Draws the block.
-	void						render							()						{
+	void						Render							()						{
         // Get the OpenGL transformation
         GLfloat mat[16];
         Body->getGLTransform(mat);
@@ -95,13 +95,9 @@ public:
 
     }
 
-    /**
-     * Performs the division of the given block into four, writing the
-     * eight new blocks into the given blocks array. The blocks array can be
-     * a pointer to the same location as the target pointer: since the
-     * original block is always deleted, this effectively reuses its storage.
-     * The algorithm is structured to allow this reuse.
-     */
+	// Performs the division of the given block into four, writing the eight new blocks into the given blocks array. 
+	// The blocks array can be a pointer to the same location as the target pointer: since the original block is always deleted, this effectively reuses its storage.
+	// The algorithm is structured to allow this reuse.
     void divideBlock(const cyclone::Contact& contact,
         Block* target, Block* blocks)
     {
@@ -220,15 +216,15 @@ class FractureDemo : public RigidBodyApplication {
 	cyclone::CollisionSphere	ball;				// Holds the projectile. 
 
 	virtual void				GenerateContacts	();							// Processes the contact generation code. */
-	virtual void				updateObjects		(cyclone::real duration);	// Processes the objects in the simulation forward in time. */
-	virtual void				reset				();	// Resets the position of all the blocks. */
-	virtual void				update				();	// Processes the physics. */
+	virtual void				UpdateObjects		(cyclone::real duration);	// Processes the objects in the simulation forward in time. */
+	virtual void				Reset				();	// Resets the position of all the blocks. */
+	virtual void				Update				();	// Processes the physics. */
 
 public:
 								FractureDemo		();	// Creates a new demo object. */
 
-	virtual const char*			getTitle			();	// Returns the window title for the demo. */
-	virtual void				display				();	// Display the particle positions. */
+	virtual const char*			GetTitle			();	// Returns the window title for the demo. */
+	virtual void				Display				();	// Display the particle positions. */
 };
 
 // Method definitions
@@ -249,10 +245,10 @@ FractureDemo::FractureDemo()
     ball.Body->setAwake(true);
 
     // Set up the initial block
-    reset();
+    Reset();
 }
 
-const char* FractureDemo::getTitle()
+const char* FractureDemo::GetTitle()
 {
     return "Cyclone > Fracture Demo";
 }
@@ -267,10 +263,10 @@ void FractureDemo::GenerateContacts()
     plane.offset = 0;
 
     // Set up the collision data structure
-    cData.reset(maxContacts);
-    cData.friction = (cyclone::real)0.9;
-    cData.restitution = (cyclone::real)0.2;
-    cData.tolerance = (cyclone::real)0.1;
+    CData.reset(MaxContacts);
+    CData.friction = (cyclone::real)0.9;
+    CData.restitution = (cyclone::real)0.2;
+    CData.tolerance = (cyclone::real)0.1;
 
     // Perform collision detection
     cyclone::Matrix4 transform, otherTransform;
@@ -280,17 +276,17 @@ void FractureDemo::GenerateContacts()
         if (!block->exists) continue;
 
         // Check for collisions with the ground plane
-        if (!cData.hasMoreContacts()) return;
-        cyclone::CollisionDetector::boxAndHalfSpace(*block, plane, &cData);
+        if (!CData.hasMoreContacts()) return;
+        cyclone::CollisionDetector::boxAndHalfSpace(*block, plane, &CData);
 
         if (ball_active)
         {
             // And with the sphere
-            if (!cData.hasMoreContacts()) return;
-            if (cyclone::CollisionDetector::boxAndSphere(*block, ball, &cData))
+            if (!CData.hasMoreContacts()) return;
+            if (cyclone::CollisionDetector::boxAndSphere(*block, ball, &CData))
             {
                 hit = true;
-                fracture_contact = cData.contactCount-1;
+                fracture_contact = CData.contactCount-1;
             }
         }
 
@@ -299,20 +295,20 @@ void FractureDemo::GenerateContacts()
         {
             if (!other->exists) continue;
 
-            if (!cData.hasMoreContacts()) return;
-            cyclone::CollisionDetector::boxAndBox(*block, *other, &cData);
+            if (!CData.hasMoreContacts()) return;
+            cyclone::CollisionDetector::boxAndBox(*block, *other, &CData);
         }
     }
 
     // Check for sphere ground collisions
     if (ball_active)
     {
-        if (!cData.hasMoreContacts()) return;
-        cyclone::CollisionDetector::sphereAndHalfSpace(ball, plane, &cData);
+        if (!CData.hasMoreContacts()) return;
+        cyclone::CollisionDetector::sphereAndHalfSpace(ball, plane, &CData);
     }
 }
 
-void FractureDemo::reset()
+void FractureDemo::Reset()
 {
     // Only the first block exists
     blocks[0].exists = true;
@@ -358,18 +354,18 @@ void FractureDemo::reset()
     hit = false;
 
     // Reset the contacts
-    cData.contactCount = 0;
+    CData.contactCount = 0;
 }
 
-void FractureDemo::update()
+void FractureDemo::Update()
 {
-    RigidBodyApplication::update();
+    RigidBodyApplication::Update();
 
     // Handle fractures.
     if (hit)
     {
         blocks[0].divideBlock(
-            cData.contactArray[fracture_contact],
+            CData.contactArray[fracture_contact],
             blocks,
             blocks+1
             );
@@ -377,7 +373,7 @@ void FractureDemo::update()
     }
 }
 
-void FractureDemo::updateObjects(cyclone::real duration)
+void FractureDemo::UpdateObjects(cyclone::real duration)
 {
     for (Block *block = blocks; block < blocks+MAX_BLOCKS; block++)
     {
@@ -395,11 +391,11 @@ void FractureDemo::updateObjects(cyclone::real duration)
     }
 }
 
-void FractureDemo::display()
+void FractureDemo::Display()
 {
     const static GLfloat lightPosition[] = {0.7f,1,0.4f,0};
 
-    RigidBodyApplication::display();
+    RigidBodyApplication::Display();
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_LIGHTING);
@@ -412,7 +408,7 @@ void FractureDemo::display()
     glEnable(GL_NORMALIZE);
     for (Block *block = blocks; block < blocks+MAX_BLOCKS; block++)
     {
-        if (block->exists) block->render();
+        if (block->exists) block->Render();
     }
     glDisable(GL_NORMALIZE);
 
@@ -448,7 +444,7 @@ void FractureDemo::display()
     glVertex3f(0,0,20);
     glEnd();
 
-    RigidBodyApplication::drawDebug();
+    RigidBodyApplication::DrawDebug();
 }
 
 // Called by the common demo framework to create an application object (with new) and return a pointer.

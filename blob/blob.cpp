@@ -1,15 +1,5 @@
-/*
- * The Blob demo.
- *
- * Part of the Cyclone physics system.
- *
- * Copyright (c) Icosagon 2003. All Rights Reserved.
- *
- * This software is distributed under licence. Use of this software
- * implies agreement with all terms and conditions of the accompanying
- * software licence.
- */
-
+// Copyright (c) Icosagon 2003. Published by Ian Millington under the MIT License for his book "Game Physics Engine Development" or something like that (a really good book that I actually bought in paperback after reading it).
+// Heavily modified by asm128 in order to make this code readable and free of potential bugs and inconsistencies and a large set of sources of problems and improductivity originally introduced thanks to poor advice, bad practices and OOP vices.
 #include "cyclone.h"
 #include "ogl_headers.h"
 #include "app.h"
@@ -23,25 +13,15 @@
 #define BLOB_RADIUS 0.4f
 
 
-/**
- * Platforms are two dimensional: lines on which the
- * particles can rest. Platforms are also contact generators for the physics.
- */
+// Platforms are two dimensional: lines on which the particles can rest. Platforms are also contact generators for the physics.
 class Platform : public cyclone::ParticleContactGenerator
 {
 public:
-    cyclone::Vector3 start;
-    cyclone::Vector3 end;
+    cyclone::Vector3		start				= {};
+    cyclone::Vector3		end					= {};
+    cyclone::Particle		* particles			= 0;	// Holds a pointer to the particles we're checking for collisions with.
 
-    /**
-     * Holds a pointer to the particles we're checking for collisions with.
-     */
-    cyclone::Particle *particles;
-
-    virtual unsigned AddContact(
-        cyclone::ParticleContact *contact,
-        unsigned limit
-        ) const;
+    virtual unsigned		AddContact			(cyclone::ParticleContact *contact, uint32_t limit) const;
 };
 
 unsigned Platform::AddContact(cyclone::ParticleContact *contact,
@@ -119,54 +99,19 @@ unsigned Platform::AddContact(cyclone::ParticleContact *contact,
     return used;
 }
 
-/**
- * A force generator for proximal attraction.
- */
-class BlobForceGenerator : public cyclone::ParticleForceGenerator
-{
+// A force generator for proximal attraction.
+class BlobForceGenerator : public cyclone::ParticleForceGenerator {
 public:
-    /**
-    * Holds a pointer to the particles we might be attracting.
-    */
-    cyclone::Particle *particles;
+	cyclone::Particle					* particles				= 0; // Holds a pointer to the particles we might be attracting.
+	cyclone::real						maxReplusion			= 0; // The maximum force used to push the particles apart.
+	cyclone::real						maxAttraction			= 0; // The maximum force used to pull particles together.
+	cyclone::real						minNaturalDistance		= 0; // The separation between particles where there is no force.
+	cyclone::real						maxNaturalDistance		= 0; // The separation between particles where there is no force.
+	cyclone::real						floatHead				= 0; // The force with which to float the head particle, if it is joined to others.
+	uint32_t							maxFloat				= 0; // The maximum number of particles in the blob before the head is floated at maximum force.
+	cyclone::real						maxDistance				= 0; // The separation between particles after which they 'break' apart and there is no force.
 
-    /**
-     * The maximum force used to push the particles apart.
-     */
-    cyclone::real maxReplusion;
-
-    /**
-     * The maximum force used to pull particles together.
-     */
-    cyclone::real maxAttraction;
-
-    /**
-     * The separation between particles where there is no force.
-     */
-    cyclone::real minNaturalDistance, maxNaturalDistance;
-
-    /**
-     * The force with which to float the head particle, if it is
-     * joined to others.
-     */
-    cyclone::real floatHead;
-
-    /**
-     * The maximum number of particles in the blob before the head
-     * is floated at maximum force.
-     */
-    unsigned maxFloat;
-
-    /**
-     * The separation between particles after which they 'break' apart and
-     * there is no force.
-     */
-    cyclone::real maxDistance;
-
-    virtual void updateForce(
-        cyclone::Particle *particle,
-        cyclone::real duration
-        );
+	virtual void						updateForce				(cyclone::Particle *particle, cyclone::real duration);
 };
 
 void BlobForceGenerator::updateForce(cyclone::Particle *particle,
@@ -179,8 +124,7 @@ void BlobForceGenerator::updateForce(cyclone::Particle *particle,
         if (particles + i == particle) continue;
 
         // Work out the separation distance
-        cyclone::Vector3 separation =
-            particles[i].Position - particle->Position;
+        cyclone::Vector3 separation = particles[i].Position - particle->Position;
         separation.z = 0.0f;
         cyclone::real distance = separation.magnitude();
 
@@ -188,27 +132,22 @@ void BlobForceGenerator::updateForce(cyclone::Particle *particle,
         {
             // Use a repulsion force.
             distance = 1.0f - distance / minNaturalDistance;
-            particle->addForce(
-                separation.unit() * (1.0f - distance) * maxReplusion * -1.0f
-                );
+            particle->addForce(separation.unit() * (1.0f - distance) * maxReplusion * -1.0f);
             joinCount++;
         }
         else if (distance > maxNaturalDistance && distance < maxDistance)
         {
             // Use an attraction force.
             distance =
-                (distance - maxNaturalDistance) /
+				(distance - maxNaturalDistance) /
                 (maxDistance - maxNaturalDistance);
-            particle->addForce(
-                separation.unit() * distance * maxAttraction
-                );
+            particle->addForce(separation.unit() * distance * maxAttraction);
             joinCount++;
         }
     }
 
     // If the particle is the head, and we've got a join count, then float it.
-    if (particle == particles && joinCount > 0 && maxFloat > 0)
-    {
+    if (particle == particles && joinCount > 0 && maxFloat > 0) {
         cyclone::real force = cyclone::real(joinCount / maxFloat) * floatHead;
         if (force > floatHead) force = floatHead;
         particle->addForce(cyclone::Vector3(0, force, 0));
@@ -216,51 +155,32 @@ void BlobForceGenerator::updateForce(cyclone::Particle *particle,
 
 }
 
-/**
- * The main demo class definition.
- */
-class BlobDemo : public Application
-{
-    cyclone::Particle *blobs;
-
-    Platform *platforms;
-
-    cyclone::ParticleWorld world;
-
-    BlobForceGenerator blobForceGenerator;
-
-    /* The control for the x-axis. */
-    float xAxis;
-
-    /* The control for the y-axis. */
-    float yAxis;
-
-    void reset();
-
+// The main demo class definition.
+class BlobDemo : public Application {
+	cyclone::Particle				* blobs				= 0;
+	Platform						* platforms			= 0;
+	cyclone::ParticleWorld			world				;
+	BlobForceGenerator				blobForceGenerator	;
+	float							xAxis				;						// The control for the x-axis.
+	float							yAxis				;						// The control for the y-axis.
+	
+	void							Reset				();
 public:
-    /** Creates a new demo object. */
-    BlobDemo();
-    virtual ~BlobDemo();
+	virtual							~BlobDemo			();
+									BlobDemo			();						// Creates a new demo object.
 
-    /** Returns the window title for the demo. */
-    virtual const char* getTitle();
-
-    /** Display the particles. */
-    virtual void display();
-
-    /** Update the particle positions. */
-    virtual void update();
-
-    /** Handle a key press. */
-    virtual void key(unsigned char key);
+	virtual const char*				GetTitle			();						// Returns the window title for the demo. 
+	virtual void					Display				();						// Display the particles. 
+	virtual void					Update				();						// Update the particle positions. 
+	virtual void					Key					(unsigned char key);	// Handle a key press. 
 
 };
 
 // Method definitions
 BlobDemo::BlobDemo()
-:
-xAxis(0), yAxis(0),
-world(PLATFORM_COUNT+BLOB_COUNT, PLATFORM_COUNT)
+	: xAxis(0)
+	, yAxis(0)
+	, world(PLATFORM_COUNT+BLOB_COUNT, PLATFORM_COUNT)
 {
     // Create the blob storage
     blobs = new cyclone::Particle[BLOB_COUNT];
@@ -320,7 +240,7 @@ world(PLATFORM_COUNT+BLOB_COUNT, PLATFORM_COUNT)
     }
 }
 
-void BlobDemo::reset()
+void BlobDemo::Reset()
 {
     cyclone::Random r;
     Platform *p = platforms + (PLATFORM_COUNT-2);
@@ -337,10 +257,11 @@ void BlobDemo::reset()
 
 BlobDemo::~BlobDemo()
 {
-    delete blobs;
+    if(blobs)	
+		delete blobs;
 }
 
-void BlobDemo::display()
+void BlobDemo::Display()
 {
     cyclone::Vector3 pos = blobs[0].Position;
 
@@ -393,68 +314,50 @@ void BlobDemo::display()
     glPopMatrix();
 }
 
-void BlobDemo::update()
+void BlobDemo::Update()
 {
-    // Clear accumulators
-    world.startFrame();
+	world.startFrame();	// Clear accumulators
 
-    // Find the duration of the last frame in seconds
-    float duration = (float)TimingData::get().lastFrameDuration * 0.001f;
-    if (duration <= 0.0f) return;
-
-    // Recenter the axes
-    xAxis *= pow(0.1f, duration);
-    yAxis *= pow(0.1f, duration);
-
-    // Move the controlled blob
-    blobs[0].addForce(cyclone::Vector3(xAxis, yAxis, 0)*10.0f);
-
-    // Run the simulation
-    world.runPhysics(duration);
-
-    // Bring all the particles back to 2d
-    cyclone::Vector3 position;
-    for (unsigned i = 0; i < BLOB_COUNT; i++)
-    {
-        position = blobs[i].Position;
-        position.z = 0.0f;
-        blobs[i].Position = position;
-    }
-
-    Application::update();
+	// Find the duration of the last frame in seconds
+	float duration = (float)TimingData::get().lastFrameDuration * 0.001f;
+	if (duration <= 0.0f) 
+		return;
+	
+	// Recenter the axes
+	xAxis *= pow(0.1f, duration);
+	yAxis *= pow(0.1f, duration);
+	
+	blobs[0].addForce(cyclone::Vector3(xAxis, yAxis, 0)*10.0f);	// Move the controlled blob
+	world.runPhysics(duration);	// Run the simulation
+	
+	// Bring all the particles back to 2d
+	cyclone::Vector3 position;
+	for (unsigned i = 0; i < BLOB_COUNT; i++)
+	{
+		position = blobs[i].Position;
+		position.z = 0.0f;
+		blobs[i].Position = position;
+	}
+	
+	Application::Update();
 }
 
-const char* BlobDemo::getTitle()
+const char* BlobDemo::GetTitle()
 {
     return "Cyclone > Blob Demo";
 }
 
-void BlobDemo::key(unsigned char key)
-{
-    switch(key)
-    {
-    case 'w': case 'W':
-        yAxis = 1.0;
-        break;
-    case 's': case 'S':
-        yAxis = -1.0;
-        break;
-    case 'a': case 'A':
-        xAxis = -1.0f;
-        break;
-    case 'd': case 'D':
-        xAxis = 1.0f;
-        break;
-    case 'r': case 'R':
-        reset();
-        break;
+void BlobDemo::Key(unsigned char key) {
+    switch(key) {
+    case 'w': case 'W': yAxis =  1.0;	break;
+    case 's': case 'S': yAxis = -1.0;	break;
+    case 'a': case 'A': xAxis = -1.0;	break;
+    case 'd': case 'D': xAxis =  1.0;	break;
+    case 'r': case 'R': Reset();		break;
     }
 }
 
-/**
- * Called by the common demo framework to create an application
- * object (with new) and return a pointer.
- */
+// Called by the common demo framework to create an application object (with new) and return a pointer.
 Application* getApplication()
 {
     return new BlobDemo();

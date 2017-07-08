@@ -42,13 +42,9 @@ void createWindow(const char* title)
  * Called each frame to update the 3D scene. Delegates to
  * the application.
  */
-void update()
-{
-    // Update the timing.
-    TimingData::get().update();
-
-    // Delegate to the application.
-    app->update();
+void update() {
+    TimingData::get().update();	// Update the timing.
+    app->Update();				// Delegate to the application.
 }
 
 /**
@@ -57,7 +53,7 @@ void update()
  */
 void display()
 {
-    app->display();
+    app->Display();
 
     // Update the displayed content.
     glFlush();
@@ -70,7 +66,7 @@ void display()
  */
 void mouse(int button, int state, int x, int y)
 {
-    app->mouse(button, state, x, y);
+    app->Mouse(button, state, x, y);
 }
 
 /**
@@ -78,7 +74,7 @@ void mouse(int button, int state, int x, int y)
  */
 void reshape(int width, int height)
 {
-    app->resize(width, height);
+    app->Resize(width, height);
 }
 
 /**
@@ -87,7 +83,7 @@ void reshape(int width, int height)
 void keyboard(unsigned char key, int x, int y)
 {
     // Note we omit passing on the x and y: they are rarely needed.
-    app->key(key);
+    app->Key(key);
 }
 
 /**
@@ -95,7 +91,7 @@ void keyboard(unsigned char key, int x, int y)
  */
 void motion(int x, int y)
 {
-    app->mouseDrag(x, y);
+    app->MouseDrag(x, y);
 }
 
 /**
@@ -109,7 +105,7 @@ int main(int argc, char** argv)
 
     // Create the application and its window
     app = getApplication();
-    createWindow(app->getTitle());
+    createWindow(app->GetTitle());
 
     // Set up the appropriate handler functions
     glutReshapeFunc(reshape);
@@ -120,11 +116,11 @@ int main(int argc, char** argv)
     glutMotionFunc(motion);
 
     // Run the application
-    app->initGraphics();
+    app->InitGraphics();
     glutMainLoop();
 
     // Clean up the application
-    app->deinit();
+    app->Deinit();
     delete app;
     TimingData::deinit();
 }

@@ -9,105 +9,53 @@
 
 static cyclone::Random crandom;
 
-/**
- * Fireworks are particles, with additional data for rendering and
- * evolution.
- */
-class Firework : public cyclone::Particle
-{
+// Fireworks are particles, with additional data for rendering and evolution.
+class Firework : public cyclone::Particle {
 public:
-    /** Fireworks have an integer type, used for firework rules. */
-    unsigned type;
-
-    /**
-     * The age of a firework determines when it detonates. Age gradually
-     * decreases, when it passes zero the firework delivers its payload.
-     * Think of age as fuse-left.
-     */
-    cyclone::real age;
-
-    /**
-     * Updates the firework by the given duration of time. Returns true
-     * if the firework has reached the end of its life and needs to be
-     * removed.
-     */
-    bool update(cyclone::real duration)
-    {
-        // Update our physical state
-        integrate(duration);
-
-        // We work backwards from our age to zero.
-        age -= duration;
-        return (age < 0) || (Position.y < 0);
-    }
+	uint32_t					type;	// Fireworks have an integer type, used for firework rules. 
+	cyclone::real				age;	// The age of a firework determines when it detonates. Age gradually decreases, when it passes zero the firework delivers its payload. Think of age as fuse-left.
+	
+	// Updates the firework by the given duration of time. Returns true if the firework has reached the end of its life and needs to be removed.
+	bool						Update							(cyclone::real duration)	{
+		integrate(duration);	// Update our physical state
+		age							-= duration;	// We work backwards from our age to zero.
+		return (age < 0) || (Position.y < 0);
+	}
 };
 
-/**
- * Firework rules control the length of a firework's fuse and the
- * particles it should evolve into.
- */
-struct FireworkRule
-{
-    /** The type of firework that is managed by this rule. */
-    unsigned type;
+// Firework rules control the length of a firework's fuse and the
+// particles it should evolve into.
+struct FireworkRule {
+    uint32_t					type;			// The type of firework that is managed by this rule. 
+    cyclone::real				minAge;			// The minimum length of the fuse. 
+    cyclone::real				maxAge;			// The maximum legnth of the fuse. 
+    cyclone::Vector3			minVelocity;	// The minimum relative velocity of this firework. 
+    cyclone::Vector3			maxVelocity;	// The maximum relative velocity of this firework. 
+    cyclone::real				damping;		// The damping of this firework type. 
 
-    /** The minimum length of the fuse. */
-    cyclone::real minAge;
+    // The payload is the new firework type to create when this firework's fuse is over.
+    struct Payload {
+		uint32_t					type;	// The type of the new particle to create. 
+		uint32_t					count;	// The number of particles in this payload.
+		
+		// Sets the payload properties in one go.
+		void						set					(unsigned type, unsigned count)		{
+			Payload::type				= type;
+			Payload::count				= count;
+		}
+	};
 
-    /** The maximum legnth of the fuse. */
-    cyclone::real maxAge;
+	uint32_t					payloadCount			= {};	// The number of payloads for this firework type.
+	Payload						* payloads				= 0;	// The set of payloads. 
 
-    /** The minimum relative velocity of this firework. */
-    cyclone::Vector3 minVelocity;
-
-    /** The maximum relative velocity of this firework. */
-    cyclone::Vector3 maxVelocity;
-
-    /** The damping of this firework type. */
-    cyclone::real damping;
-
-    /**
-     * The payload is the new firework type to create when this
-     * firework's fuse is over.
-     */
-    struct Payload
-    {
-        /** The type of the new particle to create. */
-        unsigned type;
-
-        /** The number of particles in this payload. */
-        unsigned count;
-
-        /** Sets the payload properties in one go. */
-        void set(unsigned type, unsigned count)
-        {
-            Payload::type = type;
-            Payload::count = count;
-        }
-    };
-
-    /** The number of payloads for this firework type. */
-    unsigned payloadCount;
-
-    /** The set of payloads. */
-    Payload *payloads;
-
-    FireworkRule()
-    :
-    payloadCount(0),
-    payloads(NULL)
-    {
-    }
-
-    void init(unsigned payloadCount)
-    {
-        FireworkRule::payloadCount = payloadCount;
-        payloads = new Payload[payloadCount];
-    }
-
-    ~FireworkRule()
-    {
-        if (payloads != NULL) delete[] payloads;
+	void						init					(unsigned payloadCount)				{
+		FireworkRule::payloadCount	= payloadCount;
+		payloads					= new Payload[payloadCount];
+	}
+	
+								~FireworkRule			()									{
+		if (payloads) 
+			delete[] payloads;
     }
 
     /**
@@ -168,59 +116,30 @@ struct FireworkRule
 /**
  * The main demo class definition.
  */
-class FireworksDemo : public Application
-{
-    /**
-     * Holds the maximum number of fireworks that can be in use.
-     */
-    const static unsigned maxFireworks = 1024;
+class FireworksDemo : public Application {
+	static const uint32_t	maxFireworks					= 1024;														// Holds the maximum number of fireworks that can be in use.
+	static const uint32_t	ruleCount						= 9;														// And the number of rules.
+	Firework				fireworks		[maxFireworks];																// Holds the firework data.
+	unsigned				nextFirework;																				// Holds the index of the next firework slot to use.
+	FireworkRule			rules			[ruleCount];																// Holds the set of rules.
 
-    /** Holds the firework data. */
-    Firework fireworks[maxFireworks];
-
-    /** Holds the index of the next firework slot to use. */
-    unsigned nextFirework;
-
-    /** And the number of rules. */
-    const static unsigned ruleCount = 9;
-
-    /** Holds the set of rules. */
-    FireworkRule rules[ruleCount];
-
-    /** Dispatches a firework from the origin. */
-    void create(unsigned type, const Firework *parent=NULL);
-
-    /** Dispatches the given number of fireworks from the given parent. */
-    void create(unsigned type, unsigned number, const Firework *parent);
-
-    /** Creates the rules. */
-    void initFireworkRules();
+	void					Create							(unsigned type, const Firework *parent=NULL);				// Dispatches a firework from the origin.
+	void					Create							(unsigned type, unsigned number, const Firework *parent);	// Dispatches the given number of fireworks from the given parent.
+	void					InitFireworkRules				();															// Creates the rules.
 
 public:
-    /** Creates a new demo object. */
-    FireworksDemo();
-    ~FireworksDemo();
+							FireworksDemo					();
 
-    /** Sets up the graphic rendering. */
-    virtual void initGraphics();
-
-    /** Returns the window title for the demo. */
-    virtual const char* getTitle();
-
-    /** Update the particle positions. */
-    virtual void update();
-
-    /** Display the particle positions. */
-    virtual void display();
-
-    /** Handle a keypress. */
-    virtual void key(unsigned char key);
+	virtual void			InitGraphics					();															// Sets up the graphic rendering. 
+	virtual const char*		GetTitle						();															// Returns the window title for the demo. 
+	virtual void			Update							();															// Update the particle positions. 
+	virtual void			Display							();															// Display the particle positions.
+	virtual void			Key								(unsigned char key);										// Handle a keypress.
 };
 
 // Method definitions
 FireworksDemo::FireworksDemo()
-:
-nextFirework(0)
+: nextFirework(0)
 {
     // Make all shots unused
     for (Firework *firework = fireworks;
@@ -231,14 +150,9 @@ nextFirework(0)
     }
 
     // Create the firework types
-    initFireworkRules();
+    InitFireworkRules();
 }
-
-FireworksDemo::~FireworksDemo()
-{
-}
-
-void FireworksDemo::initFireworkRules()
+void FireworksDemo::InitFireworkRules()
 {
     // Go through the firework types and create their rules.
     rules[0].init(2);
@@ -329,41 +243,34 @@ void FireworksDemo::initFireworkRules()
     // ... and so on for other firework types ...
 }
 
-void FireworksDemo::initGraphics()
+void FireworksDemo::InitGraphics()
 {
     // Call the superclass
-    Application::initGraphics();
+    Application::InitGraphics();
 
     // But override the clear color
     glClearColor(0.0f, 0.0f, 0.1f, 1.0f);
 }
 
-const char* FireworksDemo::getTitle()
+const char* FireworksDemo::GetTitle()
 {
     return "Cyclone > Fireworks Demo";
 }
 
-void FireworksDemo::create(unsigned type, const Firework *parent)
+void FireworksDemo::Create(unsigned type, const Firework *parent)
 {
-    // Get the rule needed to create this firework
-    FireworkRule *rule = rules + (type - 1);
-
-    // Create the firework
-    rule->create(fireworks+nextFirework, parent);
-
-    // Increment the index for the next firework
-    nextFirework = (nextFirework + 1) % maxFireworks;
+    FireworkRule *rule = rules + (type - 1);	// Get the rule needed to create this firework
+    rule->create(fireworks+nextFirework, parent);	// Create the firework
+    nextFirework = (nextFirework + 1) % maxFireworks;	// Increment the index for the next firework
 }
 
-void FireworksDemo::create(unsigned type, unsigned number, const Firework *parent)
+void FireworksDemo::Create(unsigned type, unsigned number, const Firework *parent)
 {
     for (unsigned i = 0; i < number; i++)
-    {
-        create(type, parent);
-    }
+        Create(type, parent);
 }
 
-void FireworksDemo::update()
+void FireworksDemo::Update()
 {
     // Find the duration of the last frame in seconds
     float duration = (float)TimingData::get().lastFrameDuration * 0.001f;
@@ -373,35 +280,27 @@ void FireworksDemo::update()
          firework < fireworks+maxFireworks;
          firework++)
     {
-        // Check if we need to process this firework.
-        if (firework->type > 0)
-        {
-            // Does it need removing?
-            if (firework->update(duration))
-            {
-                // Find the appropriate rule
-                FireworkRule *rule = rules + (firework->type-1);
+        
+        if (firework->type > 0)	{	// Check if we need to process this firework.
+            if (firework->Update(duration))	{	// Does it need removing?
+                FireworkRule *rule = rules + (firework->type-1);	// Find the appropriate rule
 
-                // Delete the current firework (this doesn't affect its
-                // position and velocity for passing to the create function,
-                // just whether or not it is processed for rendering or
-                // physics.
+                // Delete the current firework (this doesn't affect its position and velocity for passing to the create function, just whether or not it is processed for rendering or physics.
                 firework->type = 0;
 
                 // Add the payload
-                for (unsigned i = 0; i < rule->payloadCount; i++)
-                {
+                for (unsigned i = 0; i < rule->payloadCount; i++) {
                     FireworkRule::Payload * payload = rule->payloads + i;
-                    create(payload->type, payload->count, firework);
+                    Create(payload->type, payload->count, firework);
                 }
             }
         }
     }
 
-    Application::update();
+    Application::Update();
 }
 
-void FireworksDemo::display()
+void FireworksDemo::Display()
 {
     const static cyclone::real size = 0.1f;
 
@@ -417,19 +316,17 @@ void FireworksDemo::display()
         firework++)
     {
         // Check if we need to process this firework.
-        if (firework->type > 0)
-        {
-            switch (firework->type)
-            {
-            case 1: glColor3f(1,0,0); break;
-            case 2: glColor3f(1,0.5f,0); break;
-            case 3: glColor3f(1,1,0); break;
-            case 4: glColor3f(0,1,0); break;
-            case 5: glColor3f(0,1,1); break;
-            case 6: glColor3f(0.4f,0.4f,1); break;
-            case 7: glColor3f(1,0,1); break;
-            case 8: glColor3f(1,1,1); break;
-            case 9: glColor3f(1,0.5f,0.5f); break;
+        if (firework->type > 0) {
+            switch (firework->type) {
+            case 1: glColor3f(1,0,0);			break;
+            case 2: glColor3f(1,0.5f,0);		break;
+            case 3: glColor3f(1,1,0);			break;
+            case 4: glColor3f(0,1,0);			break;
+            case 5: glColor3f(0,1,1);			break;
+            case 6: glColor3f(0.4f,0.4f,1);		break;
+            case 7: glColor3f(1,0,1);			break;
+            case 8: glColor3f(1,1,1);			break;
+            case 9: glColor3f(1,0.5f,0.5f);		break;
             };
 
             const cyclone::Vector3 &pos = firework->Position;
@@ -448,26 +345,23 @@ void FireworksDemo::display()
     glEnd();
 }
 
-void FireworksDemo::key(unsigned char key)
+void FireworksDemo::Key(unsigned char key)
 {
-    switch (key)
-    {
-    case '1': create(1, 1, NULL); break;
-    case '2': create(2, 1, NULL); break;
-    case '3': create(3, 1, NULL); break;
-    case '4': create(4, 1, NULL); break;
-    case '5': create(5, 1, NULL); break;
-    case '6': create(6, 1, NULL); break;
-    case '7': create(7, 1, NULL); break;
-    case '8': create(8, 1, NULL); break;
-    case '9': create(9, 1, NULL); break;
+    switch (key) {
+    case '1': Create(1, 1, NULL); break;
+    case '2': Create(2, 1, NULL); break;
+    case '3': Create(3, 1, NULL); break;
+    case '4': Create(4, 1, NULL); break;
+    case '5': Create(5, 1, NULL); break;
+    case '6': Create(6, 1, NULL); break;
+    case '7': Create(7, 1, NULL); break;
+    case '8': Create(8, 1, NULL); break;
+    case '9': Create(9, 1, NULL); break;
     }
 }
 
-/**
- * Called by the common demo framework to create an application
- * object (with new) and return a pointer.
- */
+
+// Called by the common demo framework to create an application object (with new) and return a pointer.
 Application* getApplication()
 {
     return new FireworksDemo();

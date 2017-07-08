@@ -1,15 +1,5 @@
-/*
- * The bridge demo.
- *
- * Part of the Cyclone physics system.
- *
- * Copyright (c) Icosagon 2003. All Rights Reserved.
- *
- * This software is distributed under licence. Use of this software
- * implies agreement with all terms and conditions of the accompanying
- * software licence.
- */
-
+// Copyright (c) Icosagon 2003. Published by Ian Millington under the MIT License for his book "Game Physics Engine Development" or something like that (a really good book that I actually bought in paperback after reading it).
+// Heavily modified by asm128 in order to make this code readable and free of potential bugs and inconsistencies and a large set of sources of problems and improductivity originally introduced thanks to poor advice, bad practices and OOP vices.
 #include "cyclone.h"
 #include "ogl_headers.h"
 #include "app.h"
@@ -25,78 +15,59 @@
 #define BASE_MASS 1
 #define EXTRA_MASS 10
 
-/**
- * The main demo class definition.
- */
-class BridgeDemo : public MassAggregateApplication
-{
-    cyclone::ParticleCableConstraint *supports;
-    cyclone::ParticleCable *cables;
-    cyclone::ParticleRod *rods;
+// The main demo class definition.
+class BridgeDemo : public MassAggregateApplication {
+	::cyclone::ParticleCableConstraint	* supports					= 0;
+	::cyclone::ParticleCable			* cables					= 0;
+	::cyclone::ParticleRod				* rods						= 0;
+	
+	::cyclone::Vector3					MassPos						= {0, 0, 0.5f};
+	::cyclone::Vector3					MassDisplayPos				= {};
 
-    cyclone::Vector3 massPos;
-    cyclone::Vector3 massDisplayPos;
-
-    /**
-     * Updates particle masses to take into account the mass
-     * that's crossing the bridge.
-     */
-    void updateAdditionalMass();
+	void								UpdateAdditionalMass		();	// Updates particle masses to take into account the mass that's crossing the bridge.
 
 public:
-    /** Creates a new demo object. */
-    BridgeDemo();
-    virtual ~BridgeDemo();
+	virtual								~BridgeDemo					();
+										BridgeDemo					();
 
-    /** Returns the window title for the demo. */
-    virtual const char* getTitle();
-
-    /** Display the particles. */
-    virtual void display();
-
-    /** Update the particle positions. */
-    virtual void update();
-
-    /** Handle a key press. */
-    virtual void key(unsigned char key);
+	virtual const char*					GetTitle					();	// Returns the window title for the demo.
+	virtual void						Display						();	// Display the particles.
+	virtual void						Update						();	// Update the particle positions.
+	virtual void						Key							(unsigned char key);	// Handle a key press.
 };
 
 // Method definitions
-BridgeDemo::BridgeDemo()
-:
-MassAggregateApplication(12), cables(0), supports(0), rods(0),
-massPos(0,0,0.5f)
-{
+BridgeDemo::BridgeDemo() : MassAggregateApplication(12) {
     // Create the masses and connections.
     for (unsigned i = 0; i < 12; i++)
     {
         unsigned x = (i%12)/2;
-        particleArray[i].Position = {
+        ParticleArray[i].Position = {
             cyclone::real(i/2)*2.0f-5.0f,
             4,
             cyclone::real(i%2)*2.0f-1.0f
 		};
-		particleArray[i].Velocity		= {};
-        particleArray[i].Damping		= 0.9f;
-        particleArray[i].Acceleration	= cyclone::Vector3::GRAVITY;
-        particleArray[i].clearAccumulator();
+		ParticleArray[i].Velocity		= {};
+        ParticleArray[i].Damping		= 0.9f;
+        ParticleArray[i].Acceleration	= cyclone::Vector3::GRAVITY;
+        ParticleArray[i].clearAccumulator();
     }
 
     // Add the links
     cables = new cyclone::ParticleCable[CABLE_COUNT];
     for (unsigned i = 0; i < 10; i++)
     {
-        cables[i].particle[0] = &particleArray[i];
-        cables[i].particle[1] = &particleArray[i+2];
+        cables[i].particle[0] = &ParticleArray[i];
+        cables[i].particle[1] = &ParticleArray[i+2];
         cables[i].maxLength = 1.9f;
         cables[i].restitution = 0.3f;
-        world.getContactGenerators().push_back(&cables[i]);
+        World.getContactGenerators().push_back(&cables[i]);
     }
 
     supports = new cyclone::ParticleCableConstraint[SUPPORT_COUNT];
     for (unsigned i = 0; i < SUPPORT_COUNT; i++)
     {
-        supports[i].particle = particleArray+i;
+        supports[i].particle = ParticleArray + i;
         supports[i].anchor = cyclone::Vector3(
             cyclone::real(i/2)*2.2f-5.5f,
             6,
@@ -105,38 +76,35 @@ massPos(0,0,0.5f)
         if (i < 6) supports[i].maxLength = cyclone::real(i/2)*0.5f + 3.0f;
         else supports[i].maxLength = 5.5f - cyclone::real(i/2)*0.5f;
         supports[i].restitution = 0.5f;
-        world.getContactGenerators().push_back(&supports[i]);
+        World.getContactGenerators().push_back(&supports[i]);
     }
 
     rods = new cyclone::ParticleRod[ROD_COUNT];
     for (unsigned i = 0; i < 6; i++)
     {
-        rods[i].particle[0] = &particleArray[i*2];
-        rods[i].particle[1] = &particleArray[i*2+1];
+        rods[i].particle[0] = &ParticleArray[i*2];
+        rods[i].particle[1] = &ParticleArray[i*2+1];
         rods[i].length = 2;
-        world.getContactGenerators().push_back(&rods[i]);
+        World.getContactGenerators().push_back(&rods[i]);
     }
 
-    updateAdditionalMass();
+    UpdateAdditionalMass();
 }
 
-BridgeDemo::~BridgeDemo()
-{
-    if (cables) delete[] cables;
-    if (rods) delete[] rods;
-    if (supports) delete[] supports;
+BridgeDemo::~BridgeDemo() {
+    if (cables)		delete[] cables;
+    if (rods)		delete[] rods;
+    if (supports)	delete[] supports;
 }
 
-void BridgeDemo::updateAdditionalMass()
+void BridgeDemo::UpdateAdditionalMass()
 {
     for (unsigned i = 0; i < 12; i++)
-    {
-        particleArray[i].setMass(BASE_MASS);
-    }
+        ParticleArray[i].setMass(BASE_MASS);
 
     // Find the coordinates of the mass as an index and proportion
-    int x = int(massPos.x);
-    cyclone::real xp = real_fmod(massPos.x, cyclone::real(1.0f));
+    int x = int(MassPos.x);
+    cyclone::real xp = real_fmod(MassPos.x, cyclone::real(1.0f));
     if (x < 0)
     {
         x = 0;
@@ -148,8 +116,8 @@ void BridgeDemo::updateAdditionalMass()
         xp = 0;
     }
 
-    int z = int(massPos.z);
-    cyclone::real zp = real_fmod(massPos.z, cyclone::real(1.0f));
+    int z = int(MassPos.z);
+    cyclone::real zp = real_fmod(MassPos.z, cyclone::real(1.0f));
     if (z < 0)
     {
         z = 0;
@@ -162,41 +130,30 @@ void BridgeDemo::updateAdditionalMass()
     }
 
     // Calculate where to draw the mass
-    massDisplayPos.clear();
+    MassDisplayPos.clear();
 
     // Add the proportion to the correct masses
-    particleArray[x*2+z].setMass(BASE_MASS + EXTRA_MASS*(1-xp)*(1-zp));
-    massDisplayPos.addScaledVector(
-        particleArray[x*2+z].Position, (1-xp)*(1-zp)
-        );
+    ParticleArray[x*2+z].setMass(BASE_MASS + EXTRA_MASS*(1-xp)*(1-zp));
+    MassDisplayPos.addScaledVector(ParticleArray[x*2+z].Position, (1-xp)*(1-zp));
 
-    if (xp > 0)
-    {
-        particleArray[x*2+z+2].setMass(BASE_MASS + EXTRA_MASS*xp*(1-zp));
-        massDisplayPos.addScaledVector(
-            particleArray[x*2+z+2].Position, xp*(1-zp)
-            );
+    if (xp > 0) {
+        ParticleArray[x*2+z+2].setMass(BASE_MASS + EXTRA_MASS*xp*(1-zp));
+        MassDisplayPos.addScaledVector(ParticleArray[x*2+z+2].Position, xp*(1-zp));
 
-        if (zp > 0)
-        {
-            particleArray[x*2+z+3].setMass(BASE_MASS + EXTRA_MASS*xp*zp);
-            massDisplayPos.addScaledVector(
-                particleArray[x*2+z+3].Position, xp*zp
-                );
+        if (zp > 0) {
+            ParticleArray[x*2+z+3].setMass(BASE_MASS + EXTRA_MASS*xp*zp);
+            MassDisplayPos.addScaledVector(ParticleArray[x*2+z+3].Position, xp*zp);
         }
     }
-    if (zp > 0)
-    {
-        particleArray[x*2+z+1].setMass(BASE_MASS + EXTRA_MASS*(1-xp)*zp);
-        massDisplayPos.addScaledVector(
-            particleArray[x*2+z+1].Position, (1-xp)*zp
-            );
+    if (zp > 0) {
+        ParticleArray[x*2+z+1].setMass(BASE_MASS + EXTRA_MASS*(1-xp)*zp);
+        MassDisplayPos.addScaledVector(ParticleArray[x*2+z+1].Position, (1-xp)*zp);
     }
 }
 
-void BridgeDemo::display()
+void BridgeDemo::Display()
 {
-    MassAggregateApplication::display();
+    MassAggregateApplication::Display();
 
     glBegin(GL_LINES);
     glColor3f(0,0,1);
@@ -231,53 +188,50 @@ void BridgeDemo::display()
 
     glColor3f(1,0,0);
     glPushMatrix();
-    glTranslatef(massDisplayPos.x, massDisplayPos.y+0.25f, massDisplayPos.z);
+    glTranslatef(MassDisplayPos.x, MassDisplayPos.y+0.25f, MassDisplayPos.z);
     glutSolidSphere(0.25f, 20, 10);
     glPopMatrix();
 }
 
-void BridgeDemo::update()
+void BridgeDemo::Update()
 {
-    MassAggregateApplication::update();
+    MassAggregateApplication::Update();
 
-    updateAdditionalMass();
+    UpdateAdditionalMass();
 }
 
-const char* BridgeDemo::getTitle()
+const char* BridgeDemo::GetTitle()
 {
     return "Cyclone > Bridge Demo";
 }
 
-void BridgeDemo::key(unsigned char key)
+void BridgeDemo::Key(unsigned char key)
 {
     switch(key)
     {
     case 's': case 'S':
-        massPos.z += 0.1f;
-        if (massPos.z > 1.0f) massPos.z = 1.0f;
+        MassPos.z += 0.1f;
+        if (MassPos.z > 1.0f) MassPos.z = 1.0f;
         break;
     case 'w': case 'W':
-        massPos.z -= 0.1f;
-        if (massPos.z < 0.0f) massPos.z = 0.0f;
+        MassPos.z -= 0.1f;
+        if (MassPos.z < 0.0f) MassPos.z = 0.0f;
         break;
     case 'a': case 'A':
-        massPos.x -= 0.1f;
-        if (massPos.x < 0.0f) massPos.x = 0.0f;
+        MassPos.x -= 0.1f;
+        if (MassPos.x < 0.0f) MassPos.x = 0.0f;
         break;
     case 'd': case 'D':
-        massPos.x += 0.1f;
-        if (massPos.x > 5.0f) massPos.x = 5.0f;
+        MassPos.x += 0.1f;
+        if (MassPos.x > 5.0f) MassPos.x = 5.0f;
         break;
 
     default:
-        MassAggregateApplication::key(key);
+        MassAggregateApplication::Key(key);
     }
 }
 
-/**
- * Called by the common demo framework to create an application
- * object (with new) and return a pointer.
- */
+// Called by the common demo framework to create an application object (with new) and return a pointer.
 Application* getApplication()
 {
     return new BridgeDemo();

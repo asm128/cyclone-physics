@@ -8,33 +8,22 @@
 #include <stdio.h>
 
 enum ShotType
-{
-    UNUSED = 0,
-    PISTOL,
-    ARTILLERY,
-    FIREBALL,
-    LASER
-};
+	{	UNUSED		= 0
+	,	PISTOL
+	,	ARTILLERY
+	,	FIREBALL
+	,	LASER
+	};
 
-class AmmoRound : public cyclone::CollisionSphere
-{
+class AmmoRound : public cyclone::CollisionSphere {
+	cyclone::RigidBody					_ammoRoundBody;
 public:
-    ShotType type;
-    unsigned startTime;
+	ShotType							type;
+	uint32_t							startTime;
 
-    AmmoRound()
-    {
-        Body = new cyclone::RigidBody;
-    }
-
-    ~AmmoRound()
-    {
-        delete Body;
-    }
-
-    /** Draws the box, excluding its shadow. */
-    void render()
-    {
+									    AmmoRound						()							{ Body = &_ammoRoundBody; }
+    // Draws the box, excluding its shadow. 
+    void								render							()							{
         // Get the OpenGL transformation
         GLfloat mat[16];
         Body->getGLTransform(mat);
@@ -46,13 +35,11 @@ public:
     }
 
     /** Sets the box to a specific location. */
-    void setState(ShotType shotType)
-    {
+    void								setState						(ShotType shotType)			{
         type = shotType;
 
         // Set the properties of the particle
-        switch(type)
-        {
+        switch(type) {
         case PISTOL:
             Body->setMass(1.5f);
             Body->setVelocity(0.0f, 0.0f, 20.0f);
@@ -155,39 +142,39 @@ public:
 
 // The main demo class definition.
 class BigBallisticDemo : public RigidBodyApplication {
-	const static unsigned	ammoRounds						= 256;							// Holds the maximum number of  rounds that can be fired.
-	const static unsigned	boxes							= 2;							// Holds the number of boxes in the simulation.
+	const static unsigned	AmmoRounds						= 256;							// Holds the maximum number of  rounds that can be fired.
+	const static unsigned	Boxes							= 2;							// Holds the number of boxes in the simulation.
 
-	AmmoRound				ammo			[ammoRounds]	= {};							// Holds the particle data.
-	Box						boxData			[boxes]			= {};							// Holds the box data. 
-	ShotType				currentShotType					= {};							// Holds the current shot type. 
+	AmmoRound				Ammo			[AmmoRounds]	= {};							// Holds the particle data.
+	Box						BoxData			[Boxes]			= {};							// Holds the box data. 
+	ShotType				CurrentShotType					= {};							// Holds the current shot type. 
 
-	virtual void			reset							();								// Resets the position of all the boxes and primes the explosion. 
+	virtual void			Reset							();								// Resets the position of all the boxes and primes the explosion. 
 	virtual void			GenerateContacts				();								// Build the contacts for the current situation. 
-	virtual void			updateObjects					(cyclone::real duration);		// Processes the objects in the simulation forward in time. 
-	void					fire							();								// Dispatches a round. 
+	virtual void			UpdateObjects					(cyclone::real duration);		// Processes the objects in the simulation forward in time. 
+	void					Fire							();								// Dispatches a round. 
 
 public:
 							BigBallisticDemo				();		// Creates a new demo object. 
 
-	virtual const char*		getTitle						()										{ return "Cyclone > Big Ballistic Demo"; }	// Returns the window title for the demo. 
-	virtual void			initGraphics					();																					// Sets up the rendering.
-	virtual void			display							();																					// Display world.
-	virtual void			mouse							(int button, int state, int x, int y);												// Handle a mouse click.
-	virtual void			key								(unsigned char key);																// Handle a keypress.
+	virtual const char*		GetTitle						()										{ return "Cyclone > Big Ballistic Demo"; }	// Returns the window title for the demo. 
+	virtual void			InitGraphics					();																					// Sets up the rendering.
+	virtual void			Display							();																					// Display world.
+	virtual void			Mouse							(int button, int state, int x, int y);												// Handle a mouse click.
+	virtual void			Key								(unsigned char key);																// Handle a keypress.
 };
 
 // Method definitions
 BigBallisticDemo::BigBallisticDemo()
 	: RigidBodyApplication	()
-	, currentShotType		(LASER)
+	, CurrentShotType		(LASER)
 {
-	pauseSimulation		= false;
-	reset();
+	PauseSimulation		= false;
+	Reset();
 }
 
 
-void BigBallisticDemo::initGraphics()
+void BigBallisticDemo::InitGraphics()
 {
     GLfloat lightAmbient[] = {0.8f,0.8f,0.8f,1.0f};
     GLfloat lightDiffuse[] = {0.9f,0.95f,1.0f,1.0f};
@@ -197,35 +184,35 @@ void BigBallisticDemo::initGraphics()
 
     glEnable(GL_LIGHT0);
 
-    Application::initGraphics();
+    Application::InitGraphics();
 }
 
-void BigBallisticDemo::reset(){
-	for (AmmoRound *shot = ammo; shot < ammo + ammoRounds; ++shot)	// Make all shots unused
+void BigBallisticDemo::Reset(){
+	for (AmmoRound *shot = Ammo; shot < Ammo + AmmoRounds; ++shot)	// Make all shots unused
 		shot->type = UNUSED;
 
 	cyclone::real z = 20.0f;	// Initialise the box
-	for (Box *box = boxData; box < boxData + boxes; ++box) {
+	for (Box *box = BoxData; box < BoxData + Boxes; ++box) {
 		box->setState(z);
 		z += 90.0f;
 	}
 }
 
-void BigBallisticDemo::fire()
+void BigBallisticDemo::Fire()
 {
 	AmmoRound				* shot;	// Find the first available round.
-	for (shot = ammo; shot < ammo + ammoRounds; ++shot)
+	for (shot = Ammo; shot < Ammo + AmmoRounds; ++shot)
 		if (shot->type == UNUSED) 
 			break;
 
-	if (shot >= ammo + ammoRounds)		// If we didn't find a round, then exit - we can't fire.
+	if (shot >= Ammo + AmmoRounds)		// If we didn't find a round, then exit - we can't fire.
 		return;
 
-	shot->setState(currentShotType);	// Set the shot
+	shot->setState(CurrentShotType);	// Set the shot
 }
 
-void BigBallisticDemo::updateObjects(cyclone::real duration) {
-	for(AmmoRound *shot = ammo; shot < ammo+ammoRounds; shot++) {	// Update the physics of each particle in turn
+void BigBallisticDemo::UpdateObjects(cyclone::real duration) {
+	for(AmmoRound *shot = Ammo; shot < Ammo + AmmoRounds; shot++) {	// Update the physics of each particle in turn
 		if (shot->type != UNUSED) {
 			shot->Body->integrate(duration);	// Run the physics
 			shot->CalculateInternals();
@@ -241,13 +228,13 @@ void BigBallisticDemo::updateObjects(cyclone::real duration) {
 	}
 	
 	
-	for (Box *box = boxData; box < boxData+boxes; box++) {	// Update the boxes
+	for (Box *box = BoxData; box < BoxData + Boxes; box++) {	// Update the boxes
 		box->Body->integrate(duration);	// Run the physics
 		box->CalculateInternals();
 	}
 }
 
-void BigBallisticDemo::display()
+void BigBallisticDemo::Display()
 {
 	const static GLfloat lightPosition[] = {-1,1,0,0};
 
@@ -279,7 +266,7 @@ void BigBallisticDemo::display()
 
 	// Render each particle in turn
 	glColor3f(1,0,0);
-	for (AmmoRound *shot = ammo; shot < ammo+ammoRounds; shot++) 
+	for (AmmoRound *shot = Ammo; shot < Ammo + AmmoRounds; shot++) 
 		if (shot->type != UNUSED)
 			shot->render();
 
@@ -290,7 +277,7 @@ void BigBallisticDemo::display()
 	glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
 	glEnable(GL_COLOR_MATERIAL);
 	glColor3f(1,0,0);
-	for (Box *box = boxData; box < boxData+boxes; box++)
+	for (Box *box = BoxData; box < BoxData + Boxes; box++)
 		box->render();
 
 	glDisable(GL_COLOR_MATERIAL);
@@ -299,46 +286,44 @@ void BigBallisticDemo::display()
 
 	// Render the description
 	glColor3f(0.0f, 0.0f, 0.0f);
-	renderText(10.0f, 34.0f, "Click: Fire\n1-4: Select Ammo");
+	RenderText(10.0f, 34.0f, "Click: Fire\n1-4: Select Ammo");
 
 	// Render the name of the current shot type
-	switch(currentShotType) {
-	case PISTOL		: renderText(10.0f, 10.0f, "Current Ammo: Pistol"	); break;
-	case ARTILLERY	: renderText(10.0f, 10.0f, "Current Ammo: Artillery"); break;
-	case FIREBALL	: renderText(10.0f, 10.0f, "Current Ammo: Fireball"	); break;
-	case LASER		: renderText(10.0f, 10.0f, "Current Ammo: Laser"	); break;
+	switch(CurrentShotType) {
+	case PISTOL		: RenderText(10.0f, 10.0f, "Current Ammo: Pistol"	); break;
+	case ARTILLERY	: RenderText(10.0f, 10.0f, "Current Ammo: Artillery"); break;
+	case FIREBALL	: RenderText(10.0f, 10.0f, "Current Ammo: Fireball"	); break;
+	case LASER		: RenderText(10.0f, 10.0f, "Current Ammo: Laser"	); break;
 	}
 }
 
 void BigBallisticDemo::GenerateContacts()
 {
     // Create the ground plane data
-    cyclone::CollisionPlane plane;
-    plane.direction = cyclone::Vector3(0,1,0);
-    plane.offset = 0;
+    cyclone::CollisionPlane			plane;
+    plane.direction				= cyclone::Vector3(0,1,0);
+    plane.offset				= 0;
 
     // Set up the collision data structure
-    cData.reset(maxContacts);
-    cData.friction = (cyclone::real)0.9;
-    cData.restitution = (cyclone::real)0.1;
-    cData.tolerance = (cyclone::real)0.1;
+    CData.reset(MaxContacts);
+    CData.friction				= 0.9;
+    CData.restitution			= 0.1;
+    CData.tolerance				= 0.1;
 
     // Check ground plane collisions
-    for (Box *box = boxData; box < boxData+boxes; box++)
-    {
-        if (!cData.hasMoreContacts()) return;
-        cyclone::CollisionDetector::boxAndHalfSpace(*box, plane, &cData);
+    for (Box *box = BoxData; box < BoxData + Boxes; box++) {
+        if (!CData.hasMoreContacts()) 
+			return;
+        cyclone::CollisionDetector::boxAndHalfSpace(*box, plane, &CData);
 
 
         // Check for collisions with each shot
-        for (AmmoRound *shot = ammo; shot < ammo+ammoRounds; shot++)
-        {
-            if (shot->type != UNUSED)
-            {
-                if (!cData.hasMoreContacts()) return;
+        for (AmmoRound *shot = Ammo; shot < Ammo + AmmoRounds; shot++) {
+            if (shot->type != UNUSED) {
+                if (!CData.hasMoreContacts()) return;
 
                 // When we get a collision, remove the shot
-                if (cyclone::CollisionDetector::boxAndSphere(*box, *shot, &cData))
+                if (cyclone::CollisionDetector::boxAndSphere(*box, *shot, &CData))
                 {
                     shot->type = UNUSED;
                 }
@@ -349,30 +334,22 @@ void BigBallisticDemo::GenerateContacts()
     // NB We aren't checking box-box collisions.
 }
 
-void BigBallisticDemo::mouse(int button, int state, int x, int y)
-{
-    // Fire the current weapon.
-    if (state == GLUT_DOWN) fire();
+void BigBallisticDemo::Mouse(int button, int state, int x, int y) {
+    if (state == GLUT_DOWN) 
+		Fire();	// Fire the current weapon.
 }
 
-void BigBallisticDemo::key(unsigned char key)
-{
+void BigBallisticDemo::Key(unsigned char key) {
     switch(key) {
-    case '1': currentShotType = PISTOL		; break;
-    case '2': currentShotType = ARTILLERY	; break;
-    case '3': currentShotType = FIREBALL	; break;
-    case '4': currentShotType = LASER		; break;
+    case '1': CurrentShotType = PISTOL		; break;
+    case '2': CurrentShotType = ARTILLERY	; break;
+    case '3': CurrentShotType = FIREBALL	; break;
+    case '4': CurrentShotType = LASER		; break;
     case 'r': case 'R': 
-		reset(); 
+		Reset(); 
 		break;
     }
 }
 
-/**
- * Called by the common demo framework to create an application
- * object (with new) and return a pointer.
- */
-Application* getApplication()
-{
-    return new BigBallisticDemo();
-}
+
+Application* getApplication() { return new BigBallisticDemo(); }	// Called by the common demo framework to create an application object (with new) and return a pointer.

@@ -14,14 +14,14 @@ namespace cyclone {
 		double					Damping							= 0;
 		Vector3					Position						= {};
 		Vector3					Velocity						= {};
-		Vector3					AccumulatedForce						= {};
+		Vector3					AccumulatedForce				= {};
 		Vector3					Acceleration					= {};
 
 		void					setMass							(const double mass)					{ InverseMass = ((real)1.0) / mass;									}
 		double					getMass							()							const	{ return (InverseMass == 0) ? REAL_MAX : ((real)1.0) / InverseMass;	}
 		bool					hasFiniteMass					()							const	{ return InverseMass >= 0.0f;										}
-		void					clearAccumulator				()									{ AccumulatedForce.clear();												}
-		void					addForce						(const Vector3 &force)				{ AccumulatedForce += force;												}
+		void					clearAccumulator				()									{ AccumulatedForce.clear();											}
+		void					addForce						(const Vector3 &force)				{ AccumulatedForce += force;										}
 		void					integrate						(double duration)					{
 			if (InverseMass <= 0.0f)	// We don't integrate things with infinite mass.
 				return;

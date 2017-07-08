@@ -1,15 +1,5 @@
-/*
- * The ballistic demo.
- *
- * Part of the Cyclone physics system.
- *
- * Copyright (c) Icosagon 2003. All Rights Reserved.
- *
- * This software is distributed under licence. Use of this software
- * implies agreement with all terms and conditions of the accompanying
- * software licence.
- */
-
+// Copyright (c) Icosagon 2003. Published by Ian Millington under the MIT License for his book "Game Physics Engine Development" or something like that (a really good book that I actually bought in paperback after reading it).
+// Heavily modified by asm128 in order to make this code readable and free of potential bugs and inconsistencies and a large set of sources of problems and improductivity originally introduced thanks to poor advice, bad practices and OOP vices.
 #include "cyclone.h"
 #include "ogl_headers.h"
 #include "app.h"
@@ -17,9 +7,7 @@
 
 #include <stdio.h>
 
-/**
- * The main demo class definition.
- */
+// The main demo class definition. 
 class BallisticDemo : public Application
 {
     enum ShotType
@@ -36,8 +24,8 @@ class BallisticDemo : public Application
         ShotType			type;
         unsigned			startTime;
 
-        /** Draws the round. */
-        void render()
+        // Draws the round. 
+        void Render()
         {
             cyclone::Vector3 position = particle.Position;
 
@@ -56,41 +44,41 @@ class BallisticDemo : public Application
         }
     };
 
-	const static unsigned	ammoRounds			= 16;	// Holds the maximum number of rounds that can be fired.
-	AmmoRound				ammo[ammoRounds];	// Holds the particle data.
-	ShotType				currentShotType;	// Holds the current shot type. 
+	const static unsigned	AmmoRounds			= 16;	// Holds the maximum number of rounds that can be fired.
+	AmmoRound				Ammo[AmmoRounds];	// Holds the particle data.
+	ShotType				CurrentShotType;	// Holds the current shot type. 
 
-	void					fire				();	// Dispatches a round.
+	void					Fire				();	// Dispatches a round.
 public:
 							BallisticDemo		();										// Creates a new demo object.
 	
-	virtual const char*		getTitle			()										{ return "Cyclone > Ballistic Demo"; }
-	virtual void			update				();										// Update the particle positions.
-	virtual void			display				();										// Display the particle positions.
-	virtual void			mouse				(int button, int state, int x, int y);	// Handle a mouse click.
-	virtual void			key					(unsigned char key);					// Handle a keypress. 
+	virtual const char*		GetTitle			()										{ return "Cyclone > Ballistic Demo"; }
+	virtual void			Update				();										// Update the particle positions.
+	virtual void			Display				();										// Display the particle positions.
+	virtual void			Mouse				(int button, int state, int x, int y);	// Handle a mouse click.
+	virtual void			Key					(unsigned char key);					// Handle a keypress. 
 };
 
 // Method definitions
 BallisticDemo::BallisticDemo()
-	: currentShotType(LASER)
+	: CurrentShotType(LASER)
 {
 	// Make all shots unused
-	for (AmmoRound *shot = ammo; shot < ammo+ammoRounds; shot++)
+	for (AmmoRound *shot = Ammo; shot < Ammo + AmmoRounds; shot++)
 		shot->type = UNUSED;
 }
 
-void BallisticDemo::fire() {
+void BallisticDemo::Fire() {
 	AmmoRound			* shot				= 0;	// Find the first available round.
-	for (shot = ammo; shot < ammo + ammoRounds; shot++)
+	for (shot = Ammo; shot < Ammo + AmmoRounds; shot++)
 		if (shot->type == UNUSED) 
 			break;
 	
 	
-	if (shot >= ammo + ammoRounds)	// If we didn't find a round, then exit - we can't fire. 
+	if (shot >= Ammo + AmmoRounds)	// If we didn't find a round, then exit - we can't fire. 
 		return;
 
-	switch(currentShotType)	{ // Set the properties of the particle
+	switch(CurrentShotType)	{ // Set the properties of the particle
     case PISTOL:
         shot->particle.setMass(2.0f); // 2.0kg
         shot->particle.Velocity		= {0.0f, 0.0f, 35.0f}; // 35m/s
@@ -124,42 +112,39 @@ void BallisticDemo::fire() {
     // Set the data common to all particle types
 	shot->particle.Position = {0.0f, 1.5f, 0.0f};
     shot->startTime = TimingData::get().lastFrameTimestamp;
-    shot->type = currentShotType;
+    shot->type = CurrentShotType;
 
     // Clear the force accumulators
     shot->particle.clearAccumulator();
 }
 
-void BallisticDemo::update()
+void BallisticDemo::Update()
 {
     // Find the duration of the last frame in seconds
     float duration = (float)TimingData::get().lastFrameDuration * 0.001f;
     if (duration <= 0.0f) return;
 
     // Update the physics of each particle in turn
-    for (AmmoRound *shot = ammo; shot < ammo+ammoRounds; shot++)
+    for (AmmoRound *shot = Ammo; shot < Ammo + AmmoRounds; shot++)
     {
         if (shot->type != UNUSED)
         {
-            // Run the physics
-            shot->particle.integrate(duration);
+            shot->particle.integrate(duration);	// Run the physics
 
             // Check if the particle is now invalid
             if (shot->particle.Position.y < 0.0f ||
                 shot->startTime+5000 < TimingData::get().lastFrameTimestamp ||
                 shot->particle.Position.z > 200.0f)
             {
-                // We simply set the shot type to be unused, so the
-                // memory it occupies can be reused by another shot.
-                shot->type = UNUSED;
+                shot->type = UNUSED;	// We simply set the shot type to be unused, so the memory it occupies can be reused by another shot.
             }
         }
     }
 
-    Application::update();
+    Application::Update();
 }
 
-void BallisticDemo::display()
+void BallisticDemo::Display()
 {
     // Clear the viewport and set the camera direction
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -187,43 +172,40 @@ void BallisticDemo::display()
     }
     glEnd();
 
-    for (AmmoRound *shot = ammo; shot < ammo+ammoRounds; shot++)	// Render each particle in turn
+    for (AmmoRound *shot = Ammo; shot < Ammo + AmmoRounds; shot++)	// Render each particle in turn
         if (shot->type != UNUSED)
-            shot->render();
+            shot->Render();
 
     // Render the description
     glColor3f(0.0f, 0.0f, 0.0f);
-    renderText(10.0f, 34.0f, "Click: Fire\n1-4: Select Ammo");
+    RenderText(10.0f, 34.0f, "Click: Fire\n1-4: Select Ammo");
 
-    switch(currentShotType) {	// Render the name of the current shot type
-    case PISTOL		: renderText(10.0f, 10.0f, "Current Ammo: Pistol"		); break;
-    case ARTILLERY	: renderText(10.0f, 10.0f, "Current Ammo: Artillery"	); break;
-    case FIREBALL	: renderText(10.0f, 10.0f, "Current Ammo: Fireball"		); break;
-    case LASER		: renderText(10.0f, 10.0f, "Current Ammo: Laser"		); break;
+    switch(CurrentShotType) {	// Render the name of the current shot type
+    case PISTOL		: RenderText(10.0f, 10.0f, "Current Ammo: Pistol"		); break;
+    case ARTILLERY	: RenderText(10.0f, 10.0f, "Current Ammo: Artillery"	); break;
+    case FIREBALL	: RenderText(10.0f, 10.0f, "Current Ammo: Fireball"		); break;
+    case LASER		: RenderText(10.0f, 10.0f, "Current Ammo: Laser"		); break;
     }
 }
 
-void BallisticDemo::mouse(int button, int state, int x, int y)
+void BallisticDemo::Mouse(int button, int state, int x, int y)
 {
     // Fire the current weapon.
     if (state == GLUT_DOWN) 
-		fire();
+		Fire();
 }
 
-void BallisticDemo::key(unsigned char key)
+void BallisticDemo::Key(unsigned char key)
 {
     switch(key) {
-    case '1': currentShotType = PISTOL		; break;
-    case '2': currentShotType = ARTILLERY	; break;
-    case '3': currentShotType = FIREBALL	; break;
-    case '4': currentShotType = LASER		; break;
+    case '1': CurrentShotType = PISTOL		; break;
+    case '2': CurrentShotType = ARTILLERY	; break;
+    case '3': CurrentShotType = FIREBALL	; break;
+    case '4': CurrentShotType = LASER		; break;
     }
 }
 
-/**
- * Called by the common demo framework to create an application
- * object (with new) and return a pointer.
- */
+// Called by the common demo framework to create an application object (with new) and return a pointer.
 Application* getApplication()
 {
     return new BallisticDemo();

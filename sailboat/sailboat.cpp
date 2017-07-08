@@ -1,15 +1,5 @@
-/*
- * The sailboat demo.
- *
- * Part of the Cyclone physics system.
- *
- * Copyright (c) Icosagon 2003. All Rights Reserved.
- *
- * This software is distributed under licence. Use of this software
- * implies agreement with all terms and conditions of the accompanying
- * software licence.
- */
-
+// Copyright (c) Icosagon 2003. Published by Ian Millington under the MIT License for his book "Game Physics Engine Development" or something like that (a really good book that I actually bought in paperback after reading it).
+// Heavily modified by asm128 in order to make this code readable and free of potential bugs and inconsistencies and a large set of sources of problems and improductivity originally introduced thanks to poor advice, bad practices and OOP vices.
 #include "cyclone.h"
 #include "ogl_headers.h"
 #include "app.h"
@@ -18,39 +8,28 @@
 #include <stdio.h>
 #include <cassert>
 
-
-/**
- * The main demo class definition.
- */
+// The main demo class definition.
 class SailboatDemo : public Application
 {
-    cyclone::Buoyancy buoyancy;
+    cyclone::Buoyancy		buoyancy;
 
-    cyclone::Aero sail;
-    cyclone::RigidBody sailboat;
-    cyclone::ForceRegistry registry;
+    cyclone::Aero			sail;
+    cyclone::RigidBody		sailboat;
+    cyclone::ForceRegistry	registry;
 
-    cyclone::Random r;
-    cyclone::Vector3 windspeed;
+    cyclone::Random			r;
+    cyclone::Vector3		windspeed;
 
-    float sail_control;
+    float					sail_control;
 
 public:
-    /** Creates a new demo object. */
-    SailboatDemo();
-    virtual ~SailboatDemo();
+	virtual					~SailboatDemo	()						{}
+							SailboatDemo	();
 
-    /** Returns the window title for the demo. */
-    virtual const char* getTitle();
-
-    /** Display the particles. */
-    virtual void display();
-
-    /** Update the particle positions. */
-    virtual void update();
-
-    /** Handle a key press. */
-    virtual void key(unsigned char key);
+	virtual const char*		GetTitle		();						// Returns the window title for the demo. 
+    virtual void			Display			();						// Display the particles. 
+    virtual void			Update			();						// Update the particle positions. 
+    virtual void			Key				(unsigned char key);	// Handle a key press. 
 };
 
 // Method definitions
@@ -91,10 +70,6 @@ windspeed(0,0,0)
     registry.add(&sailboat, &buoyancy);
 }
 
-SailboatDemo::~SailboatDemo()
-{
-}
-
 static void drawBoat()
 {
     // Left Hull
@@ -127,7 +102,7 @@ static void drawBoat()
 
 }
 
-void SailboatDemo::display()
+void SailboatDemo::Display()
 {
     // Clear the view port and set the camera direction
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -172,43 +147,35 @@ void SailboatDemo::display()
         sailboat.Velocity.magnitude()
         );
     glColor3f(0,0,0);
-    renderText(10.0f, 24.0f, buffer);
+    RenderText(10.0f, 24.0f, buffer);
 
     sprintf_s(
         buffer,
         "Sail Control: %.1f",
         sail_control
         );
-    renderText(10.0f, 10.0f, buffer);
+    RenderText(10.0f, 10.0f, buffer);
 }
 
-void SailboatDemo::update()
-{
-    // Find the duration of the last frame in seconds
-    float duration = (float)TimingData::get().lastFrameDuration * 0.001f;
-    if (duration <= 0.0f) return;
+void SailboatDemo::Update() {
+	float duration = (float)TimingData::get().lastFrameDuration * 0.001f;	// Find the duration of the last frame in seconds
+	if (duration <= 0.0f) 
+		return;
 
-    // Start with no forces or acceleration.
-    sailboat.clearAccumulators();
+	sailboat.clearAccumulators();	// Start with no forces or acceleration.
+	registry.updateForces(duration);	// Add the forces acting on the boat.
+	sailboat.integrate(duration);	// Update the boat's physics.
+	windspeed = windspeed * 0.9f + r.randomXZVector(1.0f);	// Change the wind speed.
 
-    // Add the forces acting on the boat.
-    registry.updateForces(duration);
-
-    // Update the boat's physics.
-    sailboat.integrate(duration);
-
-    // Change the wind speed.
-    windspeed = windspeed * 0.9f + r.randomXZVector(1.0f);
-
-    Application::update();
+    Application::Update();
 }
 
-const char* SailboatDemo::getTitle()
+const char* SailboatDemo::GetTitle()
 {
     return "Cyclone > Sail Boat Demo";
 }
 
-void SailboatDemo::key(unsigned char key)
+void SailboatDemo::Key(unsigned char key)
 {
     switch(key)
     {
@@ -225,12 +192,12 @@ void SailboatDemo::key(unsigned char key)
         break;
 
     default:
-        Application::key(key);
+        Application::Key(key);
     }
 
     // Make sure the controls are in range
-    if (sail_control < -1.0f) sail_control = -1.0f;
-    else if (sail_control > 1.0f) sail_control = 1.0f;
+		 if (sail_control < -1.0f) sail_control = -1.0f;
+    else if (sail_control >  1.0f) sail_control =  1.0f;
 
     // Update the control surfaces
     //sail.setControl(sail_control);
