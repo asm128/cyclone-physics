@@ -21,7 +21,7 @@ namespace cyclone {
         bool								IsAwake;
         bool								CanSleep;
         Matrix4								TransformMatrix;
-        Vector3								ForceAccum;
+        Vector3								AccumulatedForce;
         Vector3								TorqueAccum;
         Vector3								Acceleration;
         Vector3								LastFrameAcceleration;

@@ -1,15 +1,5 @@
-/*
- * Implementation file for the particle force generators.
- *
- * Part of the Cyclone physics system.
- *
- * Copyright (c) Icosagon 2003. All Rights Reserved.
- *
- * This software is distributed under licence. Use of this software
- * implies agreement with all terms and conditions of the accompanying
- * software licence.
- */
-
+// Copyright (c) Icosagon 2003. Published by Ian Millington under the MIT License for his book "Game Physics Engine Development" or something like that (a really good book that I actually bought in paperback after reading it).
+// Heavily modified by asm128 in order to make this code readable and free of potential bugs and inconsistencies and a large set of sources of problems and improductivity originally introduced thanks to poor advice, bad practices and OOP vices.
 #include "pfgen.h"
 
 using namespace cyclone;
@@ -17,7 +7,7 @@ using namespace cyclone;
 
 void ParticleForceRegistry::updateForces(real duration)
 {
-    Registry::iterator i = registrations.begin();
+    TRegistry::iterator i = registrations.begin();
     for (; i != registrations.end(); i++)
     {
         i->fg->updateForce(i->particle, duration);
@@ -53,8 +43,7 @@ ParticleDrag::ParticleDrag(real k1, real k2)
 
 void ParticleDrag::updateForce(Particle* particle, real duration)
 {
-    Vector3 force;
-    particle->getVelocity(&force);
+    Vector3 force = particle->Velocity;
 
     // Calculate the total drag coefficient
     real dragCoeff = force.magnitude();
@@ -74,8 +63,7 @@ ParticleSpring::ParticleSpring(Particle *other, real sc, real rl)
 void ParticleSpring::updateForce(Particle* particle, real duration)
 {
     // Calculate the vector of the spring
-    Vector3 force;
-    particle->getPosition(&force);
+    Vector3 force = particle->Position;
     force -= other->Position;
 
     // Calculate the magnitude of the force
@@ -105,7 +93,8 @@ void ParticleBuoyancy::updateForce(Particle* particle, real duration)
     real depth = particle->Position.y;
 
     // Check if we're out of the water
-    if (depth >= waterHeight + maxDepth) return;
+    if (depth >= waterHeight + maxDepth) 
+		return;
     Vector3 force(0,0,0);
 
     // Check if we're at maximum depth
@@ -130,8 +119,7 @@ ParticleBungee::ParticleBungee(Particle *other, real sc, real rl)
 void ParticleBungee::updateForce(Particle* particle, real duration)
 {
     // Calculate the vector of the spring
-    Vector3 force;
-    particle->getPosition(&force);
+    Vector3 force = particle->Position;
     force -= other->Position;
 
     // Check if the bungee is compressed
@@ -158,8 +146,7 @@ void ParticleFakeSpring::updateForce(Particle* particle, real duration)
     if (!particle->hasFiniteMass()) return;
 
     // Calculate the relative position of the particle to the anchor
-    Vector3 position;
-    particle->getPosition(&position);
+    Vector3 position = particle->Position;
     position -= *anchor;
 
     // Calculate the constants and check they are in bounds.
@@ -179,9 +166,6 @@ void ParticleFakeSpring::updateForce(Particle* particle, real duration)
     particle->addForce(accel * particle->getMass());
 }
 
-ParticleAnchoredSpring::ParticleAnchoredSpring()
-{
-}
 
 ParticleAnchoredSpring::ParticleAnchoredSpring(Vector3 *anchor,
                                                real sc, real rl)
@@ -200,13 +184,13 @@ void ParticleAnchoredSpring::init(Vector3 *anchor, real springConstant,
 void ParticleAnchoredBungee::updateForce(Particle* particle, real duration)
 {
     // Calculate the vector of the spring
-    Vector3 force;
-    particle->getPosition(&force);
+    Vector3 force = particle->Position;
     force -= *anchor;
 
     // Calculate the magnitude of the force
     real magnitude = force.magnitude();
-    if (magnitude < restLength) return;
+    if (magnitude < restLength) 
+		return;
 
     magnitude = magnitude - restLength;
     magnitude *= springConstant;
@@ -220,8 +204,7 @@ void ParticleAnchoredBungee::updateForce(Particle* particle, real duration)
 void ParticleAnchoredSpring::updateForce(Particle* particle, real duration)
 {
     // Calculate the vector of the spring
-    Vector3 force;
-    particle->getPosition(&force);
+    Vector3 force = particle->Position;
     force -= *anchor;
 
     // Calculate the magnitude of the force

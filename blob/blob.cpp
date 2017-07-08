@@ -416,7 +416,7 @@ void BlobDemo::update()
     cyclone::Vector3 position;
     for (unsigned i = 0; i < BLOB_COUNT; i++)
     {
-        blobs[i].getPosition(&position);
+        position = blobs[i].Position;
         position.z = 0.0f;
         blobs[i].Position = position;
     }

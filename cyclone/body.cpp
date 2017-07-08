@@ -125,7 +125,7 @@ void RigidBody::integrate(real duration){
 	
 	// Calculate linear acceleration from force inputs.
 	LastFrameAcceleration = Acceleration;
-	LastFrameAcceleration.addScaledVector(ForceAccum, InverseMass);
+	LastFrameAcceleration.addScaledVector(AccumulatedForce, InverseMass);
 	
 	// Calculate angular acceleration from torque inputs.
 	Vector3 angularAcceleration = InverseInertiaTensorWorld.transform(TorqueAccum);
@@ -404,13 +404,13 @@ Vector3 RigidBody::getLastFrameAcceleration() const
 
 void RigidBody::clearAccumulators()
 {
-    ForceAccum.clear();
+    AccumulatedForce.clear();
     TorqueAccum.clear();
 }
 
 void RigidBody::addForce(const Vector3 &force)
 {
-    ForceAccum += force;
+    AccumulatedForce += force;
     IsAwake = true;
 }
 
@@ -430,7 +430,7 @@ void RigidBody::addForceAtPoint(const Vector3 &force,
     Vector3 pt = point;
     pt -= Position;
 
-    ForceAccum += force;
+    AccumulatedForce += force;
     TorqueAccum += pt % force;
 
     IsAwake = true;

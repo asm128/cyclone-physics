@@ -9,8 +9,7 @@ using namespace cyclone;
 
 // Contact implementation
 
-void Contact::setBodyData(RigidBody* one, RigidBody *two,
-                          real friction, real restitution)
+void Contact::setBodyData(RigidBody* one, RigidBody *two, real friction, real restitution)
 {
     Contact::body[0]		= one;
     Contact::body[1]		= two;
@@ -386,10 +385,8 @@ void Contact::applyPositionChange	( Vector3 linearChange	[2]
 
 			linearChange[i] = contactNormal * linearMove[i];	// Velocity change is easier - it is just the linear movement along the contact normal.
 
-			// Now we can start to apply the values we've calculated.
-			// Apply the linear movement
-			Vector3 pos;
-			body[i]->getPosition(&pos);
+			// Now we can start to apply the values we've calculated. Apply the linear movement
+			Vector3 pos = body[i]->Position;
 			pos.addScaledVector(contactNormal, linearMove[i]);
 			body[i]->Position = pos;
 
