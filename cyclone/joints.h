@@ -68,7 +68,7 @@ namespace cyclone {
          * Generates the contacts required to restore the joint if it
          * has been violated.
          */
-        unsigned addContact(Contact *contact, unsigned limit) const;
+        uint32_t AddContact(Contact *contact, uint32_t limit) const;
     };
 
 } // namespace cyclone

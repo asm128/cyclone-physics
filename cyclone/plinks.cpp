@@ -21,7 +21,7 @@ real ParticleLink::currentLength() const
     return relativePos.magnitude();
 }
 
-unsigned ParticleCable::addContact(ParticleContact *contact,
+unsigned ParticleCable::AddContact(ParticleContact *contact,
                                     unsigned limit) const
 {
     // Find the length of the cable
@@ -48,7 +48,7 @@ unsigned ParticleCable::addContact(ParticleContact *contact,
     return 1;
 }
 
-unsigned ParticleRod::addContact(ParticleContact *contact,
+unsigned ParticleRod::AddContact(ParticleContact *contact,
                                   unsigned limit) const
 {
     // Find the length of the rod
@@ -89,7 +89,7 @@ real ParticleConstraint::currentLength() const
     return relativePos.magnitude();
 }
 
-unsigned ParticleCableConstraint::addContact(ParticleContact *contact,
+unsigned ParticleCableConstraint::AddContact(ParticleContact *contact,
                                    unsigned limit) const
 {
     // Find the length of the cable
@@ -116,7 +116,7 @@ unsigned ParticleCableConstraint::addContact(ParticleContact *contact,
     return 1;
 }
 
-unsigned ParticleRodConstraint::addContact(ParticleContact *contact,
+unsigned ParticleRodConstraint::AddContact(ParticleContact *contact,
                                  unsigned limit) const
 {
     // Find the length of the rod

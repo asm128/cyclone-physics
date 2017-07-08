@@ -38,13 +38,13 @@ public:
      */
     cyclone::Particle *particles;
 
-    virtual unsigned addContact(
+    virtual unsigned AddContact(
         cyclone::ParticleContact *contact,
         unsigned limit
         ) const;
 };
 
-unsigned Platform::addContact(cyclone::ParticleContact *contact,
+unsigned Platform::AddContact(cyclone::ParticleContact *contact,
                               unsigned limit) const
 {
     const static cyclone::real restitution = 0.0f;

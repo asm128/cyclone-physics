@@ -136,7 +136,7 @@ world(particleCount*10)
         world.getParticles().push_back(particleArray + i);
     }
 
-    groundContactGenerator.init(&world.getParticles());
+    groundContactGenerator.Init(&world.getParticles());
     world.getContactGenerators().push_back(&groundContactGenerator);
 }
 
@@ -160,8 +160,8 @@ void MassAggregateApplication::display()
 
     glColor3f(0,0,0);
 
-    cyclone::ParticleWorld::Particles &particles = world.getParticles();
-    for (cyclone::ParticleWorld::Particles::iterator p = particles.begin();
+    cyclone::ParticleWorld::TParticles &particles = world.getParticles();
+    for (cyclone::ParticleWorld::TParticles::iterator p = particles.begin();
         p != particles.end();
         p++)
     {
@@ -225,7 +225,7 @@ void RigidBodyApplication::update()
     updateObjects(duration);
 
     // Perform the contact generation
-    generateContacts();
+    GenerateContacts();
 
     // Resolve detected contacts
     resolver.resolveContacts(
@@ -253,7 +253,7 @@ void RigidBodyApplication::drawDebug()
 
     // Recalculate the contacts, so they are current (in case we're
     // paused, for example).
-    generateContacts();
+    GenerateContacts();
 
     // Render the contacts, if required
     glBegin(GL_LINES);

@@ -16,110 +16,82 @@
 using namespace cyclone;
 
 ParticleWorld::ParticleWorld(unsigned maxContacts, unsigned iterations)
-:
-resolver(iterations),
-maxContacts(maxContacts)
+	: Resolver		(iterations	)
+	, MaxContacts	(maxContacts)
 {
-    contacts = new ParticleContact[maxContacts];
-    calculateIterations = (iterations == 0);
-
+	Contacts				= new ParticleContact[maxContacts];
+	CalculateIterations		= (iterations == 0);
 }
 
 ParticleWorld::~ParticleWorld()
 {
-    delete[] contacts;
+	if(Contacts)
+		delete[] Contacts;
 }
 
-void ParticleWorld::startFrame()
-{
-    for (Particles::iterator p = particles.begin();
-        p != particles.end();
-        p++)
-    {
-        // Remove all forces from the accumulator
-        (*p)->clearAccumulator();
-    }
+void ParticleWorld::startFrame() {
+    for (TParticles::iterator p = Particles.begin(); p != Particles.end(); ++p)
+        (*p)->clearAccumulator();	// Remove all forces from the accumulator
 }
 
-unsigned ParticleWorld::generateContacts()
+unsigned ParticleWorld::GenerateContacts()
 {
-    unsigned limit = maxContacts;
-    ParticleContact *nextContact = contacts;
+    uint32_t			limit			= MaxContacts;
+    ParticleContact		* nextContact	= Contacts;
 
-    for (ContactGenerators::iterator g = contactGenerators.begin();
-        g != contactGenerators.end();
-        g++)
-    {
-        unsigned used =(*g)->addContact(nextContact, limit);
+    for (TContactGenerators::iterator g = ContactGenerators.begin(); g != ContactGenerators.end(); ++g) {
+        uint32_t used =(*g)->AddContact(nextContact, limit);
         limit -= used;
         nextContact += used;
 
         // We've run out of contacts to fill. This means we're missing
         // contacts.
-        if (limit <= 0) break;
+        if (limit <= 0) 
+			break;
     }
 
     // Return the number of contacts used.
-    return maxContacts - limit;
+    return MaxContacts - limit;
 }
 
-void ParticleWorld::integrate(real duration)
-{
-    for (Particles::iterator p = particles.begin();
-        p != particles.end();
-        p++)
-    {
-        // Remove all forces from the accumulator
-        (*p)->integrate(duration);
-    }
+void ParticleWorld::integrate(real duration) {
+	for (TParticles::iterator p = Particles.begin(); p != Particles.end(); ++p)
+		(*p)->integrate(duration);		// Remove all forces from the accumulator
 }
 
 void ParticleWorld::runPhysics(real duration)
 {
     // First apply the force generators
-    registry.updateForces(duration);
+    Registry.updateForces(duration);
 
     // Then integrate the objects
     integrate(duration);
 
     // Generate contacts
-    unsigned usedContacts = generateContacts();
+    uint32_t usedContacts = GenerateContacts();
 
     // And process them
     if (usedContacts)
     {
-        if (calculateIterations) resolver.setIterations(usedContacts * 2);
-        resolver.resolveContacts(contacts, usedContacts, duration);
+        if (CalculateIterations) 
+			Resolver.setIterations(usedContacts * 2);
+        Resolver.resolveContacts(Contacts, usedContacts, duration);
     }
 }
 
-ParticleWorld::Particles& ParticleWorld::getParticles()
+ParticleWorld::TParticles			&	ParticleWorld::getParticles			() { return Particles;			}
+ParticleWorld::TContactGenerators	&	ParticleWorld::getContactGenerators	() { return ContactGenerators;	}
+ParticleForceRegistry				&	ParticleWorld::getForceRegistry		() { return Registry;			}
+
+void GroundContacts::Init(cyclone::ParticleWorld::TParticles *particles)
 {
-    return particles;
+    Particles = particles;
 }
 
-ParticleWorld::ContactGenerators& ParticleWorld::getContactGenerators()
-{
-    return contactGenerators;
-}
-
-ParticleForceRegistry& ParticleWorld::getForceRegistry()
-{
-    return registry;
-}
-
-void GroundContacts::init(cyclone::ParticleWorld::Particles *particles)
-{
-    GroundContacts::particles = particles;
-}
-
-unsigned GroundContacts::addContact(cyclone::ParticleContact *contact,
-                                    unsigned limit) const
+unsigned GroundContacts::AddContact(cyclone::ParticleContact *contact, uint32_t limit) const
 {
     unsigned count = 0;
-    for (cyclone::ParticleWorld::Particles::iterator p = particles->begin();
-        p != particles->end();
-        p++)
+    for (cyclone::ParticleWorld::TParticles::iterator p = Particles->begin(); p != Particles->end(); ++p)
     {
         cyclone::real y = (*p)->getPosition().y;
         if (y < 0.0f)

@@ -56,7 +56,7 @@ namespace cyclone {
          * virtual) in the parent class, but is replicated here for
          * documentation purposes.
          */
-        virtual unsigned addContact(ParticleContact *contact,
+        virtual unsigned AddContact(ParticleContact *contact,
                                     unsigned limit) const = 0;
     };
 
@@ -82,7 +82,7 @@ namespace cyclone {
          * Fills the given contact structure with the contact needed
          * to keep the cable from over-extending.
          */
-        virtual unsigned addContact(ParticleContact *contact,
+        virtual unsigned AddContact(ParticleContact *contact,
                                     unsigned limit) const;
     };
 
@@ -103,7 +103,7 @@ namespace cyclone {
          * Fills the given contact structure with the contact needed
          * to keep the rod from extending or compressing.
          */
-        virtual unsigned addContact(ParticleContact *contact,
+        virtual unsigned AddContact(ParticleContact *contact,
                                      unsigned limit) const;
     };
 
@@ -143,7 +143,7 @@ namespace cyclone {
         * virtual) in the parent class, but is replicated here for
         * documentation purposes.
         */
-        virtual unsigned addContact(ParticleContact *contact,
+        virtual unsigned AddContact(ParticleContact *contact,
             unsigned limit) const = 0;
     };
 
@@ -169,29 +169,17 @@ namespace cyclone {
         * Fills the given contact structure with the contact needed
         * to keep the cable from over-extending.
         */
-        virtual unsigned addContact(ParticleContact *contact,
-            unsigned limit) const;
+        virtual uint32_t			AddContact(ParticleContact *contact, uint32_t limit) const;
     };
 
     /**
     * Rods link a particle to an anchor point, generating a contact if they
     * stray too far apart or too close.
     */
-    class ParticleRodConstraint : public ParticleConstraint
-    {
+    class ParticleRodConstraint : public ParticleConstraint {
     public:
-        /**
-        * Holds the length of the rod.
-        */
-        real length;
-
-    public:
-        /**
-        * Fills the given contact structure with the contact needed
-        * to keep the rod from extending or compressing.
-        */
-        virtual unsigned addContact(ParticleContact *contact,
-            unsigned limit) const;
+        real						length;	// Holds the length of the rod.
+        virtual uint32_t			AddContact(ParticleContact *contact, uint32_t limit) const;	// Fills the given contact structure with the contact needed to keep the rod from extending or compressing.
     };
 } // namespace cyclone
 

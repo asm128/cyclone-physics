@@ -13,7 +13,7 @@
 
 using namespace cyclone;
 
-unsigned Joint::addContact(Contact *contact, unsigned limit) const
+unsigned Joint::AddContact(Contact *contact, unsigned limit) const
 {
     // Calculate the position of each connection point in world coordinates
     Vector3 a_pos_world = body[0]->getPointInWorldSpace(position[0]);

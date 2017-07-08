@@ -111,7 +111,7 @@ class RagdollDemo : public RigidBodyApplication
     cyclone::Joint joints[NUM_JOINTS];
 
     /** Processes the contact generation code. */
-    virtual void generateContacts();
+    virtual void GenerateContacts();
 
     /** Processes the objects in the simulation forward in time. */
     virtual void updateObjects(cyclone::real duration);
@@ -224,7 +224,7 @@ const char* RagdollDemo::getTitle()
     return "Cyclone > Ragdoll Demo";
 }
 
-void RagdollDemo::generateContacts()
+void RagdollDemo::GenerateContacts()
 {
     // Create the ground plane data
     cyclone::CollisionPlane plane;
@@ -267,8 +267,8 @@ void RagdollDemo::generateContacts()
     for (cyclone::Joint *joint = joints; joint < joints+NUM_JOINTS; joint++)
     {
         if (!cData.hasMoreContacts()) return;
-        unsigned added = joint->addContact(cData.contacts, cData.contactsLeft);
-        cData.addContacts(added);
+        unsigned added = joint->AddContact(cData.contacts, cData.contactsLeft);
+        cData.AddContacts(added);
     }
 }
 

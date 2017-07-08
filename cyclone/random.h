@@ -1,68 +1,21 @@
-/*
- * Interface file for the random number generator.
- *
- * Part of the Cyclone physics system.
- *
- * Copyright (c) Icosagon 2003. All Rights Reserved.
- *
- * This software is distributed under licence. Use of this software
- * implies agreement with all terms and conditions of the accompanying
- * software licence.
- */
+// Copyright (c) Icosagon 2003. All Rights Reserved.
+#include "core.h"
 
-/**
- * @file
- *
- * This file contains the definitions for a random number generator.
- */
 #ifndef CYCLONE_RANDOM_H
 #define CYCLONE_RANDOM_H
 
-#include "core.h"
-
 namespace cyclone {
+	// Keeps track of one random stream: i.e. a seed and its output. This is used to get random numbers. Rather than a funcion, this allows there to be several streams of repeatable random numbers at the same time. Uses the RandRotB algorithm.
+	class Random {
+	public:
+		uint32_t								rotl											(uint32_t n, uint32_t r);	// left bitwise rotation
+		uint32_t								rotr											(uint32_t n, uint32_t r);	// right bitwise rotation
 
+												Random											();					// Creates a new random number stream with a seed based on timing data.
+												Random											(uint32_t seed);	// Creates a new random stream with the given seed.
 
-    /**
-     * Keeps track of one random stream: i.e. a seed and its output.
-     * This is used to get random numbers. Rather than a funcion, this
-     * allows there to be several streams of repeatable random numbers
-     * at the same time. Uses the RandRotB algorithm.
-     */
-    class Random
-    {
-    public:
-    	/**
-    	 * left bitwise rotation
-    	 */
-
-    	unsigned rotl(unsigned n, unsigned r);
-    	/**
-    	 * right bitwise rotation
-    	 */
-    	unsigned rotr(unsigned n, unsigned r);
-
-        /**
-         * Creates a new random number stream with a seed based on
-         * timing data.
-         */
-        Random();
-
-        /**
-         * Creates a new random stream with the given seed.
-         */
-        Random(unsigned seed);
-
-        /**
-         * Sets the seed value for the random stream.
-         */
-        void seed(unsigned seed);
-
-        /**
-         * Returns the next random bitstring from the stream. This is
-         * the fastest method.
-         */
-        unsigned randomBits();
+		void									seed											(uint32_t seed);	// Sets the seed value for the random stream.
+		uint32_t								randomBits										();					// Returns the next random bitstring from the stream. This is the fastest method.
 
         /**
          * Returns a random floating point number between 0 and 1.

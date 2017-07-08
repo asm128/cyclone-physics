@@ -178,7 +178,7 @@ unsigned CollisionDetector::sphereAndTruePlane(
     contact->setBodyData(sphere.body, NULL,
         data->friction, data->restitution);
 
-    data->addContacts(1);
+    data->AddContacts(1);
     return 1;
 }
 
@@ -210,7 +210,7 @@ unsigned CollisionDetector::sphereAndHalfSpace(
     contact->setBodyData(sphere.body, NULL,
         data->friction, data->restitution);
 
-    data->addContacts(1);
+    data->AddContacts(1);
     return 1;
 }
 
@@ -248,7 +248,7 @@ unsigned CollisionDetector::sphereAndSphere(
     contact->setBodyData(one.body, two.body,
         data->friction, data->restitution);
 
-    data->addContacts(1);
+    data->AddContacts(1);
     return 1;
 }
 
@@ -457,7 +457,7 @@ unsigned CollisionDetector::boxAndBox(
     {
         // We've got a vertex of box two on a face of box one.
         fillPointFaceBoxBox(one, two, toCentre, data, best, pen);
-        data->addContacts(1);
+        data->AddContacts(1);
         return 1;
     }
     else if (best < 6)
@@ -467,7 +467,7 @@ unsigned CollisionDetector::boxAndBox(
         // one and two (and therefore also the vector between their
         // centres).
         fillPointFaceBoxBox(two, one, toCentre*-1.0f, data, best-3, pen);
-        data->addContacts(1);
+        data->AddContacts(1);
         return 1;
     }
     else
@@ -523,7 +523,7 @@ unsigned CollisionDetector::boxAndBox(
         contact->contactPoint = vertex;
         contact->setBodyData(one.body, two.body,
             data->friction, data->restitution);
-        data->addContacts(1);
+        data->AddContacts(1);
         return 1;
     }
     return 0;
@@ -578,7 +578,7 @@ unsigned CollisionDetector::boxAndPoint(
     contact->setBodyData(box.body, NULL,
         data->friction, data->restitution);
 
-    data->addContacts(1);
+    data->AddContacts(1);
     return 1;
 }
 
@@ -634,7 +634,7 @@ unsigned CollisionDetector::boxAndSphere(
     contact->setBodyData(box.body, sphere.body,
         data->friction, data->restitution);
 
-    data->addContacts(1);
+    data->AddContacts(1);
     return 1;
 }
 
@@ -698,6 +698,6 @@ unsigned CollisionDetector::boxAndHalfSpace(
         }
     }
 
-    data->addContacts(contactsUsed);
+    data->AddContacts(contactsUsed);
     return contactsUsed;
 }

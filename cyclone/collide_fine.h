@@ -234,7 +234,7 @@ namespace cyclone {
          * Notifies the data that the given number of contacts have
          * been added.
          */
-        void addContacts(unsigned count)
+        void AddContacts(unsigned count)
         {
             // Reduce the number of contacts remaining, add number used
             contactsLeft -= count;

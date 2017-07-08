@@ -45,7 +45,7 @@ void World::startFrame()
     }
 }
 
-unsigned World::generateContacts()
+unsigned World::GenerateContacts()
 {
     unsigned limit = maxContacts;
     Contact *nextContact = contacts;
@@ -53,7 +53,7 @@ unsigned World::generateContacts()
     ContactGenRegistration * reg = firstContactGen;
     while (reg)
     {
-        unsigned used = reg->gen->addContact(nextContact, limit);
+        unsigned used = reg->gen->AddContact(nextContact, limit);
         limit -= used;
         nextContact += used;
 
@@ -85,7 +85,7 @@ void World::runPhysics(real duration)
     }
 
     // Generate contacts
-    unsigned usedContacts = generateContacts();
+    unsigned usedContacts = GenerateContacts();
 
     // And process them
     if (calculateIterations) resolver.setIterations(usedContacts * 4);

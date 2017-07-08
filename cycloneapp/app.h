@@ -153,9 +153,9 @@ public:
 class MassAggregateApplication : public Application
 {
 protected:
-    cyclone::ParticleWorld world;
-    cyclone::Particle *particleArray;
-    cyclone::GroundContacts groundContactGenerator;
+    cyclone::ParticleWorld			world;
+    cyclone::Particle				* particleArray;
+    cyclone::GroundContacts			groundContactGenerator;
 
 public:
     MassAggregateApplication(unsigned int particleCount);
@@ -210,7 +210,7 @@ public:
     bool autoPauseSimulation;
 
     /** Processes the contact generation code. */
-    virtual void generateContacts() = 0;
+    virtual void GenerateContacts() = 0;
 
     /** Processes the objects in the simulation forward in time. */
     virtual void updateObjects(cyclone::real duration) = 0;

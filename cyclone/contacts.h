@@ -435,7 +435,7 @@ namespace cyclone {
          * to. The method returns the number of contacts that have
          * been written.
          */
-        virtual unsigned addContact(Contact *contact, unsigned limit) const = 0;
+        virtual unsigned AddContact(Contact *contact, unsigned limit) const = 0;
     };
 
 } // namespace cyclone

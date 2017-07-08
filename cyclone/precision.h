@@ -26,6 +26,7 @@
 #define CYCLONE_PRECISION_H
 
 #include <float.h>
+#include <cstdint>
 
 namespace cyclone {
 

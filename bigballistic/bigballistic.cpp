@@ -184,7 +184,7 @@ class BigBallisticDemo : public RigidBodyApplication
     Box						boxData[boxes];	// Holds the box data. 
     ShotType				currentShotType;	// Holds the current shot type. 
     virtual void			reset();	// Resets the position of all the boxes and primes the explosion. 
-    virtual void			generateContacts();	// Build the contacts for the current situation. 
+    virtual void			GenerateContacts();	// Build the contacts for the current situation. 
     virtual void			updateObjects(cyclone::real duration);	// Processes the objects in the simulation forward in time. 
     void					fire();	// Dispatches a round. 
 
@@ -373,7 +373,7 @@ void BigBallisticDemo::display()
     }
 }
 
-void BigBallisticDemo::generateContacts()
+void BigBallisticDemo::GenerateContacts()
 {
     // Create the ground plane data
     cyclone::CollisionPlane plane;

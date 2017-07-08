@@ -141,7 +141,7 @@ public:
 
         // Work out where on the body (in body coordinates) the contact is
         // and its direction.
-        cyclone::Vector3 point = body->getPointInLocalSpace(contact.contactPoint);
+        cyclone::Vector3 point = body->GetPointInLocalSpace(contact.contactPoint);
         normal = body->getDirectionInLocalSpace(normal);
 
         // Work out the centre of the split: this is the point coordinates
@@ -252,7 +252,7 @@ class FractureDemo : public RigidBodyApplication
     cyclone::CollisionSphere ball;
 
     /** Processes the contact generation code. */
-    virtual void generateContacts();
+    virtual void GenerateContacts();
 
     /** Processes the objects in the simulation forward in time. */
     virtual void updateObjects(cyclone::real duration);
@@ -301,7 +301,7 @@ const char* FractureDemo::getTitle()
     return "Cyclone > Fracture Demo";
 }
 
-void FractureDemo::generateContacts()
+void FractureDemo::GenerateContacts()
 {
     hit = false;
 

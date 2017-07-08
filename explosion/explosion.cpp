@@ -243,7 +243,7 @@ class ExplosionDemo : public RigidBodyApplication
     virtual void reset();
 
     /** Processes the contact generation code. */
-    virtual void generateContacts();
+    virtual void GenerateContacts();
 
     /** Processes the objects in the simulation forward in time. */
     virtual void updateObjects(cyclone::real duration);
@@ -325,7 +325,7 @@ void ExplosionDemo::reset()
     cData.contactCount = 0;
 }
 
-void ExplosionDemo::generateContacts()
+void ExplosionDemo::GenerateContacts()
 {
     // Note that this method makes a lot of use of early returns to avoid
     // processing lots of potential contacts that it hasn't got room to

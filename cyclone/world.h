@@ -97,7 +97,7 @@ namespace cyclone {
          * Calls each of the registered contact generators to report
          * their contacts. Returns the number of generated contacts.
          */
-        unsigned generateContacts();
+        unsigned GenerateContacts();
 
         /**
          * Processes all the physics for the world.

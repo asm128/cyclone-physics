@@ -86,18 +86,20 @@
  * the accompanying software and documentation license.
  */
 
-#include <math.h>
-
 /**
  * @file
  *
  * The core contains utility functions, helpers and a basic set of
  * mathematical types.
  */
-#ifndef CYCLONE_CORE_H
-#define CYCLONE_CORE_H
 
 #include "precision.h"
+
+#include <math.h>
+#include <cstdint>
+
+#ifndef CYCLONE_CORE_H
+#define CYCLONE_CORE_H
 
 /**
  * The cyclone namespace includes all cyclone functions and
