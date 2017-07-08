@@ -53,8 +53,6 @@ namespace cyclone {
 		Vector3								getPointInWorldSpace(const Vector3 &point) const;
 		Vector3								getDirectionInLocalSpace(const Vector3 &direction) const;
 		Vector3								getDirectionInWorldSpace(const Vector3 &direction) const;
-		void								addVelocity(const Vector3 &deltaVelocity);
-		void								addRotation(const Vector3 &deltaRotation);
 		void								setAwake(const bool awake=true);
 		void								setCanSleep(const bool canSleep=true);
 		void								clearAccumulators();

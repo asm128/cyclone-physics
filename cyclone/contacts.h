@@ -26,7 +26,7 @@ namespace cyclone {
 	//protected:
 		Matrix3			contactToWorld;							// A transform matrix that converts co-ordinates in the contact's frame of reference to world co-ordinates. The columns of this matrix form an orthonormal set of vectors.
 		Vector3			contactVelocity;						// Holds the closing velocity at the point of contact. This is set when the calculateInternals function is run.
-		real			desiredDeltaVelocity;					// Holds the required change in velocity for this contact to be resolved.
+		double			desiredDeltaVelocity;					// Holds the required change in velocity for this contact to be resolved.
 		Vector3			relativeContactPosition[2]		= {};	// Holds the world space position of the contact point relative to centre of each body. This is set when the calculateInternals function is run.
 	
 		void			calculateInternals				(real duration);						// Calculates internal data from state data. This is called before the resolution algorithm tries to do any resolution. It should never need to be called manually.
@@ -35,7 +35,7 @@ namespace cyclone {
 		void			calculateDesiredDeltaVelocity	(real duration);						// Calculates and sets the internal value for the desired delta velocity.
 		Vector3			calculateLocalVelocity			(unsigned bodyIndex, real duration);	// Calculates and returns the velocity of the contact point on the given body.
 		void			calculateContactBasis			();										// Calculates an orthonormal basis for the contact point, based on the primary friction direction (for anisotropic friction) or a random orientation (for isotropic friction).
-		void			applyImpulse					(const Vector3 &impulse, RigidBody *body, Vector3 *velocityChange, Vector3 *rotationChange);	// Applies an impulse to the given body, returning the change in velocities.
+		//void			applyImpulse					(const Vector3 &impulse, RigidBody *body, Vector3 *velocityChange, Vector3 *rotationChange);	// Applies an impulse to the given body, returning the change in velocities.
 		void			applyVelocityChange				(Vector3 velocityChange[2], Vector3 rotationChange[2]);	// Performs an inertia-weighted impulse based resolution of this contact alone.
 		
 		
@@ -95,7 +95,7 @@ namespace cyclone {
 		}
 		void				setIterations						(uint32_t iterations);										// Sets the number of iterations for both resolution stages.
 		void				setIterations						(uint32_t velocityIterations, uint32_t positionIterations);	// Sets the number of iterations for each resolution stage.
-		void				setEpsilon							(double velocityEpsilon, double positionEpsilon);	// Sets the tolerance value for both velocity and position.
+		void				setEpsilon							(double velocityEpsilon, double positionEpsilon);			// Sets the tolerance value for both velocity and position.
 
 		// Resolves a set of contacts for both penetration and velocity.
 		// Contacts that cannot interact with each other should be passed to separate calls to resolveContacts, as the resolution algorithm takes much longer for lots of contacts than it does for the same number of contacts in small sets.

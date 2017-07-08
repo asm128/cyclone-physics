@@ -179,20 +179,18 @@ void Contact::applyVelocityChange	(Vector3 velocityChange[2]
     velocityChange[0].addScaledVector(impulse, body[0]->InverseMass);
 
     // Apply the changes
-    body[0]->addVelocity(velocityChange[0]);
-    body[0]->addRotation(rotationChange[0]);
+    body[0]->Velocity		+= velocityChange[0];
+    body[0]->Rotation		+= rotationChange[0];
 
-    if (body[1])
-    {
-        // Work out body one's linear and angular changes
-        Vector3 impulsiveTorque = impulse % relativeContactPosition[1];
-        rotationChange[1] = inverseInertiaTensor[1].transform(impulsiveTorque);
+    if (body[1]) {	// Work out body one's linear and angular changes
+        Vector3						impulsiveTorque		= impulse % relativeContactPosition[1];
+        rotationChange[1]		= inverseInertiaTensor[1].transform(impulsiveTorque);
         velocityChange[1].clear();
         velocityChange[1].addScaledVector(impulse, -body[1]->InverseMass);
 
         // And apply them.
-        body[1]->addVelocity(velocityChange[1]);
-        body[1]->addRotation(rotationChange[1]);
+        body[1]->Velocity		+= velocityChange[1];
+        body[1]->Rotation		+= rotationChange[1];
     }
 }
 

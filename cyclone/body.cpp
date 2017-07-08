@@ -322,16 +322,6 @@ Vector3 RigidBody::getDirectionInWorldSpace(const Vector3 &direction) const
     return TransformMatrix.transformDirection(direction);
 }
 
-void RigidBody::addVelocity(const Vector3 &deltaVelocity)
-{
-    Velocity += deltaVelocity;
-}
-
-void RigidBody::addRotation(const Vector3 &deltaRotation)
-{
-    Rotation += deltaRotation;
-}
-
 void RigidBody::setAwake(const bool awake)
 {
     if (awake) {
