@@ -129,37 +129,36 @@ void BallisticDemo::fire()
     {
     case PISTOL:
         shot->particle.setMass(2.0f); // 2.0kg
-        shot->particle.setVelocity(0.0f, 0.0f, 35.0f); // 35m/s
-        shot->particle.setAcceleration(0.0f, -1.0f, 0.0f);
-        shot->particle.setDamping(0.99f);
+        shot->particle.Velocity		= {0.0f, 0.0f, 35.0f}; // 35m/s
+        shot->particle.Acceleration	= {0.0f, -1.0f, 0.0f};
+        shot->particle.Damping		= 0.99f;
         break;
 
     case ARTILLERY:
         shot->particle.setMass(200.0f); // 200.0kg
-        shot->particle.setVelocity(0.0f, 30.0f, 40.0f); // 50m/s
-        shot->particle.setAcceleration(0.0f, -20.0f, 0.0f);
-        shot->particle.setDamping(0.99f);
+        shot->particle.Velocity		= {0.0f, 30.0f, 40.0f}; // 50m/s
+        shot->particle.Acceleration	= {0.0f, -20.0f, 0.0f};
+        shot->particle.Damping		= 0.99f;
         break;
 
     case FIREBALL:
-        shot->particle.setMass(1.0f); // 1.0kg - mostly blast damage
-        shot->particle.setVelocity(0.0f, 0.0f, 10.0f); // 5m/s
-        shot->particle.setAcceleration(0.0f, 0.6f, 0.0f); // Floats up
-        shot->particle.setDamping(0.9f);
-        break;
-
-    case LASER:
-        // Note that this is the kind of laser bolt seen in films,
-        // not a realistic laser beam!
-        shot->particle.setMass(0.1f); // 0.1kg - almost no weight
-        shot->particle.setVelocity(0.0f, 0.0f, 100.0f); // 100m/s
-        shot->particle.setAcceleration(0.0f, 0.0f, 0.0f); // No gravity
-        shot->particle.setDamping(0.99f);
-        break;
+        shot->particle.setMass(1.0f);					// 1.0kg - mostly blast damage
+        shot->particle.Velocity		= {0.0f, 0.0f, 10.0f};	// 5m/s
+        shot->particle.Acceleration	= {0.0f, 0.6f, 0.0f };		// Floats up
+        shot->particle.Damping		= (0.9f);
+        break;						
+									
+    case LASER:						
+        							
+        shot->particle.setMass(0.1f);					// 0.1kg - almost no weight
+        shot->particle.Velocity		= {0.0f, 0.0f, 100.0f	};	// 100m/s
+        shot->particle.Acceleration	= {};		// No gravity
+        shot->particle.Damping		= (0.99f);
+        break; // Note that this is the kind of laser bolt seen in films, not a realistic laser beam!
     }
 
     // Set the data common to all particle types
-    shot->particle.setPosition(0.0f, 1.5f, 0.0f);
+	shot->particle.Position = {0.0f, 1.5f, 0.0f};
     shot->startTime = TimingData::get().lastFrameTimestamp;
     shot->type = currentShotType;
 
@@ -182,9 +181,9 @@ void BallisticDemo::update()
             shot->particle.integrate(duration);
 
             // Check if the particle is now invalid
-            if (shot->particle.getPosition().y < 0.0f ||
+            if (shot->particle.Position.y < 0.0f ||
                 shot->startTime+5000 < TimingData::get().lastFrameTimestamp ||
-                shot->particle.getPosition().z > 200.0f)
+                shot->particle.Position.z > 200.0f)
             {
                 // We simply set the shot type to be unused, so the
                 // memory it occupies can be reused by another shot.
@@ -256,12 +255,11 @@ void BallisticDemo::mouse(int button, int state, int x, int y)
 
 void BallisticDemo::key(unsigned char key)
 {
-    switch(key)
-    {
-    case '1': currentShotType = PISTOL; break;
-    case '2': currentShotType = ARTILLERY; break;
-    case '3': currentShotType = FIREBALL; break;
-    case '4': currentShotType = LASER; break;
+    switch(key) {
+    case '1': currentShotType = PISTOL		; break;
+    case '2': currentShotType = ARTILLERY	; break;
+    case '3': currentShotType = FIREBALL	; break;
+    case '4': currentShotType = LASER		; break;
     }
 }
 

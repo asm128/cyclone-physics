@@ -55,7 +55,7 @@ unsigned Platform::AddContact(cyclone::ParticleContact *contact,
         if (used >= limit) break;
 
         // Check for penetration
-        cyclone::Vector3 toParticle = particles[i].getPosition() - start;
+        cyclone::Vector3 toParticle = particles[i].Position - start;
         cyclone::Vector3 lineDirection = end - start;
         cyclone::real projected = toParticle * lineDirection;
         cyclone::real platformSqLength = lineDirection.squareMagnitude();
@@ -79,7 +79,7 @@ unsigned Platform::AddContact(cyclone::ParticleContact *contact,
         else if (projected >= platformSqLength)
         {
             // The blob is nearest to the end point
-            toParticle = particles[i].getPosition() - end;
+            toParticle = particles[i].Position - end;
             if (toParticle.squareMagnitude() < BLOB_RADIUS*BLOB_RADIUS)
             {
                 // We have a collision
@@ -105,7 +105,7 @@ unsigned Platform::AddContact(cyclone::ParticleContact *contact,
                 cyclone::Vector3 closestPoint =
                     start + lineDirection*(projected/platformSqLength);
 
-                contact->contactNormal = (particles[i].getPosition()-closestPoint).unit();
+                contact->contactNormal = (particles[i].Position-closestPoint).unit();
                 contact->contactNormal.z = 0;
                 contact->restitution = restitution;
                 contact->particle[0] = particles + i;
@@ -180,7 +180,7 @@ void BlobForceGenerator::updateForce(cyclone::Particle *particle,
 
         // Work out the separation distance
         cyclone::Vector3 separation =
-            particles[i].getPosition() - particle->getPosition();
+            particles[i].Position - particle->Position;
         separation.z = 0.0f;
         cyclone::real distance = separation.magnitude();
 
@@ -307,14 +307,12 @@ world(PLATFORM_COUNT+BLOB_COUNT, PLATFORM_COUNT)
     for (unsigned i = 0; i < BLOB_COUNT; i++)
     {
         unsigned me = (i+BLOB_COUNT/2) % BLOB_COUNT;
-        blobs[i].setPosition(
-            p->start + delta * (cyclone::real(me)*0.8f*fraction+0.1f) +
-            cyclone::Vector3(0, 1.0f+r.randomReal(), 0));
+        blobs[i].Position = (p->start + delta * (cyclone::real(me)*0.8f*fraction+0.1f) + cyclone::Vector3(0, 1.0f+r.randomReal(), 0));
 
-        blobs[i].setVelocity(0,0,0);
-        blobs[i].setDamping(0.2f);
-        blobs[i].setAcceleration(cyclone::Vector3::GRAVITY * 0.4f);
-        blobs[i].setMass(1.0f);
+		blobs[i].Velocity			= {};
+        blobs[i].Damping			= (0.2f);
+        blobs[i].Acceleration		= (cyclone::Vector3::GRAVITY * 0.4f);
+        blobs[i].setMass			(1.0f);
         blobs[i].clearAccumulator();
 
         world.getParticles().push_back(blobs + i);
@@ -331,10 +329,8 @@ void BlobDemo::reset()
     for (unsigned i = 0; i < BLOB_COUNT; i++)
     {
         unsigned me = (i+BLOB_COUNT/2) % BLOB_COUNT;
-        blobs[i].setPosition(
-            p->start + delta * (cyclone::real(me)*0.8f*fraction+0.1f) +
-            cyclone::Vector3(0, 1.0f+r.randomReal(), 0));
-        blobs[i].setVelocity(0,0,0);
+        blobs[i].Position			= (p->start + delta * (cyclone::real(me)*0.8f*fraction+0.1f) + cyclone::Vector3(0, 1.0f+r.randomReal(), 0));
+		blobs[i].Velocity			= {};
         blobs[i].clearAccumulator();
     }
 }
@@ -346,7 +342,7 @@ BlobDemo::~BlobDemo()
 
 void BlobDemo::display()
 {
-    cyclone::Vector3 pos = blobs[0].getPosition();
+    cyclone::Vector3 pos = blobs[0].Position;
 
     // Clear the view port and set the camera direction
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -370,15 +366,15 @@ void BlobDemo::display()
     glColor3f(1,0,0);
     for (unsigned i = 0; i < BLOB_COUNT; i++)
     {
-        const cyclone::Vector3 &p = blobs[i].getPosition();
+        const cyclone::Vector3 &p = blobs[i].Position;
         glPushMatrix();
         glTranslatef(p.x, p.y, p.z);
         glutSolidSphere(BLOB_RADIUS, 12, 12);
         glPopMatrix();
     }
 
-    cyclone::Vector3 p = blobs[0].getPosition();
-    cyclone::Vector3 v = blobs[0].getVelocity() * 0.05f;
+    cyclone::Vector3 p = blobs[0].Position;
+    cyclone::Vector3 v = blobs[0].Velocity * 0.05f;
     v.trim(BLOB_RADIUS*0.5f);
     p = p + v;
     glPushMatrix();
@@ -422,7 +418,7 @@ void BlobDemo::update()
     {
         blobs[i].getPosition(&position);
         position.z = 0.0f;
-        blobs[i].setPosition(position);
+        blobs[i].Position = position;
     }
 
     Application::update();

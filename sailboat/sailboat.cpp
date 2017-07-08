@@ -68,11 +68,11 @@ sail_control(0),
 windspeed(0,0,0)
 {
     // Set up the boat's rigid body.
-    sailboat.setPosition(0, 1.6f, 0);
+	sailboat.Position = {0, 1.6f, 0};
     sailboat.setOrientation(1,0,0,0);
 
-    sailboat.setVelocity(0,0,0);
-    sailboat.setRotation(0,0,0);
+    sailboat.Velocity = {};
+    sailboat.Rotation = {};
 
     sailboat.setMass(200.0f);
     cyclone::Matrix3 it;

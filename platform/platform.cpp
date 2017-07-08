@@ -64,18 +64,18 @@ MassAggregateApplication(6), rods(0),
 massPos(0,0,0.5f)
 {
     // Create the masses and connections.
-    particleArray[0].setPosition(0,0,1);
-    particleArray[1].setPosition(0,0,-1);
-    particleArray[2].setPosition(-3,2,1);
-    particleArray[3].setPosition(-3,2,-1);
-    particleArray[4].setPosition(4,2,1);
-    particleArray[5].setPosition(4,2,-1);
+    particleArray[0].Position = {0,0,1	};
+    particleArray[1].Position = {0,0,-1	};
+    particleArray[2].Position = {-3,2,1	};
+    particleArray[3].Position = {-3,2,-1};
+    particleArray[4].Position = {4,2,1	};
+    particleArray[5].Position = {4,2,-1	};
     for (unsigned i = 0; i < 6; i++)
     {
         particleArray[i].setMass(BASE_MASS);
-        particleArray[i].setVelocity(0,0,0);
-        particleArray[i].setDamping(0.9f);
-        particleArray[i].setAcceleration(cyclone::Vector3::GRAVITY);
+		particleArray[i].Velocity		= {};
+        particleArray[i].Damping		= 0.9f;
+        particleArray[i].Acceleration	= cyclone::Vector3::GRAVITY;
         particleArray[i].clearAccumulator();
     }
 
@@ -166,21 +166,21 @@ void PlatformDemo::updateAdditionalMass()
     // Add the proportion to the correct masses
     particleArray[2].setMass(BASE_MASS + EXTRA_MASS*(1-xp)*(1-zp));
     massDisplayPos.addScaledVector(
-        particleArray[2].getPosition(), (1-xp)*(1-zp)
+        particleArray[2].Position, (1-xp)*(1-zp)
         );
 
     if (xp > 0)
     {
         particleArray[4].setMass(BASE_MASS + EXTRA_MASS*xp*(1-zp));
         massDisplayPos.addScaledVector(
-            particleArray[4].getPosition(), xp*(1-zp)
+            particleArray[4].Position, xp*(1-zp)
             );
 
         if (zp > 0)
         {
             particleArray[5].setMass(BASE_MASS + EXTRA_MASS*xp*zp);
             massDisplayPos.addScaledVector(
-                particleArray[5].getPosition(), xp*zp
+                particleArray[5].Position, xp*zp
                 );
         }
     }
@@ -188,7 +188,7 @@ void PlatformDemo::updateAdditionalMass()
     {
         particleArray[3].setMass(BASE_MASS + EXTRA_MASS*(1-xp)*zp);
         massDisplayPos.addScaledVector(
-            particleArray[3].getPosition(), (1-xp)*zp
+            particleArray[3].Position, (1-xp)*zp
             );
     }
 }
@@ -202,8 +202,8 @@ void PlatformDemo::display()
     for (unsigned i = 0; i < ROD_COUNT; i++)
     {
         cyclone::Particle **particles = rods[i].particle;
-        const cyclone::Vector3 &p0 = particles[0]->getPosition();
-        const cyclone::Vector3 &p1 = particles[1]->getPosition();
+        const cyclone::Vector3 &p0 = particles[0]->Position;
+        const cyclone::Vector3 &p1 = particles[1]->Position;
         glVertex3f(p0.x, p0.y, p0.z);
         glVertex3f(p1.x, p1.y, p1.z);
     }

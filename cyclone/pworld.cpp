@@ -93,7 +93,7 @@ unsigned GroundContacts::AddContact(cyclone::ParticleContact *contact, uint32_t 
     unsigned count = 0;
     for (cyclone::ParticleWorld::TParticles::iterator p = Particles->begin(); p != Particles->end(); ++p)
     {
-        cyclone::real y = (*p)->getPosition().y;
+        cyclone::real y = (*p)->Position.y;
         if (y < 0.0f)
         {
             contact->contactNormal = cyclone::Vector3::UP;

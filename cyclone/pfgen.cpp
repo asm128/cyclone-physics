@@ -76,7 +76,7 @@ void ParticleSpring::updateForce(Particle* particle, real duration)
     // Calculate the vector of the spring
     Vector3 force;
     particle->getPosition(&force);
-    force -= other->getPosition();
+    force -= other->Position;
 
     // Calculate the magnitude of the force
     real magnitude = force.magnitude();
@@ -102,7 +102,7 @@ waterHeight(waterHeight), liquidDensity(liquidDensity)
 void ParticleBuoyancy::updateForce(Particle* particle, real duration)
 {
     // Calculate the submersion depth
-    real depth = particle->getPosition().y;
+    real depth = particle->Position.y;
 
     // Check if we're out of the water
     if (depth >= waterHeight + maxDepth) return;
@@ -132,7 +132,7 @@ void ParticleBungee::updateForce(Particle* particle, real duration)
     // Calculate the vector of the spring
     Vector3 force;
     particle->getPosition(&force);
-    force -= other->getPosition();
+    force -= other->Position;
 
     // Check if the bungee is compressed
     real magnitude = force.magnitude();
@@ -166,7 +166,7 @@ void ParticleFakeSpring::updateForce(Particle* particle, real duration)
     real gamma = 0.5f * real_sqrt(4 * springConstant - damping*damping);
     if (gamma == 0.0f) return;
     Vector3 c = position * (damping / (2.0f * gamma)) +
-        particle->getVelocity() * (1.0f / gamma);
+        particle->Velocity * (1.0f / gamma);
 
     // Calculate the target position
     Vector3 target = position * real_cos(gamma * duration) +
@@ -175,7 +175,7 @@ void ParticleFakeSpring::updateForce(Particle* particle, real duration)
 
     // Calculate the resulting acceleration and therefore the force
     Vector3 accel = (target - position) * ((real)1.0 / (duration*duration)) -
-        particle->getVelocity() * ((real)1.0/duration);
+        particle->Velocity * ((real)1.0/duration);
     particle->addForce(accel * particle->getMass());
 }
 

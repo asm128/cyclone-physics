@@ -71,14 +71,14 @@ massPos(0,0,0.5f)
     for (unsigned i = 0; i < 12; i++)
     {
         unsigned x = (i%12)/2;
-        particleArray[i].setPosition(
+        particleArray[i].Position = {
             cyclone::real(i/2)*2.0f-5.0f,
             4,
             cyclone::real(i%2)*2.0f-1.0f
-            );
-        particleArray[i].setVelocity(0,0,0);
-        particleArray[i].setDamping(0.9f);
-        particleArray[i].setAcceleration(cyclone::Vector3::GRAVITY);
+		};
+		particleArray[i].Velocity		= {};
+        particleArray[i].Damping		= 0.9f;
+        particleArray[i].Acceleration	= cyclone::Vector3::GRAVITY;
         particleArray[i].clearAccumulator();
     }
 
@@ -167,21 +167,21 @@ void BridgeDemo::updateAdditionalMass()
     // Add the proportion to the correct masses
     particleArray[x*2+z].setMass(BASE_MASS + EXTRA_MASS*(1-xp)*(1-zp));
     massDisplayPos.addScaledVector(
-        particleArray[x*2+z].getPosition(), (1-xp)*(1-zp)
+        particleArray[x*2+z].Position, (1-xp)*(1-zp)
         );
 
     if (xp > 0)
     {
         particleArray[x*2+z+2].setMass(BASE_MASS + EXTRA_MASS*xp*(1-zp));
         massDisplayPos.addScaledVector(
-            particleArray[x*2+z+2].getPosition(), xp*(1-zp)
+            particleArray[x*2+z+2].Position, xp*(1-zp)
             );
 
         if (zp > 0)
         {
             particleArray[x*2+z+3].setMass(BASE_MASS + EXTRA_MASS*xp*zp);
             massDisplayPos.addScaledVector(
-                particleArray[x*2+z+3].getPosition(), xp*zp
+                particleArray[x*2+z+3].Position, xp*zp
                 );
         }
     }
@@ -189,7 +189,7 @@ void BridgeDemo::updateAdditionalMass()
     {
         particleArray[x*2+z+1].setMass(BASE_MASS + EXTRA_MASS*(1-xp)*zp);
         massDisplayPos.addScaledVector(
-            particleArray[x*2+z+1].getPosition(), (1-xp)*zp
+            particleArray[x*2+z+1].Position, (1-xp)*zp
             );
     }
 }
@@ -203,8 +203,8 @@ void BridgeDemo::display()
     for (unsigned i = 0; i < ROD_COUNT; i++)
     {
         cyclone::Particle **particles = rods[i].particle;
-        const cyclone::Vector3 &p0 = particles[0]->getPosition();
-        const cyclone::Vector3 &p1 = particles[1]->getPosition();
+        const cyclone::Vector3 &p0 = particles[0]->Position;
+        const cyclone::Vector3 &p1 = particles[1]->Position;
         glVertex3f(p0.x, p0.y, p0.z);
         glVertex3f(p1.x, p1.y, p1.z);
     }
@@ -213,8 +213,8 @@ void BridgeDemo::display()
     for (unsigned i = 0; i < CABLE_COUNT; i++)
     {
         cyclone::Particle **particles = cables[i].particle;
-        const cyclone::Vector3 &p0 = particles[0]->getPosition();
-        const cyclone::Vector3 &p1 = particles[1]->getPosition();
+        const cyclone::Vector3 &p0 = particles[0]->Position;
+        const cyclone::Vector3 &p1 = particles[1]->Position;
         glVertex3f(p0.x, p0.y, p0.z);
         glVertex3f(p1.x, p1.y, p1.z);
     }
@@ -222,7 +222,7 @@ void BridgeDemo::display()
     glColor3f(0.7f, 0.7f, 0.7f);
     for (unsigned i = 0; i < SUPPORT_COUNT; i++)
     {
-        const cyclone::Vector3 &p0 = supports[i].particle->getPosition();
+        const cyclone::Vector3 &p0 = supports[i].particle->Position;
         const cyclone::Vector3 &p1 = supports[i].anchor;
         glVertex3f(p0.x, p0.y, p0.z);
         glVertex3f(p1.x, p1.y, p1.z);

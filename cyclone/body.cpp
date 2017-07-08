@@ -203,16 +203,6 @@ real RigidBody::getMass() const
     }
 }
 
-void RigidBody::setInverseMass(const real inverseMass)
-{
-    RigidBody::InverseMass = inverseMass;
-}
-
-real RigidBody::getInverseMass() const
-{
-    return InverseMass;
-}
-
 bool RigidBody::hasFiniteMass() const
 {
     return InverseMass >= 0.0f;
@@ -282,13 +272,6 @@ void RigidBody::setDamping(const real linearDamping,
 }
 
 
-
-void RigidBody::setPosition(const real x, const real y, const real z)
-{
-    Position.x = x;
-    Position.y = y;
-    Position.z = z;
-}
 
 void RigidBody::getPosition(Vector3 *position) const
 {

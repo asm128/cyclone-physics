@@ -30,8 +30,6 @@ namespace cyclone {
         void								integrate(real duration);
         void								setMass(const real mass);
         real								getMass() const;
-        void								setInverseMass(const real inverseMass);
-        real								getInverseMass() const;
         bool								hasFiniteMass() const;
         void								setInertiaTensor(const Matrix3 &inertiaTensor);
         void								getInertiaTensor(Matrix3 *inertiaTensor) const;
@@ -45,7 +43,6 @@ namespace cyclone {
         Matrix3								getInverseInertiaTensorWorld() const;
         void								setDamping(const real linearDamping, const real angularDamping);
 
-		void								setPosition(const real x, const real y, const real z);
         void								getPosition(Vector3 *position) const;
 		void								setOrientation(const Quaternion &orientation);
         void								setOrientation(const real r, const real i, const real j, const real k);

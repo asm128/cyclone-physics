@@ -95,7 +95,7 @@ public:
         if (invDensity <= 0)
         {
             // Just set zeros for both mass and inertia tensor
-            body->setInverseMass(0);
+            body->InverseMass = 0;
             body->setInverseInertiaTensor(cyclone::Matrix3());
         }
         else
@@ -168,7 +168,7 @@ public:
 
         // Work out the inverse density of the old block
         cyclone::real invDensity =
-            halfSize.magnitude()*8 * body->getInverseMass();
+            halfSize.magnitude()*8 * body->InverseMass;
 
         // Now split the block into eight.
         for (unsigned i = 0; i < 8; i++)
@@ -367,10 +367,10 @@ void FractureDemo::reset()
 
     // Set the first block
     blocks[0].halfSize = cyclone::Vector3(4,4,4);
-    blocks[0].body->setPosition(0, 7, 0);
+	blocks[0].body->Position = {0, 7, 0};
     blocks[0].body->setOrientation(1,0,0,0);
-    blocks[0].body->setVelocity(0,0,0);
-    blocks[0].body->setRotation(0,0,0);
+    blocks[0].body->Velocity = {};
+    blocks[0].body->Rotation = {};
     blocks[0].body->setMass(100.0f);
     cyclone::Matrix3 it;
     it.setBlockInertiaTensor(blocks[0].halfSize, 100.0f);
@@ -387,14 +387,14 @@ void FractureDemo::reset()
     ball_active = true;
 
     // Set up the ball
-    ball.body->setPosition(0,5.0f,20.0f);
+	ball.body->Position = {0,5.0f,20.0f};
     ball.body->setOrientation(1,0,0,0);
-    ball.body->setVelocity(
+    ball.body->Velocity = {
         random.randomBinomial(4.0f),
         random.randomReal(1.0f, 6.0f),
         -20.0f
-        );
-    ball.body->setRotation(0,0,0);
+	};
+	ball.body->Rotation = {};
     ball.body->calculateDerivedData();
     ball.body->setAwake(true);
     ball.calculateInternals();

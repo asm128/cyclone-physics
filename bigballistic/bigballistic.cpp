@@ -107,7 +107,7 @@ public:
         body->setInertiaTensor(tensor);
 
         // Set the data common to all particle types
-        body->setPosition(0.0f, 1.5f, 0.0f);
+		body->Position = {0.0f, 1.5f, 0.0f};
         startTime = TimingData::get().lastFrameTimestamp;
 
         // Clear the force accumulators
@@ -146,9 +146,9 @@ public:
     /** Sets the box to a specific location. */
     void setState(::cyclone::real z)
     {
-        body->setPosition(0, 3, z);
+		body->Position = {0, 3, z};
         body->setOrientation(1,0,0,0);
-        body->setVelocity(0,0,0);
+		body->Velocity = {};
         body->Rotation = ::cyclone::Vector3(0,0,0);
         halfSize = ::cyclone::Vector3(1,1,1);
 

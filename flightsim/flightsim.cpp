@@ -111,7 +111,7 @@ FlightSimDemo::~FlightSimDemo()
 
 void FlightSimDemo::resetPlane()
 {
-    aircraft.setPosition(0, 0, 0);
+	aircraft.Position = {0, 0, 0};
     aircraft.setOrientation(1,0,0,0);
 
     aircraft.setVelocity(0,0,0);

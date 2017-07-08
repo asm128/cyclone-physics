@@ -189,7 +189,7 @@ void Contact::applyVelocityChange(Vector3 velocityChange[2],
     Vector3						impulsiveTorque		= relativeContactPosition[0] % impulse;	// Split in the impulse into linear and rotational components
     rotationChange[0] = inverseInertiaTensor[0].transform(impulsiveTorque);
     velocityChange[0].clear();
-    velocityChange[0].addScaledVector(impulse, body[0]->getInverseMass());
+    velocityChange[0].addScaledVector(impulse, body[0]->InverseMass);
 
     // Apply the changes
     body[0]->addVelocity(velocityChange[0]);
@@ -201,7 +201,7 @@ void Contact::applyVelocityChange(Vector3 velocityChange[2],
         Vector3 impulsiveTorque = impulse % relativeContactPosition[1];
         rotationChange[1] = inverseInertiaTensor[1].transform(impulsiveTorque);
         velocityChange[1].clear();
-        velocityChange[1].addScaledVector(impulse, -body[1]->getInverseMass());
+        velocityChange[1].addScaledVector(impulse, -body[1]->InverseMass);
 
         // And apply them.
         body[1]->addVelocity(velocityChange[1]);
@@ -222,7 +222,7 @@ Vector3 Contact::calculateFrictionlessImpulse(Matrix3 * inverseInertiaTensor)
     real deltaVelocity = deltaVelWorld * contactNormal;	// Work out the change in velocity in contact coordiantes.
 
     
-    deltaVelocity += body[0]->getInverseMass();	// Add the linear component of velocity change
+    deltaVelocity += body[0]->InverseMass;	// Add the linear component of velocity change
 
 	if (body[1]) {	// Check if we need to the second body's data
         // Go through the same transformation sequence again
@@ -231,7 +231,7 @@ Vector3 Contact::calculateFrictionlessImpulse(Matrix3 * inverseInertiaTensor)
         deltaVelWorld = deltaVelWorld % relativeContactPosition[1];
 
         deltaVelocity += deltaVelWorld * contactNormal;	// Add the change in velocity due to rotation
-        deltaVelocity += body[1]->getInverseMass();	// Add the change in velocity due to linear motion
+        deltaVelocity += body[1]->InverseMass;	// Add the change in velocity due to linear motion
     }
 
     // Calculate the required size of the impulse
@@ -245,7 +245,7 @@ inline
 Vector3 Contact::calculateFrictionImpulse(Matrix3 * inverseInertiaTensor)
 {
     Vector3 impulseContact;
-    real inverseMass = body[0]->getInverseMass();
+    real inverseMass = body[0]->InverseMass;
 
     // The equivalent of a cross product in matrices is multiplication
     // by a skew symmetric matrix - we build the matrix for converting
@@ -276,7 +276,7 @@ Vector3 Contact::calculateFrictionImpulse(Matrix3 * inverseInertiaTensor)
         deltaVelWorld += deltaVelWorld2;
 
         // Add to the inverse mass
-        inverseMass += body[1]->getInverseMass();
+        inverseMass += body[1]->InverseMass;
     }
 
     // Do a change of basis to convert into contact coordinates.
@@ -352,7 +352,7 @@ void Contact::applyPositionChange(Vector3 linearChange[2],
             angularInertiaWorld * contactNormal;
 
         // The linear component is simply the inverse mass
-        linearInertia[i] = body[i]->getInverseMass();
+        linearInertia[i] = body[i]->InverseMass;
 
         // Keep track of the total inertia from all components
         totalInertia += linearInertia[i] + angularInertia[i];

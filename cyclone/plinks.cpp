@@ -16,13 +16,12 @@ using namespace cyclone;
 
 real ParticleLink::currentLength() const
 {
-    Vector3 relativePos = particle[0]->getPosition() -
-                          particle[1]->getPosition();
+    Vector3 relativePos = particle[0]->Position -
+                          particle[1]->Position;
     return relativePos.magnitude();
 }
 
-unsigned ParticleCable::AddContact(ParticleContact *contact,
-                                    unsigned limit) const
+unsigned ParticleCable::AddContact(ParticleContact *contact, uint32_t limit) const
 {
     // Find the length of the cable
     real length = currentLength();
@@ -38,7 +37,7 @@ unsigned ParticleCable::AddContact(ParticleContact *contact,
     contact->particle[1] = particle[1];
 
     // Calculate the normal
-    Vector3 normal = particle[1]->getPosition() - particle[0]->getPosition();
+    Vector3 normal = particle[1]->Position - particle[0]->Position;
     normal.normalise();
     contact->contactNormal = normal;
 
@@ -65,7 +64,7 @@ unsigned ParticleRod::AddContact(ParticleContact *contact,
     contact->particle[1] = particle[1];
 
     // Calculate the normal
-    Vector3 normal = particle[1]->getPosition() - particle[0]->getPosition();
+    Vector3 normal = particle[1]->Position - particle[0]->Position;
     normal.normalise();
 
     // The contact normal depends on whether we're extending or compressing
@@ -85,7 +84,7 @@ unsigned ParticleRod::AddContact(ParticleContact *contact,
 
 real ParticleConstraint::currentLength() const
 {
-    Vector3 relativePos = particle->getPosition() - anchor;
+    Vector3 relativePos = particle->Position - anchor;
     return relativePos.magnitude();
 }
 
@@ -106,7 +105,7 @@ unsigned ParticleCableConstraint::AddContact(ParticleContact *contact,
     contact->particle[1] = 0;
 
     // Calculate the normal
-    Vector3 normal = anchor - particle->getPosition();
+    Vector3 normal = anchor - particle->Position;
     normal.normalise();
     contact->contactNormal = normal;
 
@@ -133,7 +132,7 @@ unsigned ParticleRodConstraint::AddContact(ParticleContact *contact,
     contact->particle[1] = 0;
 
     // Calculate the normal
-    Vector3 normal = anchor - particle->getPosition();
+    Vector3 normal = anchor - particle->Position;
     normal.normalise();
 
     // The contact normal depends on whether we're extending or compressing

@@ -166,7 +166,7 @@ void MassAggregateApplication::display()
         p++)
     {
         cyclone::Particle *particle = *p;
-        const cyclone::Vector3 &pos = particle->getPosition();
+        const cyclone::Vector3 &pos = particle->Position;
         glPushMatrix();
         glTranslatef(pos.x, pos.y, pos.z);
         glutSolidSphere(0.1f, 20, 10);

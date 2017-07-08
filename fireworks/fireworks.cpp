@@ -48,7 +48,7 @@ public:
 
         // We work backwards from our age to zero.
         age -= duration;
-        return (age < 0) || (position.y < 0);
+        return (age < 0) || (Position.y < 0);
     }
 };
 
@@ -148,28 +148,28 @@ struct FireworkRule
         cyclone::Vector3 vel;
         if (parent) {
             // The position and velocity are based on the parent.
-            firework->setPosition(parent->getPosition());
-            vel += parent->getVelocity();
+            firework->Position = (parent->Position);
+            vel += parent->Velocity;
         }
         else
         {
             cyclone::Vector3 start;
             int x = (int)crandom.randomInt(3) - 1;
             start.x = 5.0f * cyclone::real(x);
-            firework->setPosition(start);
+            firework->Position = (start);
         }
 
         vel += crandom.randomVector(minVelocity, maxVelocity);
-        firework->setVelocity(vel);
+        firework->Velocity = (vel);
 
         // We use a mass of one in all cases (no point having fireworks
         // with different masses, since they are only under the influence
         // of gravity).
         firework->setMass(1);
 
-        firework->setDamping(damping);
+        firework->Damping = (damping);
 
-        firework->setAcceleration(cyclone::Vector3::GRAVITY);
+        firework->Acceleration = (cyclone::Vector3::GRAVITY);
 
         firework->clearAccumulator();
     }
@@ -442,7 +442,7 @@ void FireworksDemo::display()
             case 9: glColor3f(1,0.5f,0.5f); break;
             };
 
-            const cyclone::Vector3 &pos = firework->getPosition();
+            const cyclone::Vector3 &pos = firework->Position;
             glVertex3f(pos.x-size, pos.y-size, pos.z);
             glVertex3f(pos.x+size, pos.y-size, pos.z);
             glVertex3f(pos.x+size, pos.y+size, pos.z);
