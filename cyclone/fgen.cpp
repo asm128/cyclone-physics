@@ -102,16 +102,9 @@ void Spring::UpdateForce(RigidBody* body, real duration)
     body->addForceAtPoint(force, lws);
 }
 
-Aero::Aero(const Matrix3 &tensor, const Vector3 &position, const Vector3 *windspeed)
-{
-    Aero::tensor = tensor;
-    Aero::position = position;
-    Aero::windspeed = windspeed;
-}
-
 void Aero::UpdateForce(RigidBody *body, real duration)
 {
-    Aero::UpdateForceFromTensor(body, duration, tensor);
+    Aero::UpdateForceFromTensor(body, duration, Tensor);
 }
 
 void Aero::UpdateForceFromTensor(RigidBody *body, real duration,
@@ -119,7 +112,7 @@ void Aero::UpdateForceFromTensor(RigidBody *body, real duration,
 {
     // Calculate total velocity (windspeed and body's velocity).
     Vector3 velocity = body->Velocity;
-    velocity += *windspeed;
+    velocity += *Windspeed;
 
     // Calculate the velocity in body coordinates
     Vector3 bodyVel = body->getTransform().transformInverseDirection(velocity);
@@ -129,7 +122,7 @@ void Aero::UpdateForceFromTensor(RigidBody *body, real duration,
     Vector3 force = body->getTransform().transformDirection(bodyForce);
 
     // Apply the force
-    body->addForceAtBodyPoint(force, position);
+    body->addForceAtBodyPoint(force, Position);
 }
 
 AeroControl::AeroControl(const Matrix3 &base, const Matrix3 &min, const Matrix3 &max,
@@ -142,19 +135,13 @@ Aero(base, position, windspeed)
     controlSetting = 0.0f;
 }
 
-Matrix3 AeroControl::getTensor()
-{
-    if (controlSetting <= -1.0f) return minTensor;
-    else if (controlSetting >= 1.0f) return maxTensor;
-    else if (controlSetting < 0)
-    {
-        return Matrix3::linearInterpolate(minTensor, tensor, controlSetting+1.0f);
-    }
-    else if (controlSetting > 0)
-    {
-        return Matrix3::linearInterpolate(tensor, maxTensor, controlSetting);
-    }
-    else return tensor;
+Matrix3 AeroControl::getTensor() {
+		 if (controlSetting <= -1.0f)	return minTensor;
+    else if (controlSetting >= 1.0f)	return maxTensor;
+    else if (controlSetting < 0)		return Matrix3::linearInterpolate(minTensor, Tensor, controlSetting + 1.0f);
+    else if (controlSetting > 0)		return Matrix3::linearInterpolate(Tensor, maxTensor, controlSetting);
+    else 
+		return Tensor;
 }
 
 void AeroControl::setControl(real value)
@@ -166,9 +153,4 @@ void AeroControl::UpdateForce(RigidBody *body, real duration)
 {
     Matrix3 tensor = getTensor();
     Aero::UpdateForceFromTensor(body, duration, tensor);
-}
-
-void Explosion::UpdateForce(RigidBody* body, real duration)
-{
-
 }

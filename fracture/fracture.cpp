@@ -30,7 +30,7 @@ public:
 
         glPushMatrix();
         glMultMatrixf(mat);
-        glScalef(halfSize.x*2, halfSize.y*2, halfSize.z*2);
+        glScalef(HalfSize.x*2, HalfSize.y*2, HalfSize.z*2);
         glutSolidCube(1.0f);
         glPopMatrix();
     }
@@ -45,13 +45,13 @@ public:
         Body->setOrientation(orientation);
         Body->Velocity				= velocity;
 		Body->Rotation				= {};
-        halfSize					= extents;
+        HalfSize					= extents;
 
-        cyclone::real					mass					= halfSize.x * halfSize.y * halfSize.z * 8.0f;
+        cyclone::real					mass					= HalfSize.x * HalfSize.y * HalfSize.z * 8.0f;
         Body->setMass(mass);
 
         cyclone::Matrix3				tensor;
-        tensor.setBlockInertiaTensor(halfSize, mass);
+        tensor.setBlockInertiaTensor(HalfSize, mass);
         Body->setInertiaTensor(tensor);
 
         Body->LinearDamping			= 0.95f;
@@ -73,7 +73,7 @@ public:
             Body->setInverseInertiaTensor(cyclone::Matrix3());
         }
         else {	// Otherwise we need to calculate the mass
-            cyclone::real volume = halfSize.magnitude() * 2.0;
+            cyclone::real volume = HalfSize.magnitude() * 2.0;
             cyclone::real mass = volume / invDensity;
 
             Body->setMass(mass);
@@ -81,10 +81,10 @@ public:
             // And calculate the inertia tensor from the mass and size
             mass *= 0.333f;
             cyclone::Matrix3 tensor;
-            tensor.setInertiaTensorCoeffs(
-                mass * halfSize.y*halfSize.y + halfSize.z*halfSize.z,
-                mass * halfSize.y*halfSize.x + halfSize.z*halfSize.z,
-                mass * halfSize.y*halfSize.x + halfSize.z*halfSize.y
+            tensor.setInertiaTensorCoeffs
+				( mass * HalfSize.y * HalfSize.y + HalfSize.z * HalfSize.z
+                , mass * HalfSize.y * HalfSize.x + HalfSize.z * HalfSize.z
+                , mass * HalfSize.y * HalfSize.x + HalfSize.z * HalfSize.y
                 );
             Body->setInertiaTensor(tensor);
         }
@@ -112,7 +112,7 @@ public:
         normal									= body->getDirectionInLocalSpace(normal);
         point									= point - normal * (point * normal);	// Work out the centre of the split: this is the point coordinates for each of the axes perpendicular to the normal, and 0 for the axis along the normal.
 
-        cyclone::Vector3							size									= target->halfSize;	// Take a copy of the half size, so we can create the new blocks.
+        cyclone::Vector3							size									= target->HalfSize;	// Take a copy of the half size, so we can create the new blocks.
 
         // Take a copy also of the body's other data.
         cyclone::RigidBody							tempBody;
@@ -126,7 +126,7 @@ public:
         tempBody.calculateDerivedData();
 
 		target->exists							= false;	// Remove the old block
-        cyclone::real								invDensity								= halfSize.magnitude()*8 * body->InverseMass;	// Work out the inverse density of the old block
+        cyclone::real								invDensity								= HalfSize.magnitude()*8 * body->InverseMass;	// Work out the inverse density of the old block
 
         // Now split the block into eight.
         for (unsigned i = 0; i < 8; i++)
@@ -176,7 +176,7 @@ public:
             blocks[i].Body->calculateDerivedData();
             blocks[i].Offset					= cyclone::Matrix4();
             blocks[i].exists					= true;
-            blocks[i].halfSize					= halfSize;
+            blocks[i].HalfSize					= halfSize;
 
             blocks[i].calculateMassProperties(invDensity);	// Finally calculate the mass and inertia tensor of the new block
         }
@@ -212,7 +212,7 @@ FractureDemo::FractureDemo()
 {
 	// Create the ball.
 	ball.Body							= new cyclone::RigidBody();
-	ball.radius							= 0.25f;
+	ball.Radius							= 0.25f;
 	ball.Body->setMass(5.0f);
 	ball.Body->setDamping(0.9f, 0.9f);
 	cyclone::Matrix3						it;
@@ -233,47 +233,48 @@ const char* FractureDemo::GetTitle()
 
 void FractureDemo::GenerateContacts()
 {
-    hit = false;
+    hit												= false;
 
     // Create the ground plane data
-    cyclone::CollisionPlane plane;
-	plane.direction = {0,1,0};
-    plane.offset = 0;
+    cyclone::CollisionPlane								plane;
+	plane.Direction									= {0,1,0};
+    plane.Offset									= 0;
 
     // Set up the collision data structure
     CData.reset(MaxContacts);
-    CData.friction = (cyclone::real)0.9;
-    CData.restitution = (cyclone::real)0.2;
-    CData.tolerance = (cyclone::real)0.1;
+    CData.friction									= (cyclone::real)0.9;
+    CData.restitution								= (cyclone::real)0.2;
+    CData.tolerance									= (cyclone::real)0.1;
 
     // Perform collision detection
-    cyclone::Matrix4 transform, otherTransform;
-    cyclone::Vector3 position, otherPosition;
-    for (Block *block = blocks; block < blocks+MAX_BLOCKS; block++)
-    {
-        if (!block->exists) continue;
+    cyclone::Matrix4									transform, otherTransform;
+    cyclone::Vector3									position, otherPosition;
+    for (Block *block = blocks; block < blocks + MAX_BLOCKS; ++block) {
+        if (!block->exists) 
+			continue;
 
         // Check for collisions with the ground plane
-        if (!CData.hasMoreContacts()) return;
+        if (!CData.hasMoreContacts()) 
+			return;
+
         cyclone::CollisionDetector::boxAndHalfSpace(*block, plane, &CData);
 
-        if (ball_active)
-        {
+        if (ball_active) {
             // And with the sphere
-            if (!CData.hasMoreContacts()) return;
-            if (cyclone::CollisionDetector::boxAndSphere(*block, ball, &CData))
-            {
-                hit = true;
-                fracture_contact = CData.contactCount-1;
+            if (!CData.hasMoreContacts()) 
+				return;
+            if (cyclone::CollisionDetector::boxAndSphere(*block, ball, &CData)) {
+                hit												= true;
+                fracture_contact								= CData.contactCount-1;
             }
         }
 
         // Check for collisions with each other box
-        for (Block *other = block+1; other < blocks+MAX_BLOCKS; other++)
-        {
-            if (!other->exists) continue;
-
-            if (!CData.hasMoreContacts()) return;
+        for (Block *other = block+1; other < blocks+MAX_BLOCKS; other++) {
+            if (!other->exists) 
+				continue;
+            if (!CData.hasMoreContacts()) 
+				return;
             cyclone::CollisionDetector::boxAndBox(*block, *other, &CData);
         }
     }
@@ -291,19 +292,17 @@ void FractureDemo::Reset()
     // Only the first block exists
     blocks[0].exists = true;
     for (Block *block = blocks+1; block < blocks+MAX_BLOCKS; block++)
-    {
         block->exists = false;
-    }
 
     // Set the first block
-	blocks[0].halfSize				= {4,4,4};
+	blocks[0].HalfSize				= {4,4,4};
 	blocks[0].Body->Position		= {0, 7, 0};
 	blocks[0].Body->Orientation		= {1,0,0,0};
     blocks[0].Body->Velocity		= {};
     blocks[0].Body->Rotation		= {};
     blocks[0].Body->setMass(100.0f);
-    cyclone::Matrix3 it;
-    it.setBlockInertiaTensor(blocks[0].halfSize, 100.0f);
+    cyclone::Matrix3					it;
+    it.setBlockInertiaTensor(blocks[0].HalfSize, 100.0f);
     blocks[0].Body->setInertiaTensor(it);
     blocks[0].Body->setDamping(0.9f, 0.9f);
     blocks[0].Body->calculateDerivedData();
@@ -354,16 +353,12 @@ void FractureDemo::Update()
 void FractureDemo::UpdateObjects(cyclone::real duration)
 {
     for (Block *block = blocks; block < blocks+MAX_BLOCKS; block++)
-    {
-        if (block->exists)
-        {
+        if (block->exists) {
             block->Body->integrate(duration);
             block->CalculateInternals();
         }
-    }
 
-    if (ball_active)
-    {
+    if (ball_active) {
         ball.Body->integrate(duration);
         ball.CalculateInternals();
     }
@@ -385,10 +380,10 @@ void FractureDemo::Display()
 
     glEnable(GL_NORMALIZE);
     for (Block *block = blocks; block < blocks+MAX_BLOCKS; block++)
-    {
-        if (block->exists) block->Render();
-    }
-    glDisable(GL_NORMALIZE);
+        if (block->exists) 
+			block->Render();
+
+	glDisable(GL_NORMALIZE);
 
     if (ball_active)
     {
@@ -405,11 +400,9 @@ void FractureDemo::Display()
 
     // Draw some scale circles
     glColor3f(0.75, 0.75, 0.75);
-    for (unsigned i = 1; i < 20; i++)
-    {
+    for (unsigned i = 1; i < 20; ++i) {
         glBegin(GL_LINE_LOOP);
-        for (unsigned j = 0; j < 32; j++)
-        {
+        for (unsigned j = 0; j < 32; ++j) {
             float theta = 3.1415926f * j / 16.0f;
             glVertex3f(i*cosf(theta),0.0f,i*sinf(theta));
         }

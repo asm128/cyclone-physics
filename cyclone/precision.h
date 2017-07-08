@@ -80,7 +80,7 @@ namespace cyclone {
     #define real_exp exp
     #define real_pow pow
     #define real_fmod fmod
-    #define real_epsilon DBL_EPSILON
+    #define real_epsilon .00001 //DBL_EPSILON
     #define R_PI 3.14159265358979
 #endif
 }

@@ -17,13 +17,13 @@ unsigned Joint::AddContact(Contact *contact, unsigned limit) const
     real length = a_to_b.magnitude();
 
     // Check if it is violated
-    if (real_abs(length) > error)
+    if (real_abs(length) > Error)
     {
         contact->body[0] = body[0];
         contact->body[1] = body[1];
         contact->contactNormal = normal;
         contact->contactPoint = (a_pos_world + b_pos_world) * 0.5f;
-        contact->penetration = length-error;
+        contact->penetration = length - Error;
         contact->friction = 1.0f;
         contact->restitution = 0;
         return 1;
@@ -42,5 +42,5 @@ void Joint::set(RigidBody *a, const Vector3& a_pos,
     position[0] = a_pos;
     position[1] = b_pos;
 
-    Joint::error = error;
+    Joint::Error = error;
 }

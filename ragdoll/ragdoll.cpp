@@ -12,46 +12,36 @@
 
 class Bone : public cyclone::CollisionBox
 {
+	::cyclone::RigidBody			_boneBody;
 public:
-    Bone()
-    {
-        Body = new cyclone::RigidBody();
-    }
+									Bone							()									{ Body = &_boneBody; }
 
-    ~Bone()
-    {
-        delete Body;
-    }
-
-    /**
-     * We use a sphere to collide bone on bone to allow some limited
-     * interpenetration.
-     */
-    cyclone::CollisionSphere getCollisionSphere() const
-    {
+    // We use a sphere to collide bone on bone to allow some limited interpenetration.
+    cyclone::CollisionSphere		getCollisionSphere				()					const			{
         cyclone::CollisionSphere sphere;
         sphere.Body = Body;
-        sphere.radius = halfSize.x;
+        sphere.Radius = HalfSize.x;
         sphere.Offset = cyclone::Matrix4();
-        if (halfSize.y < sphere.radius) sphere.radius = halfSize.y;
-        if (halfSize.z < sphere.radius) sphere.radius = halfSize.z;
+        if (HalfSize.y < sphere.Radius) sphere.Radius = HalfSize.y;
+        if (HalfSize.z < sphere.Radius) sphere.Radius = HalfSize.z;
         sphere.CalculateInternals();
         return sphere;
     }
 
-    /** Draws the bone. */
-    void Render()
-    {
+	// Draws the bone.
+    void							Render							()									{
         // Get the OpenGL transformation
-        GLfloat mat[16];
+		GLfloat								mat	[16];
         Body->getGLTransform(mat);
 
-        if (Body->IsAwake) glColor3f(0.5f, 0.3f, 0.3f);
-        else glColor3f(0.3f, 0.3f, 0.5f);
+        if (Body->IsAwake) 
+			glColor3f(0.5f, 0.3f, 0.3f);
+        else 
+			glColor3f(0.3f, 0.3f, 0.5f);
 
         glPushMatrix();
         glMultMatrixf(mat);
-        glScalef(halfSize.x*2, halfSize.y*2, halfSize.z*2);
+        glScalef(HalfSize.x*2, HalfSize.y*2, HalfSize.z*2);
         glutSolidCube(1.0f);
         glPopMatrix();
     }
@@ -64,13 +54,13 @@ public:
         Body->Orientation	= {};
         Body->Velocity		= {};
         Body->Rotation		= {};
-        halfSize			= extents;
+        HalfSize			= extents;
 
-        cyclone::real mass = halfSize.x * halfSize.y * halfSize.z * 8.0f;
+        cyclone::real mass = HalfSize.x * HalfSize.y * HalfSize.z * 8.0f;
         Body->setMass(mass);
 
         cyclone::Matrix3 tensor;
-        tensor.setBlockInertiaTensor(halfSize, mass);
+        tensor.setBlockInertiaTensor(HalfSize, mass);
         Body->setInertiaTensor(tensor);
 
         Body->LinearDamping		= 0.95f;
@@ -136,31 +126,30 @@ const char* RagdollDemo::GetTitle()
 void RagdollDemo::GenerateContacts()
 {
     // Create the ground plane data
-    cyclone::CollisionPlane plane;
-	plane.direction = {0,1,0};
-    plane.offset = 0;
+    cyclone::CollisionPlane				plane;
+	plane.Direction					= {0,1,0};
+    plane.Offset					= 0;
 
     // Set up the collision data structure
     CData.reset(MaxContacts);
-    CData.friction = (cyclone::real)0.9;
-    CData.restitution = (cyclone::real)0.6;
-    CData.tolerance = (cyclone::real)0.1;
+    CData.friction					= (cyclone::real)0.9;
+    CData.restitution				= (cyclone::real)0.6;
+    CData.tolerance					= (cyclone::real)0.1;
 
     // Perform exhaustive collision detection on the ground plane
-    cyclone::Matrix4 transform, otherTransform;
-    cyclone::Vector3 position, otherPosition;
-    for (Bone *bone = bones; bone < bones+NUM_BONES; bone++)
-    {
+    cyclone::Matrix4					transform	, otherTransform;
+    cyclone::Vector3					position	, otherPosition;
+    for (Bone *bone = bones; bone < bones+NUM_BONES; bone++) {
         // Check for collisions with the ground plane
         if (!CData.hasMoreContacts()) 
 			return;
+
         cyclone::CollisionDetector::boxAndHalfSpace(*bone, plane, &CData);
-        cyclone::CollisionSphere boneSphere = bone->getCollisionSphere();
+        cyclone::CollisionSphere		boneSphere	= bone->getCollisionSphere();
         for (Bone *other = bone+1; other < bones+NUM_BONES; other++) {	// Check for collisions with each other box
             if (!CData.hasMoreContacts()) return;
 
             cyclone::CollisionSphere otherSphere = other->getCollisionSphere();
-
             cyclone::CollisionDetector::sphereAndSphere(
                 boneSphere,
                 otherSphere,
@@ -265,8 +254,10 @@ void RagdollDemo::Display()
         cyclone::Vector3 b_pos = joint->body[1]->getPointInWorldSpace(joint->position[1]);
         cyclone::real length = (b_pos - a_pos).magnitude();
 
-        if (length > joint->error) glColor3f(1,0,0);
-        else glColor3f(0,1,0);
+        if (length > joint->Error) 
+			glColor3f(1,0,0);
+        else 
+			glColor3f(0,1,0);
 
         glVertex3f(a_pos.x, a_pos.y, a_pos.z);
         glVertex3f(b_pos.x, b_pos.y, b_pos.z);

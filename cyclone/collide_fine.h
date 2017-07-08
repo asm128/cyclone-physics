@@ -22,18 +22,18 @@ namespace cyclone {
 	
 	// Represents a rigid body that can be treated as a sphere for collision detection.
 	struct CollisionSphere : public CollisionPrimitive {
-		real						radius;		// The radius of the sphere.
+		real						Radius;		// The radius of the sphere.
 	};
 
 	// The plane is not a primitive: it doesn't represent another rigid body. It is used for contacts with the immovable world geometry.
 	struct CollisionPlane {
-		Vector3						direction;	// The plane normal
-		real						offset;	// The distance of the plane from the origin.
+		Vector3						Direction;	// The plane normal
+		real						Offset;	// The distance of the plane from the origin.
 	};
 
 	// Represents a rigid body that can be treated as an aligned bounding box for collision detection.
 	struct CollisionBox : public CollisionPrimitive {
-		Vector3						halfSize;	// Holds the half-sizes of the box along each of its local axes.
+		Vector3						HalfSize;	// Holds the half-sizes of the box along each of its local axes.
 	};
 
 	// A wrapper class that holds fast intersection tests. These can be used to drive the coarse collision detection system or as an early out in the full collision tests below.

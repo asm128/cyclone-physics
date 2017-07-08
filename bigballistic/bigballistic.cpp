@@ -30,7 +30,7 @@ public:
 
         glPushMatrix();
         glMultMatrixf(mat);
-        glutSolidSphere(radius, 20, 20);
+        glutSolidSphere(Radius, 20, 20);
         glPopMatrix();
     }
 
@@ -45,7 +45,7 @@ public:
             Body->Velocity			= {0.0f, 0.0f, 20.0f};
             Body->Acceleration		= {0.0f, -0.5f, 0.0f};
             Body->setDamping(0.99f, 0.8f);
-            radius = 0.2f;
+            Radius = 0.2f;
             break;
 
         case ARTILLERY:
@@ -53,7 +53,7 @@ public:
             Body->Velocity			= {0.0f, 30.0f, 40.0f}; // 50m/s
             Body->Acceleration		= {0.0f, -21.0f, 0.0f};
             Body->setDamping(0.99f, 0.8f);
-            radius = 0.4f;
+            Radius = 0.4f;
             break;
 
         case FIREBALL:
@@ -61,7 +61,7 @@ public:
             Body->Velocity			= {0.0f, -0.5f, 10.0}; // 10m/s
             Body->Acceleration		= {0.0f,  0.3f, 0.0f}; // Floats up
             Body->setDamping(0.9f, 0.8f);
-            radius = 0.6f;
+            Radius = 0.6f;
             break;
 
         case LASER:
@@ -71,7 +71,7 @@ public:
             Body->Velocity			= {0.0f, 0.0f, 100.0f	}; // 100m/s
             Body->Acceleration		= {0.0f, 0.0f, 0.0f		}; // No gravity
             Body->setDamping(0.99f, 0.8f);
-            radius = 0.2f;
+            Radius = 0.2f;
             break;
         }
 
@@ -79,7 +79,7 @@ public:
         Body->setAwake();
 
         cyclone::Matrix3 tensor;
-        cyclone::real coeff = 0.4f * Body->getMass()*radius*radius;
+        cyclone::real coeff = 0.4f * Body->getMass() * Radius * Radius;
         tensor.setInertiaTensorCoeffs(coeff,coeff,coeff);
         Body->setInertiaTensor(tensor);
 
@@ -106,7 +106,7 @@ public:
 
 	    glPushMatrix();
 	    glMultMatrixf(mat);
-	    glScalef(halfSize.x*2, halfSize.y*2, halfSize.z*2);
+	    glScalef(HalfSize.x * 2, HalfSize.y * 2, HalfSize.z * 2);
 	    glutSolidCube(1.0f);
 	    glPopMatrix();
 	}
@@ -117,13 +117,13 @@ public:
 		Body->setOrientation(1,0,0,0);
 		Body->Velocity							= {};
 		Body->Rotation							= {};
-		halfSize								= {1, 1, 1};
+		HalfSize								= {1, 1, 1};
 
-		::cyclone::real								mass				= halfSize.x * halfSize.y * halfSize.z * 8.0f;
+		::cyclone::real								mass				= HalfSize.x * HalfSize.y * HalfSize.z * 8.0f;
 		Body->setMass(mass);
 
 		::cyclone::Matrix3							tensor;
-		tensor.setBlockInertiaTensor(halfSize, mass);
+		tensor.setBlockInertiaTensor(HalfSize, mass);
 		Body->setInertiaTensor(tensor);
 
 		Body->LinearDamping						= 0.95f;
@@ -301,8 +301,8 @@ void BigBallisticDemo::GenerateContacts()
 {
     // Create the ground plane data
     cyclone::CollisionPlane			plane;
-	plane.direction				= {0,1,0};
-    plane.offset				= 0;
+	plane.Direction				= {0,1,0};
+    plane.Offset				= 0;
 
     // Set up the collision data structure
     CData.reset(MaxContacts);

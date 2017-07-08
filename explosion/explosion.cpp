@@ -36,7 +36,7 @@ public:
 
         glPushMatrix();
         glMultMatrixf(mat);
-        glutSolidSphere(radius, 20, 20);
+        glutSolidSphere(Radius, 20, 20);
         glPopMatrix();
     }
 
@@ -49,28 +49,28 @@ public:
         glPushMatrix();
         glScalef(1.0f, 0, 1.0f);
         glMultMatrixf(mat);
-        glutSolidSphere(radius, 20, 20);
+        glutSolidSphere(Radius, 20, 20);
         glPopMatrix();
     }
 	
 	void setState	// Sets the box to a specific location.
-		(	cyclone::Vector3		position
-		,	cyclone::Quaternion		orientation
-		,	cyclone::real			radius
-		,	cyclone::Vector3		velocity
+		(	::cyclone::Vector3		position
+		,	::cyclone::Quaternion	orientation
+		,	double					radius
+		,	::cyclone::Vector3		velocity
 		)
     {
         Body->Position					= position;
         Body->Orientation				= orientation;
         Body->Velocity					= velocity;
 		Body->Rotation					= {};
-        Ball::radius					= radius;
+        Radius							= radius;
 
-        cyclone::real						mass					= 4.0f*0.3333f*3.1415f * radius*radius*radius;
+        ::cyclone::real						mass					= 4.0f*0.3333f*3.1415f * radius*radius*radius;
         Body->setMass(mass);
 
-        cyclone::Matrix3 tensor;
-        cyclone::real coeff = 0.4f*mass*radius*radius;
+        ::cyclone::Matrix3					tensor;
+        double								coeff					= 0.4f * mass * radius * radius;
         tensor.setInertiaTensorCoeffs(coeff,coeff,coeff);
         Body->setInertiaTensor(tensor);
 
@@ -118,7 +118,7 @@ public:
 		
 		glPushMatrix();
 		glMultMatrixf(mat);
-		glScalef(halfSize.x*2, halfSize.y*2, halfSize.z*2);
+		glScalef(HalfSize.x*2, HalfSize.y*2, HalfSize.z*2);
 		glutSolidCube(1.0f);
 		glPopMatrix();
 	}
@@ -131,7 +131,7 @@ public:
 		glPushMatrix();
 		glScalef(1.0f, 0, 1.0f);
 		glMultMatrixf(mat);
-		glScalef(halfSize.x*2, halfSize.y*2, halfSize.z*2);
+		glScalef(HalfSize.x * 2, HalfSize.y * 2, HalfSize.z * 2);
 		glutSolidCube(1.0f);
 		glPopMatrix();
 	}
@@ -148,13 +148,13 @@ public:
 		Body->setOrientation(orientation);
 		Body->Velocity					= velocity;
 		Body->Rotation					= {};
-		halfSize						= extents;
+		HalfSize						= extents;
 		
-		cyclone::real						mass					= halfSize.x * halfSize.y * halfSize.z * 8.0f;
+		cyclone::real						mass					= HalfSize.x * HalfSize.y * HalfSize.z * 8.0f;
 		Body->setMass(mass);
 		
 		cyclone::Matrix3					tensor;
-		tensor.setBlockInertiaTensor(halfSize, mass);
+		tensor.setBlockInertiaTensor(HalfSize, mass);
 		Body->setInertiaTensor(tensor);
 		Body->LinearDamping				= 0.95f;
 		Body->AngularDamping			= 0.8f;
@@ -252,8 +252,8 @@ void ExplosionDemo::GenerateContacts() {
 
     // Create the ground plane data
     cyclone::CollisionPlane		plane;
-	plane.direction			= {0, 1, 0};
-    plane.offset			= 0;
+	plane.Direction			= {0, 1, 0};
+    plane.Offset			= 0;
 
     // Set up the collision data structure
     CData.reset(MaxContacts);
