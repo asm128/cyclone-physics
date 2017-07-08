@@ -1,26 +1,12 @@
-/*
- * Interface file for the force generators.
- *
- * Part of the Cyclone physics system.
- *
- * Copyright (c) Icosagon 2003. All Rights Reserved.
- *
- * This software is distributed under license. Use of this software
- * implies agreement with all terms and conditions of the accompanying
- * software license.
- */
-
-/**
- * @file
- *
- * This file contains the interface and sample force generators.
- */
-#ifndef CYCLONE_FGEN_H
-#define CYCLONE_FGEN_H
-
+// This file contains the interface and sample force generators.
+// Copyright (c) Icosagon 2003. Published by Ian Millington under the MIT License for his book "Game Physics Engine Development" or something like that (a really good book that I actually bought in paperback after reading it).
+// Heavily modified by asm128 in order to make this code readable and free of potential bugs and inconsistencies and a large set of sources of problems and improductivity originally introduced thanks to poor advice, bad practices and OOP vices.
 #include "body.h"
 #include "pfgen.h"
 #include <vector>
+
+#ifndef CYCLONE_FGEN_H
+#define CYCLONE_FGEN_H
 
 namespace cyclone {
 
@@ -36,7 +22,7 @@ namespace cyclone {
          * Overload this in implementations of the interface to calculate
          * and update the force applied to the given rigid body.
          */
-        virtual void updateForce(RigidBody *body, real duration) = 0;
+        virtual void UpdateForce(RigidBody *body, real duration) = 0;
     };
 
     /**
@@ -54,7 +40,7 @@ namespace cyclone {
         Gravity(const Vector3 &gravity);
 
         /** Applies the gravitational force to the given rigid body. */
-        virtual void updateForce(RigidBody *body, real duration);
+        virtual void UpdateForce(RigidBody *body, real duration);
     };
 
     /**
@@ -93,7 +79,7 @@ namespace cyclone {
                real restLength);
 
         /** Applies the spring force to the given rigid body. */
-        virtual void updateForce(RigidBody *body, real duration);
+        virtual void UpdateForce(RigidBody *body, real duration);
     };
 
     /**
@@ -217,13 +203,13 @@ namespace cyclone {
          * Calculates and applies the force that the explosion
          * has on the given rigid body.
          */
-        virtual void updateForce(RigidBody * body, real duration);
+        virtual void UpdateForce(RigidBody * body, real duration);
 
         /**
          * Calculates and applies the force that the explosion has
          * on the given particle.
          */
-        virtual void updateForce(Particle *particle, real duration) = 0;
+        virtual void UpdateForce(Particle *particle, real duration) = 0;
 
     };
 
@@ -264,15 +250,15 @@ namespace cyclone {
         /**
          * Applies the force to the given rigid body.
          */
-        virtual void updateForce(RigidBody *body, real duration);
+        virtual void UpdateForce(RigidBody *body, real duration);
 
     protected:
         /**
          * Uses an explicit tensor matrix to update the force on
-         * the given rigid body. This is exactly the same as for updateForce
+         * the given rigid body. This is exactly the same as for UpdateForce
          * only it takes an explicit tensor.
          */
-        void updateForceFromTensor(RigidBody *body, real duration,
+        void UpdateForceFromTensor(RigidBody *body, real duration,
                                    const Matrix3 &tensor);
     };
 
@@ -334,7 +320,7 @@ namespace cyclone {
         /**
          * Applies the force to the given rigid body.
          */
-        virtual void updateForce(RigidBody *body, real duration);
+        virtual void UpdateForce(RigidBody *body, real duration);
     };
 
     /**
@@ -367,7 +353,7 @@ namespace cyclone {
         /**
          * Applies the force to the given rigid body.
          */
-        virtual void updateForce(RigidBody *body, real duration);
+        virtual void UpdateForce(RigidBody *body, real duration);
     };
 
     /**
@@ -413,7 +399,7 @@ namespace cyclone {
         /**
          * Applies the force to the given rigid body.
          */
-        virtual void updateForce(RigidBody *body, real duration);
+        virtual void UpdateForce(RigidBody *body, real duration);
     };
 
     /**
@@ -464,7 +450,7 @@ namespace cyclone {
         * Calls all the force generators to update the forces of
         * their corresponding bodies.
         */
-        void updateForces(real duration);
+        void UpdateForces(real duration);
     };
 }
 

@@ -4,12 +4,12 @@
 
 using namespace cyclone;
 
-void ForceRegistry::updateForces(real duration)
+void ForceRegistry::UpdateForces(real duration)
 {
     Registry::iterator i = registrations.begin();
     for (; i != registrations.end(); i++)
     {
-        i->fg->updateForce(i->body, duration);
+        i->fg->UpdateForce(i->body, duration);
     }
 }
 
@@ -31,7 +31,7 @@ Buoyancy::Buoyancy(const Vector3 &cOfB, real maxDepth, real volume,
     Buoyancy::waterHeight = waterHeight;
 }
 
-void Buoyancy::updateForce(RigidBody *body, real duration)
+void Buoyancy::UpdateForce(RigidBody *body, real duration)
 {
     // Calculate the submersion depth
     Vector3 pointInWorld = body->getPointInWorldSpace(centreOfBuoyancy);
@@ -39,7 +39,7 @@ void Buoyancy::updateForce(RigidBody *body, real duration)
 
     // Check if we're out of the water
     if (depth >= waterHeight + maxDepth) return;
-    Vector3 force(0,0,0);
+	Vector3 force = {};
 
     // Check if we're at maximum depth
     if (depth <= waterHeight - maxDepth)
@@ -60,7 +60,7 @@ Gravity::Gravity(const Vector3& gravity)
 {
 }
 
-void Gravity::updateForce(RigidBody* body, real duration)
+void Gravity::UpdateForce(RigidBody* body, real duration)
 {
     // Check that we do not have infinite mass
     if (!body->hasFiniteMass()) return;
@@ -82,7 +82,7 @@ Spring::Spring(const Vector3 &localConnectionPt,
 {
 }
 
-void Spring::updateForce(RigidBody* body, real duration)
+void Spring::UpdateForce(RigidBody* body, real duration)
 {
     // Calculate the two ends in world space
     Vector3 lws = body->getPointInWorldSpace(connectionPoint);
@@ -109,12 +109,12 @@ Aero::Aero(const Matrix3 &tensor, const Vector3 &position, const Vector3 *windsp
     Aero::windspeed = windspeed;
 }
 
-void Aero::updateForce(RigidBody *body, real duration)
+void Aero::UpdateForce(RigidBody *body, real duration)
 {
-    Aero::updateForceFromTensor(body, duration, tensor);
+    Aero::UpdateForceFromTensor(body, duration, tensor);
 }
 
-void Aero::updateForceFromTensor(RigidBody *body, real duration,
+void Aero::UpdateForceFromTensor(RigidBody *body, real duration,
                                  const Matrix3 &tensor)
 {
     // Calculate total velocity (windspeed and body's velocity).
@@ -162,13 +162,13 @@ void AeroControl::setControl(real value)
     controlSetting = value;
 }
 
-void AeroControl::updateForce(RigidBody *body, real duration)
+void AeroControl::UpdateForce(RigidBody *body, real duration)
 {
     Matrix3 tensor = getTensor();
-    Aero::updateForceFromTensor(body, duration, tensor);
+    Aero::UpdateForceFromTensor(body, duration, tensor);
 }
 
-void Explosion::updateForce(RigidBody* body, real duration)
+void Explosion::UpdateForce(RigidBody* body, real duration)
 {
 
 }

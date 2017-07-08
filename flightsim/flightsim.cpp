@@ -33,37 +33,40 @@ public:
 	virtual void			Display					();	// Display the particles. */
 	virtual void			Update					();	// Update the particle positions. */
 	virtual void			Key						(unsigned char key);	// Handle a key press. */
+
+	virtual void			Mouse					(int, int, int, int)	{}	// Called when GLUT detects a mouse button press.
+	virtual void			MouseDrag				(int, int)				{}	// Called when GLUT detects a mouse drag.
 };
 
 // Method definitions
 FlightSimDemo::FlightSimDemo()
-: Application()
-, Right_wing	( cyclone::Matrix3(0,0,0, -1,-0.5f,0, 0,0,0)
-				, cyclone::Matrix3(0,0,0, -0.995f,-0.5f,0, 0,0,0)
-				, cyclone::Matrix3(0,0,0, -1.005f,-0.5f,0, 0,0,0)
-				, cyclone::Vector3(-1.0f, 0.0f, 2.0f)
-				, &Windspeed
-				)
-, Left_wing		( cyclone::Matrix3(0,0,0, -1,-0.5f,0, 0,0,0)
-				, cyclone::Matrix3(0,0,0, -0.995f,-0.5f,0, 0,0,0)
-				, cyclone::Matrix3(0,0,0, -1.005f,-0.5f,0, 0,0,0)
-				, cyclone::Vector3(-1.0f, 0.0f, -2.0f)
-				, &Windspeed
-				)
-, Rudder		( cyclone::Matrix3(0,0,0, 0,0,0, 0,0,0)
-				, cyclone::Matrix3(0,0,0, 0,0,0, 0.01f,0,0)
-				, cyclone::Matrix3(0,0,0, 0,0,0, -0.01f,0,0)
-				, cyclone::Vector3(2.0f, 0.5f, 0)
-				, &Windspeed
-				)
-, Tail			(cyclone::Matrix3(0,0,0, -1,-0.5f,0, 0,0,-0.1f), cyclone::Vector3(2.0f, 0, 0), &Windspeed)
+	: Application()
+	, Right_wing	( cyclone::Matrix3(0,0,0, -1,-0.5f,0, 0,0,0)
+					, cyclone::Matrix3(0,0,0, -0.995f,-0.5f,0, 0,0,0)
+					, cyclone::Matrix3(0,0,0, -1.005f,-0.5f,0, 0,0,0)
+					, {-1.0f, 0.0f, 2.0f}
+					, &Windspeed
+					)
+	, Left_wing		( cyclone::Matrix3(0,0,0, -1,-0.5f,0, 0,0,0)
+					, cyclone::Matrix3(0,0,0, -0.995f,-0.5f,0, 0,0,0)
+					, cyclone::Matrix3(0,0,0, -1.005f,-0.5f,0, 0,0,0)
+					, {-1.0f, 0.0f, -2.0f}
+					, &Windspeed
+					)
+	, Rudder		( cyclone::Matrix3(0,0,0, 0,0,0, 0,0,0)
+					, cyclone::Matrix3(0,0,0, 0,0,0, 0.01f,0,0)
+					, cyclone::Matrix3(0,0,0, 0,0,0, -0.01f,0,0)
+					, {2.0f, 0.5f, 0}
+					, &Windspeed
+					)
+	, Tail			(cyclone::Matrix3(0,0,0, -1,-0.5f,0, 0,0,-0.1f), {2.0f, 0, 0}, &Windspeed)
 {
     // Set up the aircraft rigid body.
     ResetPlane();
 
     Aircraft.setMass(2.5f);
     cyclone::Matrix3 it;
-    it.setBlockInertiaTensor(cyclone::Vector3(2,1,1), 1);
+	it.setBlockInertiaTensor({2,1,1}, 1);
     Aircraft.setInertiaTensor(it);
 
     Aircraft.setDamping(0.8f, 0.8f);
@@ -82,11 +85,11 @@ FlightSimDemo::FlightSimDemo()
 
 void FlightSimDemo::ResetPlane()
 {
-	Aircraft.Position = {0, 0, 0};
-    Aircraft.setOrientation(1,0,0,0);
+	Aircraft.Position		= {};
+	Aircraft.Orientation	= {1,0,0,0};
 
-    Aircraft.setVelocity(0,0,0);
-    Aircraft.setRotation(0,0,0);
+	Aircraft.Velocity		= {};
+	Aircraft.Rotation		= {};
 }
 
 static void drawAircraft()
@@ -133,9 +136,9 @@ void FlightSimDemo::Display()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
 
-    cyclone::Vector3 pos = Aircraft.Position;
-    cyclone::Vector3 offset(4.0f+Aircraft.Velocity.magnitude(), 0, 0);
-    offset = Aircraft.getTransform().transformDirection(offset);
+    cyclone::Vector3						pos			= Aircraft.Position;
+	cyclone::Vector3						offset		= { 4.0f + Aircraft.Velocity.magnitude(), 0, 0 };
+    offset								= Aircraft.getTransform().transformDirection(offset);
     gluLookAt(pos.x+offset.x, pos.y+5.0f, pos.z+offset.z,
               pos.x, pos.y, pos.z,
               0.0, 1.0, 0.0);
@@ -204,7 +207,7 @@ void FlightSimDemo::Update()
 	cyclone::Vector3			propulsion						= {-10.0f, 0, 0};
     propulsion				= Aircraft.getTransform().transformDirection(propulsion);
     Aircraft.addForce		(propulsion);
-    Registry.updateForces	(duration);	// Add the forces acting on the aircraft.
+    Registry.UpdateForces	(duration);	// Add the forces acting on the aircraft.
     Aircraft.integrate		(duration);	// Update the aircraft's physics.
 
     // Do a very basic collision detection and response with the ground.

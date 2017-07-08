@@ -252,7 +252,7 @@ void RigidBodyApplication::DrawDebug()
     glEnd();
 }
 
-void RigidBodyApplication::Mouse(int button, int state, int x, int y)
+void RigidBodyApplication::Mouse(int /*button*/, int /*state*/, int x, int y)
 {
     // Set the position
     Last_x = x;

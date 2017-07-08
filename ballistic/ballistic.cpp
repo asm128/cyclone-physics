@@ -57,6 +57,8 @@ public:
 	virtual void			Display				();										// Display the particle positions.
 	virtual void			Mouse				(int button, int state, int x, int y);	// Handle a mouse click.
 	virtual void			Key					(unsigned char key);					// Handle a keypress. 
+
+	virtual void			MouseDrag			(int x, int y)							{}	// Called when GLUT detects a mouse drag.
 };
 
 // Method definitions

@@ -71,7 +71,7 @@ unsigned World::GenerateContacts()
 void World::runPhysics(real duration)
 {
     // First apply the force generators
-    //registry.updateForces(duration);
+    //registry.UpdateForces(duration);
 
     // Then integrate the objects
     BodyRegistration *reg = firstBody;

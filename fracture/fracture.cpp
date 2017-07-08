@@ -41,23 +41,23 @@ public:
                   const cyclone::Vector3 &extents,
                   const cyclone::Vector3 &velocity)
     {
-        Body->Position = position;
+        Body->Position				= position;
         Body->setOrientation(orientation);
-        Body->Velocity = velocity;
-		Body->Rotation = {};
-        halfSize = extents;
+        Body->Velocity				= velocity;
+		Body->Rotation				= {};
+        halfSize					= extents;
 
-        cyclone::real mass = halfSize.x * halfSize.y * halfSize.z * 8.0f;
+        cyclone::real					mass					= halfSize.x * halfSize.y * halfSize.z * 8.0f;
         Body->setMass(mass);
 
-        cyclone::Matrix3 tensor;
+        cyclone::Matrix3				tensor;
         tensor.setBlockInertiaTensor(halfSize, mass);
         Body->setInertiaTensor(tensor);
 
-        Body->LinearDamping	 = 0.95f;
-        Body->AngularDamping = 0.8f;
+        Body->LinearDamping			= 0.95f;
+        Body->AngularDamping		= 0.8f;
         Body->clearAccumulators();
-        Body->setAcceleration(0,-10.0f,0);
+		Body->Acceleration			= {0, -10.0f, 0};
 
         //body->setCanSleep(false);
         Body->setAwake();
@@ -65,12 +65,8 @@ public:
         Body->calculateDerivedData();
     }
 
-    /**
-     * Calculates and sets the mass and inertia tensor of this block,
-     * assuming it has the given constant density.
-     */
-    void calculateMassProperties(cyclone::real invDensity)
-    {
+	// Calculates and sets the mass and inertia tensor of this block, assuming it has the given constant density.
+	void calculateMassProperties(cyclone::real invDensity) {
         // Check for infinite mass
         if (invDensity <= 0) {		// Just set zeros for both mass and inertia tensor
             Body->InverseMass = 0;
@@ -111,42 +107,31 @@ public:
             body = contact.body[1];
         }
 
-        // Work out where on the body (in body coordinates) the contact is
-        // and its direction.
-        cyclone::Vector3 point = body->GetPointInLocalSpace(contact.contactPoint);
-        normal = body->getDirectionInLocalSpace(normal);
+        // Work out where on the body (in body coordinates) the contact is and its direction.
+        cyclone::Vector3							point									= body->GetPointInLocalSpace(contact.contactPoint);
+        normal									= body->getDirectionInLocalSpace(normal);
+        point									= point - normal * (point * normal);	// Work out the centre of the split: this is the point coordinates for each of the axes perpendicular to the normal, and 0 for the axis along the normal.
 
-        // Work out the centre of the split: this is the point coordinates
-        // for each of the axes perpendicular to the normal, and 0 for the
-        // axis along the normal.
-        point = point - normal * (point * normal);
-
-        // Take a copy of the half size, so we can create the new blocks.
-        cyclone::Vector3 size = target->halfSize;
+        cyclone::Vector3							size									= target->halfSize;	// Take a copy of the half size, so we can create the new blocks.
 
         // Take a copy also of the body's other data.
-        cyclone::RigidBody tempBody;
-        tempBody.Position				= body->Position				;
-        tempBody.Orientation			= body->Orientation				;
-        tempBody.Velocity				= body->Velocity				;
-        tempBody.Rotation				= body->Rotation				;
-        tempBody.LinearDamping			= body->LinearDamping			;
-        tempBody.AngularDamping			= body->AngularDamping			;
-        tempBody.InverseInertiaTensor	= body->InverseInertiaTensor	;
+        cyclone::RigidBody							tempBody;
+        tempBody.Position						= body->Position				;
+        tempBody.Orientation					= body->Orientation				;
+        tempBody.Velocity						= body->Velocity				;
+        tempBody.Rotation						= body->Rotation				;
+        tempBody.LinearDamping					= body->LinearDamping			;
+        tempBody.AngularDamping					= body->AngularDamping			;
+        tempBody.InverseInertiaTensor			= body->InverseInertiaTensor	;
         tempBody.calculateDerivedData();
 
-        // Remove the old block
-        target->exists = false;
-
-        // Work out the inverse density of the old block
-        cyclone::real invDensity =
-            halfSize.magnitude()*8 * body->InverseMass;
+		target->exists							= false;	// Remove the old block
+        cyclone::real								invDensity								= halfSize.magnitude()*8 * body->InverseMass;	// Work out the inverse density of the old block
 
         // Now split the block into eight.
         for (unsigned i = 0; i < 8; i++)
         {
-            // Find the minimum and maximum extents of the new block
-            // in old-block coordinates
+            // Find the minimum and maximum extents of the new block in old-block coordinates
             cyclone::Vector3 min, max;
             if ((i & 1) == 0) {
                 min.x = -size.x;
@@ -170,20 +155,15 @@ public:
                 max.z = size.z;
             }
 
-            // Get the origin and half size of the block, in old-body
-            // local coordinates.
+            // Get the origin and half size of the block, in old-body local coordinates.
             cyclone::Vector3 halfSize = (max - min) * 0.5f;
             cyclone::Vector3 newPos = halfSize + min;
+            newPos = tempBody.getPointInWorldSpace(newPos);	// Convert the origin to world coordinates.
 
-            // Convert the origin to world coordinates.
-            newPos = tempBody.getPointInWorldSpace(newPos);
-
-            // Work out the direction to the impact.
-            cyclone::Vector3 direction = newPos - contact.contactPoint;
+            cyclone::Vector3 direction = newPos - contact.contactPoint;	// Work out the direction to the impact.
             direction.normalise();
 
-            // Set the body's properties (we assume the block has a body
-            // already that we're going to overwrite).
+            // Set the body's properties (we assume the block has a body already that we're going to overwrite).
             blocks[i].Body->Position			= newPos;
             blocks[i].Body->Velocity			= tempBody.Velocity + direction * 10.0f;
             blocks[i].Body->setOrientation		(tempBody.Orientation);
@@ -198,8 +178,7 @@ public:
             blocks[i].exists					= true;
             blocks[i].halfSize					= halfSize;
 
-            // Finally calculate the mass and inertia tensor of the new block
-            blocks[i].calculateMassProperties(invDensity);
+            blocks[i].calculateMassProperties(invDensity);	// Finally calculate the mass and inertia tensor of the new block
         }
     }
 };
@@ -231,21 +210,20 @@ public:
 FractureDemo::FractureDemo()
 	: RigidBodyApplication()
 {
-    // Create the ball.
-    ball.Body = new cyclone::RigidBody();
-    ball.radius = 0.25f;
-    ball.Body->setMass(5.0f);
-    ball.Body->setDamping(0.9f, 0.9f);
-    cyclone::Matrix3 it;
-    it.setDiagonal(5.0f, 5.0f, 5.0f);
-    ball.Body->setInertiaTensor(it);
-    ball.Body->Acceleration = cyclone::Vector3::GRAVITY;
+	// Create the ball.
+	ball.Body							= new cyclone::RigidBody();
+	ball.radius							= 0.25f;
+	ball.Body->setMass(5.0f);
+	ball.Body->setDamping(0.9f, 0.9f);
+	cyclone::Matrix3						it;
+	it.setDiagonal(5.0f, 5.0f, 5.0f);
+	ball.Body->setInertiaTensor(it);
+	ball.Body->Acceleration				= cyclone::Vector3::GRAVITY;
+	
+	ball.Body->setCanSleep(false);
+	ball.Body->setAwake(true);
 
-    ball.Body->setCanSleep(false);
-    ball.Body->setAwake(true);
-
-    // Set up the initial block
-    Reset();
+	Reset();	// Set up the initial block
 }
 
 const char* FractureDemo::GetTitle()
@@ -259,7 +237,7 @@ void FractureDemo::GenerateContacts()
 
     // Create the ground plane data
     cyclone::CollisionPlane plane;
-    plane.direction = cyclone::Vector3(0,1,0);
+	plane.direction = {0,1,0};
     plane.offset = 0;
 
     // Set up the collision data structure
@@ -318,11 +296,11 @@ void FractureDemo::Reset()
     }
 
     // Set the first block
-    blocks[0].halfSize = cyclone::Vector3(4,4,4);
-	blocks[0].Body->Position = {0, 7, 0};
-    blocks[0].Body->setOrientation(1,0,0,0);
-    blocks[0].Body->Velocity = {};
-    blocks[0].Body->Rotation = {};
+	blocks[0].halfSize				= {4,4,4};
+	blocks[0].Body->Position		= {0, 7, 0};
+	blocks[0].Body->Orientation		= {1,0,0,0};
+    blocks[0].Body->Velocity		= {};
+    blocks[0].Body->Rotation		= {};
     blocks[0].Body->setMass(100.0f);
     cyclone::Matrix3 it;
     it.setBlockInertiaTensor(blocks[0].halfSize, 100.0f);

@@ -34,6 +34,9 @@ public:
 	virtual void						Display						();	// Display the particles.
 	virtual void						Update						();	// Update the particle positions.
 	virtual void						Key							(unsigned char key);	// Handle a key press.
+
+	virtual void						Mouse						(int, int, int, int)				{}	// Called when GLUT detects a mouse button press.
+	virtual void						MouseDrag					(int, int)							{}	// Called when GLUT detects a mouse drag.
 };
 
 // Method definitions
@@ -68,14 +71,16 @@ BridgeDemo::BridgeDemo() : MassAggregateApplication(12) {
     for (unsigned i = 0; i < SUPPORT_COUNT; i++)
     {
         supports[i].particle = ParticleArray + i;
-        supports[i].anchor = cyclone::Vector3(
-            cyclone::real(i/2)*2.2f-5.5f,
-            6,
-            cyclone::real(i%2)*1.6f-0.8f
-            );
-        if (i < 6) supports[i].maxLength = cyclone::real(i/2)*0.5f + 3.0f;
-        else supports[i].maxLength = 5.5f - cyclone::real(i/2)*0.5f;
-        supports[i].restitution = 0.5f;
+        supports[i].anchor = 
+            {	cyclone::real(i/2)*2.2f-5.5f
+            ,	6
+            ,	cyclone::real(i%2)*1.6f-0.8f
+            };
+        
+		if (i < 6)	supports[i].maxLength = cyclone::real(i/2)*0.5f + 3.0f;
+        else		supports[i].maxLength = 5.5f - cyclone::real(i/2)*0.5f;
+        
+		supports[i].restitution = 0.5f;
         World.getContactGenerators().push_back(&supports[i]);
     }
 

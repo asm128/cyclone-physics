@@ -25,10 +25,10 @@
 
 // The main demo class definition.
 class PlatformDemo : public MassAggregateApplication {
-	cyclone::ParticleRod				* Rods;
+	cyclone::ParticleRod				* Rods					= 0;
 	
-	cyclone::Vector3					MassPos;
-	cyclone::Vector3					MassDisplayPos;
+	cyclone::Vector3					MassPos					= {0,0,0.5f};
+	cyclone::Vector3					MassDisplayPos			;
 	
 	void								UpdateAdditionalMass	();	// Updates particle masses to take into account the mass that's on the platform.
 public:
@@ -39,13 +39,12 @@ public:
 	virtual void						Display					();						// Display the particles.
 	virtual void						Update					();						// Update the particle positions.
 	virtual void						Key						(unsigned char key);	// Handle a key press.
-};
+	virtual void						Mouse					(int, int, int, int)	{}	// Called when GLUT detects a mouse button press.
+	virtual void						MouseDrag				(int, int)				{}	// Called when GLUT detects a mouse drag.
+};	
 
 // Method definitions
-PlatformDemo::PlatformDemo()
-	: MassAggregateApplication(6)
-	, Rods(0)
-	, MassPos(0,0,0.5f)
+PlatformDemo::PlatformDemo() : MassAggregateApplication(6)
 {
     // Create the masses and connections.
     ParticleArray[0].Position = {0,0,1	};
@@ -164,10 +163,7 @@ void PlatformDemo::Update()
     UpdateAdditionalMass();
 }
 
-const char* PlatformDemo::GetTitle()
-{
-    return "Cyclone > Platform Demo";
-}
+const char* PlatformDemo::GetTitle() { return "Cyclone > Platform Demo"; }
 
 void PlatformDemo::Key(unsigned char key) {
     switch(key) {

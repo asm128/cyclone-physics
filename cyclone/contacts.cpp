@@ -111,7 +111,7 @@ Vector3 Contact::calculateLocalVelocity(unsigned bodyIndex, real duration) {
     Vector3												velocity						= thisBody->Rotation % relativeContactPosition[bodyIndex];	// Work out the velocity of the contact point.
     velocity										+= thisBody->Velocity;
 	Vector3												contactVelocity					= contactToWorld.transformTranspose(velocity);	// Turn the velocity into contact-coordinates.
-    Vector3												accVelocity						= thisBody->getLastFrameAcceleration() * duration;	// Calculate the ammount of velocity that is due to forces without reactions.
+    Vector3												accVelocity						= thisBody->LastFrameAcceleration * duration;	// Calculate the ammount of velocity that is due to forces without reactions.
     accVelocity										= contactToWorld.transformTranspose(accVelocity);	// Calculate the velocity in contact-coordinates.
     accVelocity.x									= 0;	// We ignore any component of acceleration in the contact normal direction, we are only interested in planar acceleration
     contactVelocity									+= accVelocity;	// Add the planar velocities - if there's enough friction they will be removed during velocity resolution
@@ -124,10 +124,10 @@ void Contact::calculateDesiredDeltaVelocity(real duration) {
 	real												velocityFromAcc					= 0;	// Calculate the acceleration induced velocity accumulated this frame
 
 	if (body[0]->IsAwake)
-		velocityFromAcc									+= body[0]->getLastFrameAcceleration() * duration * contactNormal;
+		velocityFromAcc									+= body[0]->LastFrameAcceleration * duration * contactNormal;
 
 	if (body[1] && body[1]->IsAwake)
-		velocityFromAcc									-= body[1]->getLastFrameAcceleration() * duration * contactNormal;
+		velocityFromAcc									-= body[1]->LastFrameAcceleration * duration * contactNormal;
 
 	real												thisRestitution					= restitution;
 	if (real_abs(contactVelocity.x) < velocityLimit)	// If the velocity is very slow, limit the restitution
@@ -159,9 +159,9 @@ void Contact::applyVelocityChange	(Vector3 velocityChange[2]
 {
     // Get hold of the inverse mass and inverse inertia tensor, both in world coordinates.
     Matrix3 inverseInertiaTensor[2];
-    body[0]->getInverseInertiaTensorWorld(&inverseInertiaTensor[0]);
+    inverseInertiaTensor[0] = body[0]->InverseInertiaTensorWorld;
     if (body[1])
-        body[1]->getInverseInertiaTensorWorld(&inverseInertiaTensor[1]);
+        inverseInertiaTensor[1] = body[1]->InverseInertiaTensorWorld;
 
     // We will calculate the impulse for each contact axis
     Vector3 impulseContact;
@@ -280,9 +280,11 @@ Vector3 Contact::calculateFrictionImpulse(Matrix3 * inverseInertiaTensor)
     Matrix3 impulseMatrix = deltaVelocity.inverse();
 
     // Find the target velocities to kill
-    Vector3 velKill(desiredDeltaVelocity,
-        -contactVelocity.y,
-        -contactVelocity.z);
+    Vector3 velKill = 
+		{ desiredDeltaVelocity
+		, -contactVelocity.y
+		, -contactVelocity.z
+		};
 
     // Find the impulse to kill target velocities
     impulseContact = impulseMatrix.transform(velKill);
@@ -323,8 +325,7 @@ void Contact::applyPositionChange	( Vector3 linearChange	[2]
 	
 	for (unsigned i = 0; i < 2; i++)	// We need to work out the inertia of each object in the direction of the contact normal, due to angular inertia only.
 		if (body[i]) {
-			Matrix3							inverseInertiaTensor;
-			body[i]->getInverseInertiaTensorWorld(&inverseInertiaTensor);
+			Matrix3							inverseInertiaTensor = body[i]->InverseInertiaTensorWorld;
 
 			// Use the same procedure as for calculating frictionless velocity change to work out the angular inertia.
 			Vector3							angularInertiaWorld										= relativeContactPosition[i] % contactNormal;
@@ -345,17 +346,14 @@ void Contact::applyPositionChange	( Vector3 linearChange	[2]
 			angularMove[i]	= sign * penetration * (angularInertia	[i] / totalInertia);
 			linearMove[i]	= sign * penetration * (linearInertia	[i] / totalInertia);
 
-			// To avoid angular projections that are too great (when mass is large
-			// but inertia tensor is small) limit the angular move.
+			// To avoid angular projections that are too great (when mass is large but inertia tensor is small) limit the angular move.
 			Vector3 projection = relativeContactPosition[i];
 			projection.addScaledVector(
 				contactNormal,
 				-relativeContactPosition[i].scalarProduct(contactNormal)
 				);
 
-			// Use the small angle approximation for the sine of the angle (i.e.
-			// the magnitude would be sine(angularLimit) * projection.magnitude
-			// but we approximate sine(angularLimit) to angularLimit).
+			// Use the small angle approximation for the sine of the angle (i.e. the magnitude would be sine(angularLimit) * projection.magnitude but we approximate sine(angularLimit) to angularLimit).
 			real maxMagnitude = angularLimit * projection.magnitude();
 
 			if (angularMove[i] < -maxMagnitude)
@@ -370,10 +368,8 @@ void Contact::applyPositionChange	( Vector3 linearChange	[2]
 				linearMove[i] = totalMove - angularMove[i];
 			}
 
-			// We have the linear amount of movement required by turning
-			// the rigid body (in angularMove[i]). We now need to
-			// calculate the desired rotation to achieve that.
-			if (angularMove[i] == 0)  // Easy case - no angular movement means no rotation.
+			// We have the linear amount of movement required by turning the rigid body (in angularMove[i]). We now need to calculate the desired rotation to achieve that.
+			if (angularMove[i] == 0)  // Easy case - no angular movement means no rotation.		
 				angularChange[i].clear();
 			else { // Work out the direction we'd like to rotate in.
 				Vector3		targetAngularDirection	= relativeContactPosition[i].vectorProduct(contactNormal);
@@ -391,8 +387,7 @@ void Contact::applyPositionChange	( Vector3 linearChange	[2]
 			body[i]->Position = pos;
 
 			// And the change in orientation
-			Quaternion q;
-			body[i]->getOrientation(&q);
+			Quaternion q = body[i]->Orientation;
 			q.addScaledVector(angularChange[i], ((real)1.0));
 			body[i]->Orientation = q;
 

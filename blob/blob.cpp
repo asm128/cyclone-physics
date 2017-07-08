@@ -111,10 +111,10 @@ public:
 	uint32_t							maxFloat				= 0; // The maximum number of particles in the blob before the head is floated at maximum force.
 	cyclone::real						maxDistance				= 0; // The separation between particles after which they 'break' apart and there is no force.
 
-	virtual void						updateForce				(cyclone::Particle *particle, cyclone::real duration);
+	virtual void						UpdateForce				(cyclone::Particle *particle, cyclone::real duration);
 };
 
-void BlobForceGenerator::updateForce(cyclone::Particle *particle,
+void BlobForceGenerator::UpdateForce(cyclone::Particle *particle,
                                       cyclone::real duration)
 {
     unsigned joinCount = 0;
@@ -135,12 +135,12 @@ void BlobForceGenerator::updateForce(cyclone::Particle *particle,
             particle->addForce(separation.unit() * (1.0f - distance) * maxReplusion * -1.0f);
             joinCount++;
         }
-        else if (distance > maxNaturalDistance && distance < maxDistance)
-        {
+        else if (distance > maxNaturalDistance && distance < maxDistance) {
             // Use an attraction force.
-            distance =
-				(distance - maxNaturalDistance) /
-                (maxDistance - maxNaturalDistance);
+            distance 
+				= (distance		- maxNaturalDistance) 
+				/ (maxDistance	- maxNaturalDistance)
+				;
             particle->addForce(separation.unit() * distance * maxAttraction);
             joinCount++;
         }
@@ -149,8 +149,9 @@ void BlobForceGenerator::updateForce(cyclone::Particle *particle,
     // If the particle is the head, and we've got a join count, then float it.
     if (particle == particles && joinCount > 0 && maxFloat > 0) {
         cyclone::real force = cyclone::real(joinCount / maxFloat) * floatHead;
-        if (force > floatHead) force = floatHead;
-        particle->addForce(cyclone::Vector3(0, force, 0));
+        if (force > floatHead) 
+			force = floatHead;
+		particle->addForce( {0, force, 0} );
     }
 
 }
@@ -174,6 +175,8 @@ public:
 	virtual void					Update				();						// Update the particle positions. 
 	virtual void					Key					(unsigned char key);	// Handle a key press. 
 
+	virtual void					Mouse				(int button, int state, int x, int y)	{};	// Called when GLUT detects a mouse button press.
+	virtual void					MouseDrag			(int x, int y)							{};	// Called when GLUT detects a mouse drag.
 };
 
 // Method definitions
@@ -200,17 +203,19 @@ BlobDemo::BlobDemo()
     platforms = new Platform[PLATFORM_COUNT];
     for (unsigned i = 0; i < PLATFORM_COUNT; i++)
     {
-        platforms[i].start = cyclone::Vector3(
-            cyclone::real(i%2)*10.0f - 5.0f,
-            cyclone::real(i)*4.0f + ((i%2)?0.0f:2.0f),
-            0);
+        platforms[i].start = 
+            { cyclone::real(i%2)*10.0f - 5.0f
+            , cyclone::real(i)*4.0f + ((i%2)?0.0f:2.0f)
+			, 0
+			};
         platforms[i].start.x += r.randomBinomial(2.0f);
         platforms[i].start.y += r.randomBinomial(2.0f);
 
-        platforms[i].end = cyclone::Vector3(
-            cyclone::real(i%2)*10.0f + 5.0f,
-            cyclone::real(i)*4.0f + ((i%2)?2.0f:0.0f),
-            0);
+        platforms[i].end = 
+			{ cyclone::real(i%2)*10.0f + 5.0f
+            , cyclone::real(i)*4.0f + ((i%2)?2.0f:0.0f)
+			, 0
+			};
         platforms[i].end.x += r.randomBinomial(2.0f);
         platforms[i].end.y += r.randomBinomial(2.0f);
 
@@ -227,11 +232,11 @@ BlobDemo::BlobDemo()
     for (unsigned i = 0; i < BLOB_COUNT; i++)
     {
         unsigned me = (i+BLOB_COUNT/2) % BLOB_COUNT;
-        blobs[i].Position = (p->start + delta * (cyclone::real(me)*0.8f*fraction+0.1f) + cyclone::Vector3(0, 1.0f+r.randomReal(), 0));
+		blobs[i].Position = (p->start + delta * (cyclone::real(me)*0.8f*fraction+0.1f) + cyclone::Vector3{0, 1.0f+r.randomReal(), 0});
 
 		blobs[i].Velocity			= {};
-        blobs[i].Damping			= (0.2f);
-        blobs[i].Acceleration		= (cyclone::Vector3::GRAVITY * 0.4f);
+        blobs[i].Damping			= 0.2f;
+        blobs[i].Acceleration		= cyclone::Vector3::GRAVITY * 0.4f;
         blobs[i].setMass			(1.0f);
         blobs[i].clearAccumulator();
 
@@ -249,7 +254,7 @@ void BlobDemo::Reset()
     for (unsigned i = 0; i < BLOB_COUNT; i++)
     {
         unsigned me = (i+BLOB_COUNT/2) % BLOB_COUNT;
-        blobs[i].Position			= (p->start + delta * (cyclone::real(me)*0.8f*fraction+0.1f) + cyclone::Vector3(0, 1.0f+r.randomReal(), 0));
+		blobs[i].Position			= (p->start + delta * (cyclone::real(me)*0.8f*fraction+0.1f) + cyclone::Vector3{0, 1.0f+r.randomReal(), 0});
 		blobs[i].Velocity			= {};
         blobs[i].clearAccumulator();
     }
@@ -327,7 +332,7 @@ void BlobDemo::Update()
 	xAxis *= pow(0.1f, duration);
 	yAxis *= pow(0.1f, duration);
 	
-	blobs[0].addForce(cyclone::Vector3(xAxis, yAxis, 0)*10.0f);	// Move the controlled blob
+	blobs[0].addForce(cyclone::Vector3{xAxis, yAxis, 0} * 10.0f);	// Move the controlled blob
 	world.runPhysics(duration);	// Run the simulation
 	
 	// Bring all the particles back to 2d

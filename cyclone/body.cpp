@@ -211,17 +211,6 @@ void RigidBody::setInverseInertiaTensor(const Matrix3 &inverseInertiaTensor)
 	RigidBody::InverseInertiaTensor = inverseInertiaTensor;
 }
 
-void RigidBody::getInverseInertiaTensor(Matrix3 *inverseInertiaTensor) const
-{
-    *inverseInertiaTensor = RigidBody::InverseInertiaTensor;
-}
-
-
-void RigidBody::getInverseInertiaTensorWorld(Matrix3 *inverseInertiaTensor) const
-{
-    *inverseInertiaTensor = InverseInertiaTensorWorld;
-}
-
 void RigidBody::setDamping(const real linearDamping,
                const real angularDamping)
 {
@@ -250,11 +239,6 @@ void RigidBody::setOrientation(const real r, const real i,
     Orientation.j = j;
     Orientation.k = k;
     Orientation.normalise();
-}
-
-void RigidBody::getOrientation(Quaternion *orientation) const
-{
-    *orientation = RigidBody::Orientation;
 }
 
 void RigidBody::getOrientation(Matrix3 *matrix) const
@@ -338,33 +322,9 @@ Vector3 RigidBody::getDirectionInWorldSpace(const Vector3 &direction) const
     return TransformMatrix.transformDirection(direction);
 }
 
-void RigidBody::setVelocity(const real x, const real y, const real z)
-{
-    Velocity.x = x;
-    Velocity.y = y;
-    Velocity.z = z;
-}
-
-void RigidBody::getVelocity(Vector3 *velocity) const
-{
-    *velocity = RigidBody::Velocity;
-}
-
 void RigidBody::addVelocity(const Vector3 &deltaVelocity)
 {
     Velocity += deltaVelocity;
-}
-
-void RigidBody::setRotation(const real x, const real y, const real z)
-{
-    Rotation.x = x;
-    Rotation.y = y;
-    Rotation.z = z;
-}
-
-void RigidBody::getRotation(Vector3 *rotation) const
-{
-    *rotation = RigidBody::Rotation;
 }
 
 void RigidBody::addRotation(const Vector3 &deltaRotation)
@@ -384,22 +344,10 @@ void RigidBody::setAwake(const bool awake)
     }
 }
 
-void RigidBody::setCanSleep(const bool canSleep)
-{
-    RigidBody::CanSleep = canSleep;
-
-    if (!canSleep && !IsAwake) setAwake();
-}
-
-
-void RigidBody::getLastFrameAcceleration(Vector3 *acceleration) const
-{
-    *acceleration = LastFrameAcceleration;
-}
-
-Vector3 RigidBody::getLastFrameAcceleration() const
-{
-    return LastFrameAcceleration;
+void RigidBody::setCanSleep(const bool canSleep) {
+	RigidBody::CanSleep = canSleep;
+	if (!canSleep && !IsAwake) 
+		setAwake();
 }
 
 void RigidBody::clearAccumulators()
@@ -440,16 +388,4 @@ void RigidBody::addTorque(const Vector3 &torque)
 {
     TorqueAccum += torque;
     IsAwake = true;
-}
-
-void RigidBody::setAcceleration(const real x, const real y, const real z)
-{
-    Acceleration.x = x;
-    Acceleration.y = y;
-    Acceleration.z = z;
-}
-
-void RigidBody::getAcceleration(Vector3 *acceleration) const
-{
-    *acceleration = RigidBody::Acceleration;
 }

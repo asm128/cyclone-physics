@@ -30,21 +30,18 @@ public:
     virtual void			Display			();						// Display the particles. 
     virtual void			Update			();						// Update the particle positions. 
     virtual void			Key				(unsigned char key);	// Handle a key press. 
+
+	virtual void			Mouse			(int, int, int, int)	{}	// Called when GLUT detects a mouse button press.
+	virtual void			MouseDrag		(int, int)				{}	// Called when GLUT detects a mouse drag.
 };
 
 // Method definitions
 SailboatDemo::SailboatDemo()
-:
-Application(),
-
-sail(cyclone::Matrix3(0,0,0, 0,0,0, 0,0,-1.0f),
-     cyclone::Vector3(2.0f, 0, 0), &windspeed),
-
-buoyancy(cyclone::Vector3(0.0f, 0.5f, 0.0f), 1.0f, 3.0f, 1.6f),
-
-sail_control(0),
-
-windspeed(0,0,0)
+	: Application()
+	, sail			(cyclone::Matrix3(0,0,0, 0,0,0, 0,0,-1.0f), {2.0f, 0, 0}, &windspeed)
+	, buoyancy		({0.0f, 0.5f, 0.0f}, 1.0f, 3.0f, 1.6f)
+	, sail_control	(0)
+	, windspeed		({})
 {
     // Set up the boat's rigid body.
 	sailboat.Position = {0, 1.6f, 0};
@@ -55,7 +52,7 @@ windspeed(0,0,0)
 
     sailboat.setMass(200.0f);
     cyclone::Matrix3 it;
-    it.setBlockInertiaTensor(cyclone::Vector3(2,1,1), 100.0f);
+	it.setBlockInertiaTensor({2, 1, 1}, 100.0f);
     sailboat.setInertiaTensor(it);
 
     sailboat.setDamping(0.8f, 0.8f);
@@ -108,8 +105,8 @@ void SailboatDemo::Display()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
 
-    cyclone::Vector3 pos = sailboat.Position;
-    cyclone::Vector3 offset(4.0f, 0, 0);
+    cyclone::Vector3			pos			= sailboat.Position;
+	cyclone::Vector3			offset			= {4.0f, 0, 0};
     offset = sailboat.getTransform().transformDirection(offset);
     gluLookAt(pos.x+offset.x, pos.y+5.0f, pos.z+offset.z,
               pos.x, pos.y, pos.z,
@@ -163,34 +160,20 @@ void SailboatDemo::Update() {
 		return;
 
 	sailboat.clearAccumulators();	// Start with no forces or acceleration.
-	registry.updateForces(duration);	// Add the forces acting on the boat.
+	registry.UpdateForces(duration);	// Add the forces acting on the boat.
 	sailboat.integrate(duration);	// Update the boat's physics.
 	windspeed = windspeed * 0.9f + r.randomXZVector(1.0f);	// Change the wind speed.
 
     Application::Update();
 }
 
-const char* SailboatDemo::GetTitle()
-{
-    return "Cyclone > Sail Boat Demo";
-}
+const char* SailboatDemo::GetTitle() { return "Cyclone > Sail Boat Demo"; }
 
-void SailboatDemo::Key(unsigned char key)
-{
-    switch(key)
-    {
-    case 'q': case 'Q':
-        sail_control -= 0.1f;
-        break;
-
-    case 'e': case 'E':
-        sail_control += 0.1f;
-        break;
-
-    case 'w': case 'W':
-        sail_control = 0.0f;
-        break;
-
+void SailboatDemo::Key(unsigned char key) {
+	switch(key) {
+	case 'q': case 'Q': sail_control -= 0.1f; break;
+	case 'e': case 'E': sail_control += 0.1f; break;
+	case 'w': case 'W': sail_control =  0.0f; break;
     default:
         Application::Key(key);
     }
@@ -203,10 +186,7 @@ void SailboatDemo::Key(unsigned char key)
     //sail.setControl(sail_control);
 }
 
-/**
- * Called by the common demo framework to create an application
- * object (with new) and return a pointer.
- */
+// Called by the common demo framework to create an application object (with new) and return a pointer.
 Application* getApplication()
 {
     return new SailboatDemo();

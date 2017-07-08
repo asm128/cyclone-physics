@@ -62,7 +62,7 @@ void ParticleWorld::integrate(real duration) {
 void ParticleWorld::runPhysics(real duration)
 {
     // First apply the force generators
-    Registry.updateForces(duration);
+    Registry.UpdateForces(duration);
 
     // Then integrate the objects
     integrate(duration);
@@ -78,10 +78,6 @@ void ParticleWorld::runPhysics(real duration)
         Resolver.resolveContacts(Contacts, usedContacts, duration);
     }
 }
-
-ParticleWorld::TParticles			&	ParticleWorld::getParticles			() { return Particles;			}
-ParticleWorld::TContactGenerators	&	ParticleWorld::getContactGenerators	() { return ContactGenerators;	}
-ParticleForceRegistry				&	ParticleWorld::getForceRegistry		() { return Registry;			}
 
 void GroundContacts::Init(cyclone::ParticleWorld::TParticles *particles)
 {

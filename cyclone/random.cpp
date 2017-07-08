@@ -115,70 +115,53 @@ real Random::randomReal()
 }
 #endif
 
-real Random::randomReal(real min, real max)
-{
-    return randomReal() * (max-min) + min;
-}
-
-real Random::randomReal(real scale)
-{
-    return randomReal() * scale;
-}
-
-unsigned Random::randomInt(unsigned max)
-{
-    return randomBits() % max;
-}
-
-real Random::randomBinomial(real scale)
-{
-    return (randomReal()-randomReal())*scale;
-}
-
-Quaternion Random::randomQuaternion()
-{
-    Quaternion q(
-        randomReal(),
-        randomReal(),
-        randomReal(),
-        randomReal()
-        );
+uint32_t	Random::randomInt				(uint32_t max)				{ return randomBits() % max; }
+double		Random::randomReal				(double min, double max)	{ return randomReal() * (max-min) + min; }
+double		Random::randomReal				(double scale)				{ return randomReal() * scale; }
+double		Random::randomBinomial			(double scale)				{ return (randomReal()-randomReal())*scale; }
+Quaternion	Random::randomQuaternion		()							{
+    Quaternion q =
+        { randomReal()
+        , randomReal()
+        , randomReal()
+        , randomReal()
+        };
     q.normalise();
     return q;
 }
 
 Vector3 Random::randomVector(real scale)
 {
-    return Vector3(
-        randomBinomial(scale),
-        randomBinomial(scale),
-        randomBinomial(scale)
-        );
+    return 
+		{ randomBinomial(scale)
+		, randomBinomial(scale)
+		, randomBinomial(scale)
+		};
 }
 
 Vector3 Random::randomXZVector(real scale)
 {
-    return Vector3(
-        randomBinomial(scale),
-        0,
-        randomBinomial(scale)
-        );
+    return 
+        { randomBinomial(scale)
+        , 0
+        , randomBinomial(scale)
+        };
 }
 
 Vector3 Random::randomVector(const Vector3 &scale)
 {
-    return Vector3(
-        randomBinomial(scale.x),
-        randomBinomial(scale.y),
-        randomBinomial(scale.z)
-        );
+    return 
+        { randomBinomial(scale.x)
+        , randomBinomial(scale.y)
+        , randomBinomial(scale.z)
+        };
 }
 
 Vector3 Random::randomVector(const Vector3 &min, const Vector3 &max)
 {
-    return Vector3(
-        randomReal(min.x, max.x),
-        randomReal(min.y, max.y),
-        randomReal(min.z, max.z)
-        );
+    return 
+        { randomReal(min.x, max.x)
+        , randomReal(min.y, max.y)
+        , randomReal(min.z, max.z)
+        };
 }

@@ -32,10 +32,9 @@ public:
 	// The default implementation seTs the internal height and width parameters and changes the gl viewport. These are steps you'll almost always need, so its worth calling the base class version of this method even if you override it in a demo class.
 	virtual void					Resize								(int width, int height);
 
-	virtual void					Key									(unsigned char asciiCode)				{}	// Called when a keypress is detected.
-	virtual void					Mouse								(int button, int state, int x, int y)	{}	// Called when GLUT detects a mouse button press.
-	virtual void					MouseDrag							(int x, int y)							{}	// Called when GLUT detects a mouse drag.
-
+	virtual void					Key									(unsigned char asciiCode)				{ asciiCode; }	// Called when a keypress is detected.
+	virtual void					Mouse								(int button, int state, int x, int y)	= 0;	// Called when GLUT detects a mouse button press.
+	virtual void					MouseDrag							(int x, int y)							= 0;	// Called when GLUT detects a mouse drag.
 
 	// --- These are helper functionS that can be used by an application to render things.
 	void							RenderText							(float x, float y, const char * text, void * font = NULL);	// Renders the given text to the given x,y location (in screen space) on the window. This is used to pass status information to the application.

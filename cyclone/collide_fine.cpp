@@ -479,8 +479,8 @@ unsigned CollisionDetector::boxAndBox(
         Vector3 ptOnTwoEdge = two.halfSize;
         for (unsigned i = 0; i < 3; i++)
         {
-            if (i == oneAxisIndex) ptOnOneEdge[i] = 0;
-            else if (one.GetAxis(i) * axis > 0) ptOnOneEdge[i] = -ptOnOneEdge[i];
+					if (i == oneAxisIndex)			ptOnOneEdge[i] = 0;
+            else	if (one.GetAxis(i) * axis > 0)	ptOnOneEdge[i] = -ptOnOneEdge[i];
 
             if (i == twoAxisIndex) ptOnTwoEdge[i] = 0;
             else if (two.GetAxis(i) * axis < 0) ptOnTwoEdge[i] = -ptOnTwoEdge[i];
@@ -585,7 +585,7 @@ unsigned CollisionDetector::boxAndSphere(
         return 0;
     }
 
-    Vector3 closestPt(0,0,0);
+	Vector3 closestPt		= {};
     real dist;
 
     // Clamp each coordinate to the box.
@@ -651,7 +651,7 @@ unsigned CollisionDetector::boxAndHalfSpace(
     for (unsigned i = 0; i < 8; i++) {
 
         // Calculate the position of each vertex
-        Vector3 vertexPos(mults[i][0], mults[i][1], mults[i][2]);
+		Vector3 vertexPos	= {mults[i][0], mults[i][1], mults[i][2]};
         vertexPos.componentProductUpdate(box.halfSize);
         vertexPos = box.Transform.transform(vertexPos);
 

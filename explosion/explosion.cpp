@@ -63,7 +63,7 @@ public:
         Body->Position					= position;
         Body->Orientation				= orientation;
         Body->Velocity					= velocity;
-        Body->Rotation					= cyclone::Vector3(0,0,0);
+		Body->Rotation					= {};
         Ball::radius					= radius;
 
         cyclone::real						mass					= 4.0f*0.3333f*3.1415f * radius*radius*radius;
@@ -77,7 +77,7 @@ public:
         Body->LinearDamping				= 0.95f;
         Body->AngularDamping			= 0.8f;
         Body->clearAccumulators	();
-        Body->setAcceleration	(0,-10.0f,0);
+		Body->Acceleration				= {0, -10.0f, 0};
 
         //body->setCanSleep(false);
         Body->setAwake();
@@ -87,8 +87,8 @@ public:
 
     // Positions the box at a random location.
 	void random(cyclone::Random *random) {
-        const static cyclone::Vector3	minPos		(-5, 5, -5);
-        const static cyclone::Vector3	maxPos		(5, 10, 5);
+        const static cyclone::Vector3	minPos		= {-5, 5,-5};
+        const static cyclone::Vector3	maxPos		= {5, 10, 5};
         cyclone::Random					r;
         setState
             ( random->randomVector		(minPos, maxPos)
@@ -159,7 +159,7 @@ public:
 		Body->LinearDamping				= 0.95f;
 		Body->AngularDamping			= 0.8f;
 		Body->clearAccumulators		();
-		Body->setAcceleration		(0,-10.0f,0);
+		Body->Acceleration				= {0, -10.0f, 0};
 		Body->setAwake				();
 		Body->calculateDerivedData	();
 	}
@@ -185,9 +185,9 @@ class ExplosionDemo : public RigidBodyApplication
 {
 	bool					EditMode, UpMode;
 	const static uint32_t	Boxes				= OBJECTS;	// Holds the number of boxes in the simulation.
-	Box						BoxData[Boxes];					// Holds the box data.
 	const static uint32_t	Balls				= OBJECTS;	// Holds the number of balls in the simulation.
-	Ball					BallData[Balls];				// Holds the ball data. 
+	Box						BoxData		[Boxes]	= {};		// Holds the box data.
+	Ball					BallData	[Balls]	= {};		// Holds the ball data. 
 	
 	void					Fire				();	// Detonates the explosion. 
 	virtual void			Reset				();	// Resets the position of all the boxes and primes the explosion. 
@@ -223,16 +223,15 @@ void ExplosionDemo::Reset()
 {
     Box *box = BoxData;
 
-    box++->setState(cyclone::Vector3(0,3,0),
-                    cyclone::Quaternion(),
-                    cyclone::Vector3(4,1,1),
-                    cyclone::Vector3(0,1,0));
+	box++->setState({0,3,0}, {}, {4,1,1}, {0,1,0});
 
     if (Boxes > 1) {
-        box++->setState(cyclone::Vector3(0,4.75,2),
-                        cyclone::Quaternion(1.0,0.1,0.05,0.01),
-                        cyclone::Vector3(1,1,4),
-                        cyclone::Vector3(0,1,0));
+		box++->setState	
+			( {0,4.75,2}
+			, {1.0,0.1,0.05,0.01}
+			, {1,1,4} 
+			, {0,1,0} 
+			);
     }
 
     // Create the random objects
@@ -247,21 +246,20 @@ void ExplosionDemo::Reset()
     CData.contactCount = 0;
 }
 
+// Note that this method makes a lot of use of early returns to avoid processing lots of potential contacts that it hasn't got room to store.
 void ExplosionDemo::GenerateContacts() {
-    // Note that this method makes a lot of use of early returns to avoid
-    // processing lots of potential contacts that it hasn't got room to
-    // store.
+    
 
     // Create the ground plane data
     cyclone::CollisionPlane		plane;
-    plane.direction			= cyclone::Vector3(0,1,0);
+	plane.direction			= {0, 1, 0};
     plane.offset			= 0;
 
     // Set up the collision data structure
     CData.reset(MaxContacts);
-    CData.friction			= (cyclone::real)0.9;
-    CData.restitution		= (cyclone::real)0.6;
-    CData.tolerance			= (cyclone::real)0.1;
+    CData.friction			= 0.9;
+    CData.restitution		= 0.6;
+    CData.tolerance			= 0.1;
 
     // Perform exhaustive collision detection
     cyclone::Matrix4 transform, otherTransform;
@@ -422,11 +420,11 @@ void ExplosionDemo::Display()
 void ExplosionDemo::MouseDrag(int x, int y)
 {
     if (EditMode) {
-        BoxData[0].Body->Position = BoxData[0].Body->Position + cyclone::Vector3((x-Last_x) * 0.125f, 0, (y-Last_y) * 0.125f);
+		BoxData[0].Body->Position = BoxData[0].Body->Position + cyclone::Vector3{(x-Last_x) * 0.125f, 0, (y-Last_y) * 0.125f};
         BoxData[0].Body->calculateDerivedData();
     }
     else if (UpMode) {
-        BoxData[0].Body->Position = BoxData[0].Body->Position + cyclone::Vector3(0, (y-Last_y) * 0.125f, 0);
+		BoxData[0].Body->Position = BoxData[0].Body->Position + cyclone::Vector3{0, (y-Last_y) * 0.125f, 0};
         BoxData[0].Body->calculateDerivedData();
     }
     else {

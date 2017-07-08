@@ -11,7 +11,7 @@ namespace cyclone {
 	// A force generator can be asked to add a force to one or more particles.
 	class ParticleForceGenerator {
 	public:
-		virtual	void									updateForce						(Particle *particle, real duration)									= 0;	// Overload this in implementations of the interface to calculate and update the force applied to the given particle.
+		virtual	void									UpdateForce						(Particle *particle, real duration)									= 0;	// Overload this in implementations of the interface to calculate and update the force applied to the given particle.
 	};
 	
 	// A force generator that applies a gravitational force. One instance can be used for multiple particles.
@@ -20,7 +20,7 @@ namespace cyclone {
 	
 	public:
 														ParticleGravity					(const Vector3 &gravity);				// Creates the generator with the given acceleration. 
-		virtual	void									updateForce						(Particle *particle, real duration);	// Applies the gravitational force to the given particle. 
+		virtual	void									UpdateForce						(Particle *particle, real duration);	// Applies the gravitational force to the given particle. 
 	};
 	
 	// A force generator that applies a drag force. One instance can be used for multiple particles.
@@ -30,63 +30,63 @@ namespace cyclone {
 	
 	public:
 														ParticleDrag					(real k1, real k2);						// Creates the generator with the given coefficients. 
-		virtual	void									updateForce						(Particle *particle, real duration);	// Applies the drag force to the given particle. 
+		virtual	void									UpdateForce						(Particle *particle, real duration);	// Applies the drag force to the given particle. 
 	};
 	
 	// A force generator that applies a Spring force, where one end is attached to a fixed point in space.
 	class ParticleAnchoredSpring : public ParticleForceGenerator {
 	protected:
-				Vector3									* anchor;		// The location of the anchored end of the spring. 
-				real									springConstant;	// Holds the sprint constant. 
-				real									restLength;		// Holds the rest length of the spring. 
+				Vector3									* Anchor						= 0;	// The location of the anchored end of the spring. 
+				real									SpringConstant					= 0;	// Holds the sprint constant. 
+				real									RestLength						= 0;	// Holds the rest length of the spring. 
 	
 	public:
 														ParticleAnchoredSpring			()																	= default;
 														ParticleAnchoredSpring			(Vector3 *anchor, real springConstant, real restLength);	
 	
-				const Vector3*							getAnchor						()															const	{ return anchor; }	
-				void									init							(Vector3 *anchor, real springConstant, real restLength);	// Set the spring's properties. 
-		virtual	void									updateForce						(Particle *particle, real duration);						// Applies the spring force to the given particle.
+				const Vector3*							GetAnchor						()															const	{ return Anchor; }	
+				void									Init							(Vector3 *anchor, real springConstant, real restLength);	// Set the spring's properties. 
+		virtual	void									UpdateForce						(Particle *particle, real duration);						// Applies the spring force to the given particle.
 	};
 	
 	// A force generator that applies a bungee force, where one end is attached to a fixed point in space.
 	class ParticleAnchoredBungee : public ParticleAnchoredSpring {
 	public:
-		virtual	void									updateForce						(Particle *particle, real duration);	// Applies the spring force to the given particle.
+		virtual	void									UpdateForce						(Particle *particle, real duration);	// Applies the spring force to the given particle.
 	};
 	
 	// A force generator that fakes a stiff spring force, and where one end is attached to a fixed point in space.
 	class ParticleFakeSpring : public ParticleForceGenerator {
-				Vector3									* anchor						= 0;	// The location of the anchored end of the spring. 
-				double									springConstant					= 0;	// Holds the sprint constant. 
-				double									damping							= 0;	// Holds the damping on the oscillation of the spring.
+				Vector3									* Anchor						= 0;	// The location of the anchored end of the spring. 
+				double									SpringConstant					= 0;	// Holds the sprint constant. 
+				double									Damping							= 0;	// Holds the damping on the oscillation of the spring.
 	
 	public:
 														ParticleFakeSpring				(Vector3 *anchor, real springConstant, real damping);	// Creates a new spring with the given parameters.
 	
-		virtual void									updateForce						(Particle *particle, real duration);	// Applies the spring force to the given particle. 
+		virtual void									UpdateForce						(Particle *particle, real duration);	// Applies the spring force to the given particle. 
 	};
 	
 	// A force generator that applies a Spring force.
 	class ParticleSpring : public ParticleForceGenerator {
-				Particle								* other							= 0;	// The particle at the other end of the spring.
-				double									springConstant					= 0;	// Holds the sprint constant.
-				double									restLength						= 0;	// Holds the rest length of the spring.
+				Particle								* Other							= 0;	// The particle at the other end of the spring.
+				double									SpringConstant					= 0;	// Holds the sprint constant.
+				double									RestLength						= 0;	// Holds the rest length of the spring.
 	
 	public:
 														ParticleSpring					(Particle *other, real springConstant, real restLength);	// Creates a new spring with the given parameters. 
-		virtual void									updateForce						(Particle *particle, real duration);						// Applies the spring force to the given particle. 
+		virtual void									UpdateForce						(Particle *particle, real duration);						// Applies the spring force to the given particle. 
 	};
 	
 	// A force generator that applies a spring force only when extended.
 	class ParticleBungee : public ParticleForceGenerator {
-				Particle								* other							= 0;	// The particle at the other end of the spring.
-				double									springConstant					= 0;	// Holds the sprint constant.
-				double									restLength						= 0;	// Holds the length of the bungee at the point it begins to generator a force.
+				Particle								* Other							= 0;	// The particle at the other end of the spring.
+				double									SpringConstant					= 0;	// Holds the sprint constant.
+				double									RestLength						= 0;	// Holds the length of the bungee at the point it begins to generator a force.
 	
 	public:
 														ParticleBungee					(Particle *other, real springConstant, real restLength); 
-		virtual void									updateForce						(Particle *particle, real duration);	// Applies the spring force to the given particle.
+		virtual void									UpdateForce						(Particle *particle, real duration);	// Applies the spring force to the given particle.
 	};
 	
 	// A force generator that applies a buoyancy force for a plane of liquid parrallel to XZ plane.
@@ -100,7 +100,7 @@ namespace cyclone {
 		// Creates a new buoyancy force with the given parameters.
 														ParticleBuoyancy				(real maxDepth, real volume, real waterHeight, real liquidDensity = 1000.0f);
 	
-		virtual	void									updateForce						(Particle *particle, real duration);	// Applies the buoyancy force to the given particle.
+		virtual	void									UpdateForce						(Particle *particle, real duration);	// Applies the buoyancy force to the given particle.
 	};
 	
 	// Holds all the force generators and the particles they apply to.
@@ -119,7 +119,7 @@ namespace cyclone {
 				void									add								(Particle* particle, ParticleForceGenerator *fg);	// Registers the given force generator to apply to the given particle.
 				void									remove							(Particle* particle, ParticleForceGenerator *fg);	// Removes the given registered pair from the registry. If the pair is not registered, this method will have no effect.
 				void									clear							();													// Clears all registrations from the registry. This will not delete the particles or the force generators themselves, just the records of their connection.
-				void									updateForces					(real duration);									// Calls all the force generators to update the forces of their corresponding particles.
+				void									UpdateForces					(real duration);									// Calls all the force generators to update the forces of their corresponding particles.
 	};
 }
 

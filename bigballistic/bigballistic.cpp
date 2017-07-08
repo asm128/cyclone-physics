@@ -42,24 +42,24 @@ public:
         switch(type) {
         case PISTOL:
             Body->setMass(1.5f);
-            Body->setVelocity(0.0f, 0.0f, 20.0f);
-            Body->setAcceleration(0.0f, -0.5f, 0.0f);
+            Body->Velocity			= {0.0f, 0.0f, 20.0f};
+            Body->Acceleration		= {0.0f, -0.5f, 0.0f};
             Body->setDamping(0.99f, 0.8f);
             radius = 0.2f;
             break;
 
         case ARTILLERY:
             Body->setMass(200.0f); // 200.0kg
-            Body->setVelocity(0.0f, 30.0f, 40.0f); // 50m/s
-            Body->setAcceleration(0.0f, -21.0f, 0.0f);
+            Body->Velocity			= {0.0f, 30.0f, 40.0f}; // 50m/s
+            Body->Acceleration		= {0.0f, -21.0f, 0.0f};
             Body->setDamping(0.99f, 0.8f);
             radius = 0.4f;
             break;
 
         case FIREBALL:
             Body->setMass(4.0f); // 4.0kg - mostly blast damage
-            Body->setVelocity(0.0f, -0.5f, 10.0); // 10m/s
-            Body->setAcceleration(0.0f, 0.3f, 0.0f); // Floats up
+            Body->Velocity			= {0.0f, -0.5f, 10.0}; // 10m/s
+            Body->Acceleration		= {0.0f,  0.3f, 0.0f}; // Floats up
             Body->setDamping(0.9f, 0.8f);
             radius = 0.6f;
             break;
@@ -68,8 +68,8 @@ public:
             // Note that this is the kind of laser bolt seen in films,
             // not a realistic laser beam!
             Body->setMass(0.1f); // 0.1kg - almost no weight
-            Body->setVelocity(0.0f, 0.0f, 100.0f); // 100m/s
-            Body->setAcceleration(0.0f, 0.0f, 0.0f); // No gravity
+            Body->Velocity			= {0.0f, 0.0f, 100.0f	}; // 100m/s
+            Body->Acceleration		= {0.0f, 0.0f, 0.0f		}; // No gravity
             Body->setDamping(0.99f, 0.8f);
             radius = 0.2f;
             break;
@@ -112,24 +112,24 @@ public:
 	}
 
 	// Sets the box to a specific location.
-	void									setState			(::cyclone::real z)		{
-		Body->Position					= {0, 3, z};
+	void									setState			(::cyclone::real z)					{
+		Body->Position							= {0, 3, z};
 		Body->setOrientation(1,0,0,0);
-		Body->Velocity					= {};
-		Body->Rotation					= ::cyclone::Vector3(0,0,0);
-		halfSize						= ::cyclone::Vector3(1,1,1);
+		Body->Velocity							= {};
+		Body->Rotation							= {};
+		halfSize								= {1, 1, 1};
 
-		::cyclone::real mass = halfSize.x * halfSize.y * halfSize.z * 8.0f;
+		::cyclone::real								mass				= halfSize.x * halfSize.y * halfSize.z * 8.0f;
 		Body->setMass(mass);
 
-		::cyclone::Matrix3 tensor;
+		::cyclone::Matrix3							tensor;
 		tensor.setBlockInertiaTensor(halfSize, mass);
 		Body->setInertiaTensor(tensor);
 
-		Body->LinearDamping		= 0.95f;
-		Body->AngularDamping	= 0.8f;
+		Body->LinearDamping						= 0.95f;
+		Body->AngularDamping					= 0.8f;
 		Body->clearAccumulators	();
-		Body->setAcceleration	(0,-10.0f,0);
+		Body->Acceleration						= {0, -10.0f, 0};
 
 		Body->setCanSleep(false);
 		Body->setAwake();
@@ -301,7 +301,7 @@ void BigBallisticDemo::GenerateContacts()
 {
     // Create the ground plane data
     cyclone::CollisionPlane			plane;
-    plane.direction				= cyclone::Vector3(0,1,0);
+	plane.direction				= {0,1,0};
     plane.offset				= 0;
 
     // Set up the collision data structure
