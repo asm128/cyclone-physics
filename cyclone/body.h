@@ -1,5 +1,5 @@
-// Copyright (c) Icosagon 2003. All Rights Reserved.
-
+// Copyright (c) Icosagon 2003. Published by Ian Millington under the MIT License for his book "Game Physics Engine Development" or something like that (a really good book that I actually bought in paperback after reading it).
+// Heavily modified by asm128 in order to make this code readable and free of potential bugs and inconsistencies and a large set of sources of problems and improductivity originally introduced thanks to poor advice, bad practices and OOP vices.
 #ifndef CYCLONE_BODY_H
 #define CYCLONE_BODY_H
 
@@ -38,9 +38,7 @@ namespace cyclone {
         Matrix3								getInertiaTensorWorld() const;
         void								setInverseInertiaTensor(const Matrix3 &inverseInertiaTensor);
         void								getInverseInertiaTensor(Matrix3 *inverseInertiaTensor) const;
-        Matrix3								getInverseInertiaTensor() const;
         void								getInverseInertiaTensorWorld(Matrix3 *inverseInertiaTensor) const;
-        Matrix3								getInverseInertiaTensorWorld() const;
         void								setDamping(const real linearDamping, const real angularDamping);
 
         void								getPosition(Vector3 *position) const;

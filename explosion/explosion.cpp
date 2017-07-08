@@ -1,15 +1,5 @@
-/*
- * The explosion demo.
- *
- * Part of the Cyclone physics system.
- *
- * Copyright (c) Icosagon 2003. All Rights Reserved.
- *
- * This software is distributed under licence. Use of this software
- * implies agreement with all terms and conditions of the accompanying
- * software licence.
- */
-
+// Copyright (c) Icosagon 2003. Published by Ian Millington under the MIT License for his book "Game Physics Engine Development" or something like that (a really good book that I actually bought in paperback after reading it).
+// Heavily modified by asm128 in order to make this code readable and free of potential bugs and inconsistencies and a large set of sources of problems and improductivity originally introduced thanks to poor advice, bad practices and OOP vices.
 #include "cyclone.h"
 #include "ogl_headers.h"
 #include "app.h"
@@ -22,35 +12,27 @@
 // Holds a transform matrix for rendering objects
 // reflected in the floor.
 GLfloat floorMirror[16] =
-{
-    1, 0, 0, 0,
-    0, -1, 0, 0,
-    0, 0, 1, 0,
-    0, 0, 0, 1
-};
+	{ 1,  0, 0, 0
+	, 0, -1, 0, 0
+	, 0,  0, 1, 0
+	, 0,  0, 0, 1
+	};
 
 class Ball : public cyclone::CollisionSphere
 {
+	::cyclone::RigidBody		_ballBody				= {};
 public:
-    Ball()
-    {
-        body = new cyclone::RigidBody;
-    }
+	inline						Ball					()					{ Body = &_ballBody; }
 
-    ~Ball()
-    {
-        delete body;
-    }
+    // Draws the box, excluding its shadow. 
+    void						render					()					{
+		GLfloat mat[16];
+		Body->getGLTransform(mat);	// 
 
-    /** Draws the box, excluding its shadow. */
-    void render()
-    {
-        // Get the OpenGL transformation
-        GLfloat mat[16];
-        body->getGLTransform(mat);
-
-        if (body->IsAwake) glColor3f(1.0f,0.7f,0.7f);
-        else glColor3f(0.7f,0.7f,1.0f);
+        if (Body->IsAwake) 
+			glColor3f(1.0f,0.7f,0.7f);
+        else 
+			glColor3f(0.7f,0.7f,1.0f);
 
         glPushMatrix();
         glMultMatrixf(mat);
@@ -58,12 +40,11 @@ public:
         glPopMatrix();
     }
 
-    /** Draws the ground plane shadow for the box. */
-    void renderShadow()
-    {
+    // Draws the ground plane shadow for the box. 
+    void						renderShadow			()					{
         // Get the OpenGL transformation
         GLfloat mat[16];
-        body->getGLTransform(mat);
+        Body->getGLTransform(mat);
 
         glPushMatrix();
         glScalef(1.0f, 0, 1.0f);
@@ -71,145 +52,132 @@ public:
         glutSolidSphere(radius, 20, 20);
         glPopMatrix();
     }
-
-    /** Sets the box to a specific location. */
-    void setState(cyclone::Vector3 position,
-                  cyclone::Quaternion orientation,
-                  cyclone::real radius,
-                  cyclone::Vector3 velocity)
+	
+	void setState	// Sets the box to a specific location.
+		(	cyclone::Vector3		position
+		,	cyclone::Quaternion		orientation
+		,	cyclone::real			radius
+		,	cyclone::Vector3		velocity
+		)
     {
-        body->Position			= position;
-        body->Orientation		= orientation;
-        body->Velocity			= velocity;
-        body->Rotation			= cyclone::Vector3(0,0,0);
+        Body->Position			= position;
+        Body->Orientation		= orientation;
+        Body->Velocity			= velocity;
+        Body->Rotation			= cyclone::Vector3(0,0,0);
         Ball::radius			= radius;
 
         cyclone::real mass = 4.0f*0.3333f*3.1415f * radius*radius*radius;
-        body->setMass(mass);
+        Body->setMass(mass);
 
         cyclone::Matrix3 tensor;
         cyclone::real coeff = 0.4f*mass*radius*radius;
         tensor.setInertiaTensorCoeffs(coeff,coeff,coeff);
-        body->setInertiaTensor(tensor);
+        Body->setInertiaTensor(tensor);
 
-        body->LinearDamping		= 0.95f;
-        body->AngularDamping	= 0.8f;
-        body->clearAccumulators();
-        body->setAcceleration(0,-10.0f,0);
+        Body->LinearDamping		= 0.95f;
+        Body->AngularDamping	= 0.8f;
+        Body->clearAccumulators();
+        Body->setAcceleration(0,-10.0f,0);
 
         //body->setCanSleep(false);
-        body->setAwake();
+        Body->setAwake();
 
-        body->calculateDerivedData();
+        Body->calculateDerivedData();
     }
 
-    /** Positions the box at a random location. */
-    void random(cyclone::Random *random)
-    {
-        const static cyclone::Vector3 minPos(-5, 5, -5);
-        const static cyclone::Vector3 maxPos(5, 10, 5);
-        cyclone::Random r;
-        setState(
-            random->randomVector(minPos, maxPos),
-            random->randomQuaternion(),
-            random->randomReal(0.5f, 1.5f),
-            cyclone::Vector3()
+    // Positions the box at a random location.
+	void random(cyclone::Random *random) {
+        const static cyclone::Vector3	minPos		(-5, 5, -5);
+        const static cyclone::Vector3	maxPos		(5, 10, 5);
+        cyclone::Random					r;
+        setState
+            ( random->randomVector		(minPos, maxPos)
+            , random->randomQuaternion	()
+            , random->randomReal		(0.5f, 1.5f)
+            , cyclone::Vector3			()
             );
     }
 };
 
 class Box : public cyclone::CollisionBox
 {
+	::cyclone::RigidBody		_boxBody				= {};
 public:
-    bool isOverlapping;
+	bool isOverlapping;
+	
+	inline						Box						()			{ Body = &_boxBody; }
 
-    Box()
-    {
-        body = new cyclone::RigidBody;
-    }
-
-    ~Box()
-    {
-        delete body;
-    }
-
-    /** Draws the box, excluding its shadow. */
-    void render()
-    {
-        // Get the OpenGL transformation
-        GLfloat mat[16];
-        body->getGLTransform(mat);
-
-        if (isOverlapping) glColor3f(0.7f,1.0f,0.7f);
-        else if (body->IsAwake) glColor3f(1.0f,0.7f,0.7f);
-        else glColor3f(0.7f,0.7f,1.0f);
-
-        glPushMatrix();
-        glMultMatrixf(mat);
-        glScalef(halfSize.x*2, halfSize.y*2, halfSize.z*2);
-        glutSolidCube(1.0f);
-        glPopMatrix();
-    }
-
-    /** Draws the ground plane shadow for the box. */
-    void renderShadow()
-    {
-        // Get the OpenGL transformation
-        GLfloat mat[16];
-        body->getGLTransform(mat);
-
-        glPushMatrix();
-        glScalef(1.0f, 0, 1.0f);
-        glMultMatrixf(mat);
-        glScalef(halfSize.x*2, halfSize.y*2, halfSize.z*2);
-        glutSolidCube(1.0f);
-        glPopMatrix();
-    }
-
-    /** Sets the box to a specific location. */
-    void setState(const cyclone::Vector3 &position,
-                  const cyclone::Quaternion &orientation,
-                  const cyclone::Vector3 &extents,
-                  const cyclone::Vector3 &velocity)
-    {
-        body->Position = position;
-        body->setOrientation(orientation);
-        body->Velocity = velocity;
-		body->Rotation = {};
-        halfSize = extents;
-
-        cyclone::real mass = halfSize.x * halfSize.y * halfSize.z * 8.0f;
-        body->setMass(mass);
-
-        cyclone::Matrix3 tensor;
-        tensor.setBlockInertiaTensor(halfSize, mass);
-        body->setInertiaTensor(tensor);
-
-        body->LinearDamping		= 0.95f;
-        body->AngularDamping	= 0.8f;
-        body->clearAccumulators();
-        body->setAcceleration(0,-10.0f,0);
-
-        body->setAwake();
-
-        body->calculateDerivedData();
-    }
-
-    /** Positions the box at a random location. */
-    void random(cyclone::Random *random)
-    {
-        const static cyclone::Vector3 minPos(-5, 5, -5);
-        const static cyclone::Vector3 maxPos(5, 10, 5);
-        const static cyclone::Vector3 minSize(0.5f, 0.5f, 0.5f);
-        const static cyclone::Vector3 maxSize(4.5f, 1.5f, 1.5f);
-
-        setState(
-            random->randomVector(minPos, maxPos),
-            random->randomQuaternion(),
-            random->randomVector(minSize, maxSize),
-            cyclone::Vector3()
-            );
-    }
+	// Draws the box, excluding its shadow.
+	void						render					()			{
+		GLfloat mat[16];
+		Body->getGLTransform(mat);
+	
+			 if (isOverlapping) glColor3f(0.7f,1.0f,0.7f);
+		else if (Body->IsAwake) glColor3f(1.0f,0.7f,0.7f);
+		else					glColor3f(0.7f,0.7f,1.0f);
+		
+		glPushMatrix();
+		glMultMatrixf(mat);
+		glScalef(halfSize.x*2, halfSize.y*2, halfSize.z*2);
+		glutSolidCube(1.0f);
+		glPopMatrix();
+	}
+	
+	// Draws the ground plane shadow for the box. 
+	void						renderShadow			()			{
+		GLfloat mat[16];
+		Body->getGLTransform(mat);
+		
+		glPushMatrix();
+		glScalef(1.0f, 0, 1.0f);
+		glMultMatrixf(mat);
+		glScalef(halfSize.x*2, halfSize.y*2, halfSize.z*2);
+		glutSolidCube(1.0f);
+		glPopMatrix();
+	}
+	
+	// Sets the box to a specific location.
+	void setState
+		( const cyclone::Vector3	& position
+		, const cyclone::Quaternion & orientation
+		, const cyclone::Vector3	& extents
+		, const cyclone::Vector3	& velocity
+		)
+	{
+		Body->Position = position;
+		Body->setOrientation(orientation);
+		Body->Velocity = velocity;
+		Body->Rotation = {};
+		halfSize = extents;
+		
+		cyclone::real mass = halfSize.x * halfSize.y * halfSize.z * 8.0f;
+		Body->setMass(mass);
+		
+		cyclone::Matrix3 tensor;
+		tensor.setBlockInertiaTensor(halfSize, mass);
+		Body->setInertiaTensor(tensor);
+		Body->LinearDamping		= 0.95f;
+		Body->AngularDamping	= 0.8f;
+		Body->clearAccumulators();
+		Body->setAcceleration(0,-10.0f,0);
+		Body->setAwake();
+		Body->calculateDerivedData();
+	}
+	
+	// Positions the box at a random location.
+	void random(cyclone::Random *random){
+		const static cyclone::Vector3 minPos	(-5, 5, -5);
+		const static cyclone::Vector3 maxPos	(5, 10, 5);
+		const static cyclone::Vector3 minSize	(0.5f, 0.5f, 0.5f);
+		const static cyclone::Vector3 maxSize	(4.5f, 1.5f, 1.5f);
+		
+		setState
+			( random->randomVector		(minPos, maxPos)
+			, random->randomQuaternion	()
+			, random->randomVector		(minSize, maxSize)
+			, cyclone::Vector3			()
+			);
+	}
 };
 
 /**
@@ -217,79 +185,40 @@ public:
  */
 class ExplosionDemo : public RigidBodyApplication
 {
-    bool editMode, upMode;
-
-    /**
-     * Holds the number of boxes in the simulation.
-     */
-    const static unsigned boxes = OBJECTS;
-
-    /** Holds the box data. */
-    Box boxData[boxes];
-
-    /**
-     * Holds the number of balls in the simulation.
-     */
-    const static unsigned balls = OBJECTS;
-
-    /** Holds the ball data. */
-    Ball ballData[balls];
-
-
-    /** Detonates the explosion. */
-    void fire();
-
-    /** Resets the position of all the boxes and primes the explosion. */
-    virtual void reset();
-
-    /** Processes the contact generation code. */
-    virtual void GenerateContacts();
-
-    /** Processes the objects in the simulation forward in time. */
-    virtual void updateObjects(cyclone::real duration);
-
+	bool					editMode, upMode;
+	const static uint32_t	boxes				= OBJECTS;	// Holds the number of boxes in the simulation.
+	Box						boxData[boxes];					// Holds the box data.
+	const static uint32_t	balls				= OBJECTS;	// Holds the number of balls in the simulation.
+	Ball					ballData[balls];				// Holds the ball data. 
+	
+	void					fire				();	// Detonates the explosion. 
+	virtual void			reset				();	// Resets the position of all the boxes and primes the explosion. 
+	virtual void			GenerateContacts	();	// Processes the contact generation code. 
+	virtual void			updateObjects		(cyclone::real duration);	// Processes the objects in the simulation forward in time. 
 public:
-    /** Creates a new demo object. */
-    ExplosionDemo();
-
-    /** Sets up the rendering. */
-    virtual void initGraphics();
-
-    /** Returns the window title for the demo. */
-    virtual const char* getTitle();
-
-    /** Display the particle positions. */
-    virtual void display();
-
-    /** Handles a key press. */
-    virtual void key(unsigned char key);
-
-    /** Handle a mouse drag */
-    virtual void mouseDrag(int x, int y);
+							ExplosionDemo		();	// Creates a new demo object. 
+	virtual void			initGraphics		();	// Sets up the rendering. 
+	virtual const char*		getTitle			()												{ return "Cyclone > Explosion Demo"; }
+	virtual void			display				();	// Display the particle positions. 
+	virtual void			key					(unsigned char key);	// Handles a key press.
+	virtual void			mouseDrag			(int x, int y);			// Handle a mouse drag.
 };
 
 // Method definitions
 ExplosionDemo::ExplosionDemo()
-    :
-    RigidBodyApplication(),
-    editMode(false),
-    upMode(false)
+	: RigidBodyApplication	()
+	, editMode				(false)
+	, upMode				(false)
 {
-    // Reset the position of the boxes
-    reset();
-}
-
-const char* ExplosionDemo::getTitle()
-{
-    return "Cyclone > Explosion Demo";
+	reset();	// Reset the position of the boxes
 }
 
 void ExplosionDemo::fire()
 {
-    cyclone::Vector3 pos = ballData[0].body->Position;
+    cyclone::Vector3 pos = ballData[0].Body->Position;
     pos.normalise();
 
-    ballData[0].body->addForce(pos * -1000.0f);
+    ballData[0].Body->addForce(pos * -1000.0f);
 }
 
 void ExplosionDemo::reset()
@@ -392,8 +321,8 @@ void ExplosionDemo::updateObjects(cyclone::real duration)
     for (Box *box = boxData; box < boxData+boxes; box++)
     {
         // Run the physics
-        box->body->integrate(duration);
-        box->calculateInternals();
+        box->Body->integrate(duration);
+        box->CalculateInternals();
         box->isOverlapping = false;
     }
 
@@ -401,8 +330,8 @@ void ExplosionDemo::updateObjects(cyclone::real duration)
     for (Ball *ball = ballData; ball < ballData+balls; ball++)
     {
         // Run the physics
-        ball->body->integrate(duration);
-        ball->calculateInternals();
+        ball->Body->integrate(duration);
+        ball->CalculateInternals();
     }
 }
 
@@ -428,7 +357,7 @@ void ExplosionDemo::display()
     // Update the transform matrices of each box in turn
     for (Box *box = boxData; box < boxData+boxes; box++)
     {
-        box->calculateInternals();
+        box->CalculateInternals();
         box->isOverlapping = false;
     }
 
@@ -436,7 +365,7 @@ void ExplosionDemo::display()
     for (Ball *ball = ballData; ball < ballData+balls; ball++)
     {
         // Run the physics
-        ball->calculateInternals();
+        ball->CalculateInternals();
     }
 
     // Clear the viewport and set the camera direction
@@ -521,12 +450,12 @@ void ExplosionDemo::display()
 void ExplosionDemo::mouseDrag(int x, int y)
 {
     if (editMode) {
-        boxData[0].body->Position = boxData[0].body->Position + cyclone::Vector3((x-last_x) * 0.125f, 0, (y-last_y) * 0.125f);
-        boxData[0].body->calculateDerivedData();
+        boxData[0].Body->Position = boxData[0].Body->Position + cyclone::Vector3((x-last_x) * 0.125f, 0, (y-last_y) * 0.125f);
+        boxData[0].Body->calculateDerivedData();
     }
     else if (upMode) {
-        boxData[0].body->Position = boxData[0].body->Position + cyclone::Vector3(0, (y-last_y) * 0.125f, 0);
-        boxData[0].body->calculateDerivedData();
+        boxData[0].Body->Position = boxData[0].Body->Position + cyclone::Vector3(0, (y-last_y) * 0.125f, 0);
+        boxData[0].Body->calculateDerivedData();
     }
     else {
         RigidBodyApplication::mouseDrag(x, y);
@@ -538,35 +467,20 @@ void ExplosionDemo::mouseDrag(int x, int y)
 }
 
 
-void ExplosionDemo::key(unsigned char key)
-{
-    switch(key)
-    {
-    case 'e': case 'E':
-        editMode = !editMode;
-        upMode = false;
-        return;
+void ExplosionDemo::key(unsigned char key) {
+	switch(key) {
+	case 'e': case 'E': editMode	= !editMode	; upMode	= false; return;
+	case 't': case 'T': upMode		= !upMode	; editMode	= false; return;
+	case 'w': case 'W':
+		for (Box *box	= boxData	; box	< boxData	+ boxes; ++box	) box	->Body->setAwake();
+		for (Ball *ball = ballData	; ball	< ballData	+ balls; ++ball	) ball	->Body->setAwake();
+		return;
+	}
 
-    case 't': case 'T':
-        upMode = !upMode;
-        editMode = false;
-        return;
-
-    case 'w': case 'W':
-        for (Box *box = boxData; box < boxData+boxes; box++)
-            box->body->setAwake();
-        for (Ball *ball = ballData; ball < ballData+balls; ball++)
-            ball->body->setAwake();
-        return;
-    }
-
-    RigidBodyApplication::key(key);
+	RigidBodyApplication::key(key);
 }
 
-/**
- * Called by the common demo framework to create an application
- * object (with new) and return a pointer.
- */
+// Called by the common demo framework to create an application object (with new) and return a pointer.
 Application* getApplication()
 {
     return new ExplosionDemo();

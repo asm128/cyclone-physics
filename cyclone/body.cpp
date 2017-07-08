@@ -1,14 +1,5 @@
-/*
- * Implementation file for the rigid body class.
- *
- * Part of the Cyclone physics system.
- *
- * Copyright (c) Icosagon 2003. All Rights Reserved.
- *
- * This software is distributed under licence. Use of this software
- * implies agreement with all terms and conditions of the accompanying
- * software licence.
- */
+// Copyright (c) Icosagon 2003. Published by Ian Millington under the MIT License for his book "Game Physics Engine Development" or something like that (a really good book that I actually bought in paperback after reading it).
+// Heavily modified by asm128 in order to make this code readable and free of potential bugs and inconsistencies and a large set of sources of problems and improductivity originally introduced thanks to poor advice, bad practices and OOP vices.
 #include "body.h"
 
 #include <memory.h>
@@ -122,70 +113,46 @@ static inline void _calculateTransformMatrix(Matrix4 &transformMatrix,
  * FUNCTIONS DECLARED IN HEADER:
  * --------------------------------------------------------------------------
  */
-void RigidBody::calculateDerivedData()
-{
-    Orientation.normalise();
-
-    // Calculate the transform matrix for the body.
-    _calculateTransformMatrix(TransformMatrix, Position, Orientation);
-
-    // Calculate the inertiaTensor in world space.
-    _transformInertiaTensor(InverseInertiaTensorWorld,
-        Orientation,
-        InverseInertiaTensor,
-        TransformMatrix);
-
+void RigidBody::calculateDerivedData() {
+	Orientation.normalise();
+	_calculateTransformMatrix	(TransformMatrix, Position, Orientation);	// Calculate the transform matrix for the body.
+	_transformInertiaTensor		(InverseInertiaTensorWorld, Orientation, InverseInertiaTensor, TransformMatrix);	// Calculate the inertiaTensor in world space.
 }
 
-void RigidBody::integrate(real duration)
-{
-    if (!IsAwake) return;
-
-    // Calculate linear acceleration from force inputs.
-    LastFrameAcceleration = Acceleration;
-    LastFrameAcceleration.addScaledVector(ForceAccum, InverseMass);
-
-    // Calculate angular acceleration from torque inputs.
-    Vector3 angularAcceleration =
-        InverseInertiaTensorWorld.transform(TorqueAccum);
-
-    // Adjust velocities
-    // Update linear velocity from both acceleration and impulse.
-    Velocity.addScaledVector(LastFrameAcceleration, duration);
-
-    // Update angular velocity from both acceleration and impulse.
-    Rotation.addScaledVector(angularAcceleration, duration);
-
-    // Impose drag.
-    Velocity *= real_pow(LinearDamping, duration);
-    Rotation *= real_pow(AngularDamping, duration);
-
-    // Adjust positions
-    // Update linear position.
-    Position.addScaledVector(Velocity, duration);
-
-    // Update angular position.
-    Orientation.addScaledVector(Rotation, duration);
-
-    // Normalise the orientation, and update the matrices with the new
-    // position and orientation
-    calculateDerivedData();
-
-    // Clear accumulators.
-    clearAccumulators();
-
-    // Update the kinetic energy store, and possibly put the body to
-    // sleep.
-    if (CanSleep) {
-        real currentMotion = Velocity.scalarProduct(Velocity) +
-            Rotation.scalarProduct(Rotation);
-
-        real bias = real_pow(0.5, duration);
-        Motion = bias * Motion + (1-bias)*currentMotion;
-
-        if (Motion < sleepEpsilon) setAwake(false);
-        else if (Motion > 10 * sleepEpsilon) Motion = 10 * sleepEpsilon;
-    }
+void RigidBody::integrate(real duration){
+	if (!IsAwake) 
+		return;
+	
+	// Calculate linear acceleration from force inputs.
+	LastFrameAcceleration = Acceleration;
+	LastFrameAcceleration.addScaledVector(ForceAccum, InverseMass);
+	
+	// Calculate angular acceleration from torque inputs.
+	Vector3 angularAcceleration = InverseInertiaTensorWorld.transform(TorqueAccum);
+	
+	// Adjust velocities
+	Velocity.addScaledVector(LastFrameAcceleration, duration);	// Update linear velocity from both acceleration and impulse.
+	Rotation.addScaledVector(angularAcceleration, duration);	// Update angular velocity from both acceleration and impulse.
+	
+	// Impose drag.
+	Velocity *= real_pow(LinearDamping, duration);
+	Rotation *= real_pow(AngularDamping, duration);
+	
+	// Adjust positions
+	Position	.addScaledVector(Velocity, duration);	// Update linear position.
+	Orientation	.addScaledVector(Rotation, duration);	// Update angular position.
+	calculateDerivedData();			// Normalise the orientation, and update the matrices with the new position and orientation
+	clearAccumulators();			// Clear accumulators.
+	
+	if (CanSleep) {	// Update the kinetic energy store, and possibly put the body to sleep.
+		real							currentMotion	= Velocity.scalarProduct(Velocity) + Rotation.scalarProduct(Rotation);
+		real							bias			= real_pow(0.5, duration);
+		Motion						= bias * Motion + (1 - bias) * currentMotion;
+		if (Motion < sleepEpsilon) 
+			setAwake(false);
+		else if (Motion > 10 * sleepEpsilon) 
+			Motion		= 10 * sleepEpsilon;
+		}
 }
 
 void RigidBody::setMass(const real mass)
@@ -240,8 +207,8 @@ Matrix3 RigidBody::getInertiaTensorWorld() const
 
 void RigidBody::setInverseInertiaTensor(const Matrix3 &inverseInertiaTensor)
 {
-    _checkInverseInertiaTensor(inverseInertiaTensor);
-    RigidBody::InverseInertiaTensor = inverseInertiaTensor;
+	_checkInverseInertiaTensor(inverseInertiaTensor);
+	RigidBody::InverseInertiaTensor = inverseInertiaTensor;
 }
 
 void RigidBody::getInverseInertiaTensor(Matrix3 *inverseInertiaTensor) const
@@ -249,19 +216,10 @@ void RigidBody::getInverseInertiaTensor(Matrix3 *inverseInertiaTensor) const
     *inverseInertiaTensor = RigidBody::InverseInertiaTensor;
 }
 
-Matrix3 RigidBody::getInverseInertiaTensor() const
-{
-    return InverseInertiaTensor;
-}
 
 void RigidBody::getInverseInertiaTensorWorld(Matrix3 *inverseInertiaTensor) const
 {
     *inverseInertiaTensor = InverseInertiaTensorWorld;
-}
-
-Matrix3 RigidBody::getInverseInertiaTensorWorld() const
-{
-    return InverseInertiaTensorWorld;
 }
 
 void RigidBody::setDamping(const real linearDamping,

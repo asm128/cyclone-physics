@@ -1,15 +1,5 @@
-/*
- * The fracture demo.
- *
- * Part of the Cyclone physics system.
- *
- * Copyright (c) Icosagon 2003. All Rights Reserved.
- *
- * This software is distributed under licence. Use of this software
- * implies agreement with all terms and conditions of the accompanying
- * software licence.
- */
-
+// Copyright (c) Icosagon 2003. Published by Ian Millington under the MIT License for his book "Game Physics Engine Development" or something like that (a really good book that I actually bought in paperback after reading it).
+// Heavily modified by asm128 in order to make this code readable and free of potential bugs and inconsistencies and a large set of sources of problems and improductivity originally introduced thanks to poor advice, bad practices and OOP vices.
 #include "cyclone.h"
 #include "ogl_headers.h"
 #include "app.h"
@@ -23,30 +13,20 @@ cyclone::Random global_random;
 
 class Block : public cyclone::CollisionBox
 {
+	::cyclone::RigidBody		_blockBody;
 public:
-    bool exists;
+	bool						exists;
 
-    Block()
-    :
-    exists(false)
-    {
-        body = new cyclone::RigidBody();
-    }
-
-    ~Block()
-    {
-        delete body;
-    }
-
-    /** Draws the block. */
-    void render()
-    {
+								Block							()						: exists	(false)				{ Body = &_blockBody; }
+	
+	// Draws the block.
+	void						render							()						{
         // Get the OpenGL transformation
         GLfloat mat[16];
-        body->getGLTransform(mat);
+        Body->getGLTransform(mat);
 
-        if (body->IsAwake) glColor3f(1.0f,0.7f,0.7f);
-        else glColor3f(0.7f,0.7f,1.0f);
+        if (Body->IsAwake)	glColor3f(1.0f,0.7f,0.7f);
+        else				glColor3f(0.7f,0.7f,1.0f);
 
         glPushMatrix();
         glMultMatrixf(mat);
@@ -61,28 +41,28 @@ public:
                   const cyclone::Vector3 &extents,
                   const cyclone::Vector3 &velocity)
     {
-        body->Position = position;
-        body->setOrientation(orientation);
-        body->Velocity = velocity;
-		body->Rotation = {};
+        Body->Position = position;
+        Body->setOrientation(orientation);
+        Body->Velocity = velocity;
+		Body->Rotation = {};
         halfSize = extents;
 
         cyclone::real mass = halfSize.x * halfSize.y * halfSize.z * 8.0f;
-        body->setMass(mass);
+        Body->setMass(mass);
 
         cyclone::Matrix3 tensor;
         tensor.setBlockInertiaTensor(halfSize, mass);
-        body->setInertiaTensor(tensor);
+        Body->setInertiaTensor(tensor);
 
-        body->LinearDamping	 = 0.95f;
-        body->AngularDamping = 0.8f;
-        body->clearAccumulators();
-        body->setAcceleration(0,-10.0f,0);
+        Body->LinearDamping	 = 0.95f;
+        Body->AngularDamping = 0.8f;
+        Body->clearAccumulators();
+        Body->setAcceleration(0,-10.0f,0);
 
         //body->setCanSleep(false);
-        body->setAwake();
+        Body->setAwake();
 
-        body->calculateDerivedData();
+        Body->calculateDerivedData();
     }
 
     /**
@@ -92,19 +72,15 @@ public:
     void calculateMassProperties(cyclone::real invDensity)
     {
         // Check for infinite mass
-        if (invDensity <= 0)
-        {
-            // Just set zeros for both mass and inertia tensor
-            body->InverseMass = 0;
-            body->setInverseInertiaTensor(cyclone::Matrix3());
+        if (invDensity <= 0) {		// Just set zeros for both mass and inertia tensor
+            Body->InverseMass = 0;
+            Body->setInverseInertiaTensor(cyclone::Matrix3());
         }
-        else
-        {
-            // Otherwise we need to calculate the mass
+        else {	// Otherwise we need to calculate the mass
             cyclone::real volume = halfSize.magnitude() * 2.0;
             cyclone::real mass = volume / invDensity;
 
-            body->setMass(mass);
+            Body->setMass(mass);
 
             // And calculate the inertia tensor from the mass and size
             mass *= 0.333f;
@@ -114,7 +90,7 @@ public:
                 mass * halfSize.y*halfSize.x + halfSize.z*halfSize.z,
                 mass * halfSize.y*halfSize.x + halfSize.z*halfSize.y
                 );
-            body->setInertiaTensor(tensor);
+            Body->setInertiaTensor(tensor);
         }
 
     }
@@ -133,7 +109,7 @@ public:
         // therefore what the contact normal is.
         cyclone::Vector3 normal = contact.contactNormal;
         cyclone::RigidBody *body = contact.body[0];
-        if (body != target->body)
+        if (body != target->Body)
         {
             normal.invert();
             body = contact.body[1];
@@ -212,17 +188,17 @@ public:
 
             // Set the body's properties (we assume the block has a body
             // already that we're going to overwrite).
-            blocks[i].body->Position			= newPos;
-            blocks[i].body->Velocity			= tempBody.Velocity + direction * 10.0f;
-            blocks[i].body->setOrientation		(tempBody.Orientation);
-            blocks[i].body->Rotation			= tempBody.Rotation;
-            blocks[i].body->LinearDamping		= tempBody.LinearDamping	;
-            blocks[i].body->AngularDamping		= tempBody.AngularDamping	;
-            blocks[i].body->setAwake			(true);
-            blocks[i].body->Acceleration		= (cyclone::Vector3::GRAVITY);
-            blocks[i].body->clearAccumulators();
-            blocks[i].body->calculateDerivedData();
-            blocks[i].offset					= cyclone::Matrix4();
+            blocks[i].Body->Position			= newPos;
+            blocks[i].Body->Velocity			= tempBody.Velocity + direction * 10.0f;
+            blocks[i].Body->setOrientation		(tempBody.Orientation);
+            blocks[i].Body->Rotation			= tempBody.Rotation;
+            blocks[i].Body->LinearDamping		= tempBody.LinearDamping	;
+            blocks[i].Body->AngularDamping		= tempBody.AngularDamping	;
+            blocks[i].Body->setAwake			(true);
+            blocks[i].Body->Acceleration		= (cyclone::Vector3::GRAVITY);
+            blocks[i].Body->clearAccumulators();
+            blocks[i].Body->calculateDerivedData();
+            blocks[i].Offset					= cyclone::Matrix4();
             blocks[i].exists					= true;
             blocks[i].halfSize					= halfSize;
 
@@ -232,65 +208,45 @@ public:
     }
 };
 
-/**
- * The main demo class definition.
- */
-class FractureDemo : public RigidBodyApplication
-{
-    /** Tracks if a block has been hit. */
-    bool hit;
-    bool ball_active;
-    unsigned fracture_contact;
+// The main demo class definition.
+class FractureDemo : public RigidBodyApplication {
+	// -- Tracks if a block has been hit.
+	bool						hit;
+	bool						ball_active;
+	uint32_t					fracture_contact;
 
-    /** Handle random numbers. */
-    cyclone::Random random;
+	cyclone::Random				random;				// Handle random numbers.
+	Block						blocks[MAX_BLOCKS];	// Holds the bodies. 
+	cyclone::CollisionSphere	ball;				// Holds the projectile. 
 
-    /** Holds the bodies. */
-    Block blocks[MAX_BLOCKS];
-
-    /** Holds the projectile. */
-    cyclone::CollisionSphere ball;
-
-    /** Processes the contact generation code. */
-    virtual void GenerateContacts();
-
-    /** Processes the objects in the simulation forward in time. */
-    virtual void updateObjects(cyclone::real duration);
-
-    /** Resets the position of all the blocks. */
-    virtual void reset();
-
-    /** Processes the physics. */
-    virtual void update();
+	virtual void				GenerateContacts	();							// Processes the contact generation code. */
+	virtual void				updateObjects		(cyclone::real duration);	// Processes the objects in the simulation forward in time. */
+	virtual void				reset				();	// Resets the position of all the blocks. */
+	virtual void				update				();	// Processes the physics. */
 
 public:
-    /** Creates a new demo object. */
-    FractureDemo();
+								FractureDemo		();	// Creates a new demo object. */
 
-    /** Returns the window title for the demo. */
-    virtual const char* getTitle();
-
-    /** Display the particle positions. */
-    virtual void display();
+	virtual const char*			getTitle			();	// Returns the window title for the demo. */
+	virtual void				display				();	// Display the particle positions. */
 };
 
 // Method definitions
 FractureDemo::FractureDemo()
-    :
-    RigidBodyApplication()
+	: RigidBodyApplication()
 {
     // Create the ball.
-    ball.body = new cyclone::RigidBody();
+    ball.Body = new cyclone::RigidBody();
     ball.radius = 0.25f;
-    ball.body->setMass(5.0f);
-    ball.body->setDamping(0.9f, 0.9f);
+    ball.Body->setMass(5.0f);
+    ball.Body->setDamping(0.9f, 0.9f);
     cyclone::Matrix3 it;
     it.setDiagonal(5.0f, 5.0f, 5.0f);
-    ball.body->setInertiaTensor(it);
-    ball.body->Acceleration = cyclone::Vector3::GRAVITY;
+    ball.Body->setInertiaTensor(it);
+    ball.Body->Acceleration = cyclone::Vector3::GRAVITY;
 
-    ball.body->setCanSleep(false);
-    ball.body->setAwake(true);
+    ball.Body->setCanSleep(false);
+    ball.Body->setAwake(true);
 
     // Set up the initial block
     reset();
@@ -367,37 +323,37 @@ void FractureDemo::reset()
 
     // Set the first block
     blocks[0].halfSize = cyclone::Vector3(4,4,4);
-	blocks[0].body->Position = {0, 7, 0};
-    blocks[0].body->setOrientation(1,0,0,0);
-    blocks[0].body->Velocity = {};
-    blocks[0].body->Rotation = {};
-    blocks[0].body->setMass(100.0f);
+	blocks[0].Body->Position = {0, 7, 0};
+    blocks[0].Body->setOrientation(1,0,0,0);
+    blocks[0].Body->Velocity = {};
+    blocks[0].Body->Rotation = {};
+    blocks[0].Body->setMass(100.0f);
     cyclone::Matrix3 it;
     it.setBlockInertiaTensor(blocks[0].halfSize, 100.0f);
-    blocks[0].body->setInertiaTensor(it);
-    blocks[0].body->setDamping(0.9f, 0.9f);
-    blocks[0].body->calculateDerivedData();
-    blocks[0].calculateInternals();
+    blocks[0].Body->setInertiaTensor(it);
+    blocks[0].Body->setDamping(0.9f, 0.9f);
+    blocks[0].Body->calculateDerivedData();
+    blocks[0].CalculateInternals();
 
-    blocks[0].body->Acceleration = cyclone::Vector3::GRAVITY;
-    blocks[0].body->setAwake(true);
-    blocks[0].body->setCanSleep(true);
+    blocks[0].Body->Acceleration = cyclone::Vector3::GRAVITY;
+    blocks[0].Body->setAwake(true);
+    blocks[0].Body->setCanSleep(true);
 
 
     ball_active = true;
 
     // Set up the ball
-	ball.body->Position = {0,5.0f,20.0f};
-    ball.body->setOrientation(1,0,0,0);
-    ball.body->Velocity = {
+	ball.Body->Position = {0,5.0f,20.0f};
+    ball.Body->setOrientation(1,0,0,0);
+    ball.Body->Velocity = {
         random.randomBinomial(4.0f),
         random.randomReal(1.0f, 6.0f),
         -20.0f
 	};
-	ball.body->Rotation = {};
-    ball.body->calculateDerivedData();
-    ball.body->setAwake(true);
-    ball.calculateInternals();
+	ball.Body->Rotation = {};
+    ball.Body->calculateDerivedData();
+    ball.Body->setAwake(true);
+    ball.CalculateInternals();
 
     hit = false;
 
@@ -427,15 +383,15 @@ void FractureDemo::updateObjects(cyclone::real duration)
     {
         if (block->exists)
         {
-            block->body->integrate(duration);
-            block->calculateInternals();
+            block->Body->integrate(duration);
+            block->CalculateInternals();
         }
     }
 
     if (ball_active)
     {
-        ball.body->integrate(duration);
-        ball.calculateInternals();
+        ball.Body->integrate(duration);
+        ball.CalculateInternals();
     }
 }
 
@@ -464,7 +420,7 @@ void FractureDemo::display()
     {
         glColor3f(0.4f, 0.7f, 0.4f);
         glPushMatrix();
-        cyclone::Vector3 pos = ball.body->Position;
+        cyclone::Vector3 pos = ball.Body->Position;
         glTranslatef(pos.x, pos.y, pos.z);
         glutSolidSphere(0.25f, 16, 8);
         glPopMatrix();
@@ -495,10 +451,7 @@ void FractureDemo::display()
     RigidBodyApplication::drawDebug();
 }
 
-/**
- * Called by the common demo framework to create an application
- * object (with new) and return a pointer.
- */
+// Called by the common demo framework to create an application object (with new) and return a pointer.
 Application* getApplication()
 {
     return new FractureDemo();

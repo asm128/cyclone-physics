@@ -1,14 +1,6 @@
-/*
- * The definition file for the default application object.
- *
- * Part of the Cyclone physics system.
- *
- * Copyright (c) Icosagon 2003. All Rights Reserved.
- *
- * This software is distributed under licence. Use of this software
- * implies agreement with all terms and conditions of the accompanying
- * software licence.
- */
+// The definition file for the default application object.
+// Copyright (c) Icosagon 2003. Published by Ian Millington under the MIT License for his book "Game Physics Engine Development" or something like that (a really good book that I actually bought in paperback after reading it).
+// Heavily modified by asm128 in order to make this code readable and free of potential bugs and inconsistencies and a large set of sources of problems and improductivity originally introduced thanks to poor advice, bad practices and OOP vices.
 #include <cstring>
 #include "ogl_headers.h"
 #include "app.h"
@@ -46,17 +38,10 @@ const char* Application::getTitle()
     return "Cyclone Demo";
 }
 
-void Application::deinit()
-{
-}
 
 void Application::update()
 {
     glutPostRedisplay();
-}
-
-void Application::key(unsigned char key)
-{
 }
 
 
@@ -70,14 +55,6 @@ void Application::resize(int width, int height)
     Application::height = height;
     glViewport(0, 0, width, height);
     setView();
-}
-
-void Application::mouse(int button, int state, int x, int y)
-{
-}
-
-void Application::mouseDrag(int x, int y)
-{
 }
 
 // The following methods aren't intended to be overloaded
@@ -298,29 +275,14 @@ void RigidBodyApplication::mouseDrag(int x, int y)
     last_y = y;
 }
 
-void RigidBodyApplication::key(unsigned char key)
-{
-    switch(key)
-    {
-    case 'R': case 'r':
-        // Reset the simulation
-        reset();
-        return;
-
-    case 'C': case 'c':
-        // Toggle rendering of contacts
-        renderDebugInfo = !renderDebugInfo;
-        return;
-
-    case 'P': case 'p':
-        // Toggle running the simulation
-        pauseSimulation = !pauseSimulation;
-        return;
-
-    case ' ':
-        // Advance one frame
+void RigidBodyApplication::key(unsigned char key) {
+    switch(key) {
+    case 'R': case 'r': reset();							return; // Reset the simulation
+    case 'C': case 'c': renderDebugInfo = !renderDebugInfo;	return; // Toggle rendering of contacts
+    case 'P': case 'p': pauseSimulation = !pauseSimulation; return; // Toggle running the simulation
+    case ' ':	// Advance one frame
         autoPauseSimulation = true;
-        pauseSimulation = false;
+        pauseSimulation		= false;
     }
 
     Application::key(key);
