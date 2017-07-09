@@ -14,10 +14,10 @@ class Bone : public cyclone::CollisionBox
 {
 	::cyclone::RigidBody			_boneBody;
 public:
-									Bone							()									{ Body = &_boneBody; }
+									Bone								()																					{ Body = &_boneBody; }
 
     // We use a sphere to collide bone on bone to allow some limited interpenetration.
-    cyclone::CollisionSphere		getCollisionSphere				()					const			{
+    cyclone::CollisionSphere		getCollisionSphere					()																	const			{
         cyclone::CollisionSphere			sphere;
         sphere.Body						= Body;
         sphere.Radius					= HalfSize.x;
@@ -29,7 +29,7 @@ public:
     }
 
 	// Draws the bone.
-    void							Render							()									{
+    void							Render								()																					{
         // Get the OpenGL transformation
 		GLfloat								mat	[16];
         Body->getGLTransform(mat);
@@ -47,14 +47,14 @@ public:
     }
 
     // Sets the bone to a specific location.
-    void setState(const cyclone::Vector3 &position, const cyclone::Vector3 &extents) {
+    void							setState							(const cyclone::Vector3 &position, const cyclone::Vector3 &extents)					{
         Body->Position					= position;
         Body->Orientation				= {};
         Body->Velocity					= {};
         Body->Rotation					= {};
         HalfSize						= extents;
 
-        double								mass			= HalfSize.x * HalfSize.y * HalfSize.z * 8.0f;
+        double								mass								= HalfSize.x * HalfSize.y * HalfSize.z * 8.0f;
         Body->setMass(mass);
 
         cyclone::Matrix3					tensor;
@@ -77,25 +77,23 @@ public:
 
 // The main demo class definition.
 class RagdollDemo : public RigidBodyApplication {
-	cyclone::Random					Random						= {};
-	Bone							Bones	[NUM_BONES]			= {};	// Holds the bone bodies.	
-	cyclone::Joint					Joints	[NUM_JOINTS]		= {};	// Holds the joints.		
+	cyclone::Random					Random								= {};
+	Bone							Bones	[NUM_BONES]					= {};	// Holds the bone bodies.	
+	cyclone::Joint					Joints	[NUM_JOINTS]				= {};	// Holds the joints.		
 
-	virtual void					GenerateContacts			();	// Processes the contact generation code. 
-	virtual void					UpdateObjects				(double duration);	// Processes the objects in the simulation forward in time.
-	virtual void					Reset						();	// Resets the position of all the bones. 
+	virtual void					GenerateContacts					();	// Processes the contact generation code. 
+	virtual void					UpdateObjects						(double duration);	// Processes the objects in the simulation forward in time.
+	virtual void					Reset								();	// Resets the position of all the bones. 
 public:
-									RagdollDemo					();	// Creates a new demo object.
+									RagdollDemo							();	// Creates a new demo object.
 
-	virtual const char*				GetTitle					()											{ return "Cyclone > Ragdoll Demo"; }
-	virtual void					InitGraphics				();	// Sets up the rendering.
-	virtual void					Display						();	// Display the particle positions.
+	virtual const char*				GetTitle							()																					{ return "Cyclone > Ragdoll Demo"; }
+	virtual void					InitGraphics						();	// Sets up the rendering.
+	virtual void					Display								();	// Display the particle positions.
 };
 
 // Method definitions
-RagdollDemo::RagdollDemo()
-	: RigidBodyApplication()
-{
+									RagdollDemo::RagdollDemo			()																					{
 	// -- Set up the bone hierarchy. --
 	Joints[0]	.Set(Bones[0]	.Body, {0, 1.07f, 0}		, Bones[1]	.Body, {0, -1.07f, 0}, 0.15f);	// Right Knee
 	Joints[1]	.Set(Bones[2]	.Body, {0, 1.07f, 0}		, Bones[3]	.Body, {0, -1.07f, 0}, 0.15f);	// Left Knee
@@ -115,22 +113,22 @@ RagdollDemo::RagdollDemo()
 	Reset();	// Set up the initial positions
 }
 
-void RagdollDemo::GenerateContacts() {
-    // Create the ground plane data
-    cyclone::CollisionPlane				plane;
-	plane.Direction					= {0,1,0};
-    plane.Offset					= 0;
+void								RagdollDemo::GenerateContacts		()																					{
+	// Create the ground plane data
+	cyclone::CollisionPlane					plane;
+	plane.Direction						= {0,1,0};
+	plane.Offset						= 0;
 
-    // Set up the collision data structure
-    Collisions.Reset(MaxContacts);
-    Collisions.Friction					= (double)0.9;
-    Collisions.Restitution				= (double)0.6;
-    Collisions.Tolerance				= (double)0.1;
+	// Set up the collision data structure
+	Collisions.Reset(MaxContacts);
+	Collisions.Friction					= (double)0.9;
+	Collisions.Restitution				= (double)0.6;
+	Collisions.Tolerance				= (double)0.1;
 
-    // Perform exhaustive collision detection on the ground plane
-    cyclone::Matrix4					transform	, otherTransform;
-    cyclone::Vector3					position	, otherPosition;
-    for (Bone *bone = Bones; bone < Bones + NUM_BONES; bone++) {
+	// Perform exhaustive collision detection on the ground plane
+	cyclone::Matrix4					transform	, otherTransform;
+	cyclone::Vector3					position	, otherPosition;
+	for (Bone *bone = Bones; bone < Bones + NUM_BONES; bone++) {
 		// Check for collisions with the ground plane
 		if (!Collisions.HasMoreContacts()) 
 			return;
@@ -140,13 +138,9 @@ void RagdollDemo::GenerateContacts() {
 		for (Bone *other = bone+1; other < Bones + NUM_BONES; other++) {	// Check for collisions with each other box
 			if (!Collisions.HasMoreContacts()) 
 				return;
-			cyclone::CollisionSphere otherSphere = other->getCollisionSphere();
-			cyclone::CollisionDetector::sphereAndSphere(
-			    boneSphere,
-			    otherSphere,
-			    &Collisions
-			    );
-        }
+			cyclone::CollisionSphere		otherSphere			= other->getCollisionSphere();
+			cyclone::CollisionDetector::sphereAndSphere(boneSphere, otherSphere, &Collisions);
+	    }
 	}
 
 	// Check for joint violation
@@ -180,9 +174,9 @@ void RagdollDemo::Reset()
 		Bones[i].Body->addForceAtBodyPoint( {strength, 0, 0}, {});
 
 	Bones[6].Body->addForceAtBodyPoint(
-	    { strength, 0, Random.randomBinomial(1000.0f)},
+		{ strength, 0, Random.randomBinomial(1000.0f)},
 		{ Random.randomBinomial(4.0f), Random.randomBinomial(3.0f), 0}
-	    );
+		);
 
 	Collisions.ContactCount = 0;	// Reset the contacts
 }

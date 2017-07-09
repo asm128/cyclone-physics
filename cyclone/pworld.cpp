@@ -54,8 +54,7 @@ void								ParticleWorld::RunPhysics			(double duration)														{
 	}
 }
 
-void								GroundContacts::Init				(cyclone::ParticleWorld::TParticles *particles)							{ Particles = particles; }
-unsigned							GroundContacts::AddContact			(cyclone::ParticleContact *contact, uint32_t limit)				const	{
+uint32_t							GroundContacts::AddContact			(cyclone::ParticleContact *contact, uint32_t limit)				const	{
 	uint32_t								count								= 0;
 	for (cyclone::ParticleWorld::TParticles::iterator p = Particles->begin(); p != Particles->end(); ++p) {
 		double									y									= (*p)->Position.y;

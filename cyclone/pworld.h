@@ -33,10 +33,9 @@ namespace cyclone {
 	// A contact generator that takes an STL vector of particle pointers and collides them against the ground.
 	class GroundContacts : public cyclone::ParticleContactGenerator {
 		cyclone::ParticleWorld::TParticles					* Particles				= 0;
-	
 	public:
-		void												Init					(cyclone::ParticleWorld::TParticles *particles);
-		virtual uint32_t									AddContact				(cyclone::ParticleContact *contact, uint32_t limit)		const;
+		inline	void										Init					(cyclone::ParticleWorld::TParticles *particles)					{ Particles = particles; }
+		virtual	uint32_t									AddContact				(cyclone::ParticleContact *contact, uint32_t limit)		const;
 	};
 } // namespace cyclone
 

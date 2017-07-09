@@ -9,112 +9,129 @@
 #include <cassert>
 
 // The main demo class definition.
-class SailboatDemo : public Application
-{
-    cyclone::Buoyancy		Buoyancy	;
-
-    cyclone::Aero			Sail		;
-	cyclone::RigidBody		Sailboat		= {};
-
-	cyclone::Random			R				= {};
-	cyclone::Vector3		WindSpeed		= {};
-
-    float					SailControl		= 0;
-
-	cyclone::ForceRegistry	Registry	;
-
+class SailboatDemo : public Application {
+	cyclone::Buoyancy					Buoyancy							;
+	cyclone::Aero						Sail								;
+	cyclone::RigidBody					Sailboat							= {};
+	cyclone::Random						R									= {};
+	cyclone::Vector3					WindSpeed							= {};
+	float								SailControl							= 0;
+	cyclone::ForceRegistry				Registry							= {};
 
 public:
-	virtual					~SailboatDemo	()						{}
-							SailboatDemo	();
+	virtual								~SailboatDemo						()									{}
+										SailboatDemo						();
 
-	virtual const char*		GetTitle		();						// Returns the window title for the demo. 
-    virtual void			Display			();						// Display the particles. 
-    virtual void			Update			();						// Update the particle positions. 
-    virtual void			Key				(unsigned char key);	// Handle a key press. 
+	virtual void						Display								();																			// Display the particles. 
+	virtual void						Update								();																			// Update the particle positions. 
+	virtual void						Key									(unsigned char key);														// Handle a key press. 
 
-	virtual void			Mouse			(int, int, int, int)	{}	// Called when GLUT detects a mouse button press.
-	virtual void			MouseDrag		(int, int)				{}	// Called when GLUT detects a mouse drag.
+	virtual const char*					GetTitle							()									{ return "Cyclone > Sail Boat Demo"; }	// Returns the window title for the demo. 
+	virtual void						Mouse								(int, int, int, int)				{}										// Called when GLUT detects a mouse button press.
+	virtual void						MouseDrag							(int, int)							{}										// Called when GLUT detects a mouse drag.
 };
 
 // Method definitions
-SailboatDemo::SailboatDemo()
-	: Application()
+										SailboatDemo::SailboatDemo			()
+	: Buoyancy		({0.0f, 0.5f, 0.0f}, 1.0f, 3.0f, 1.6f)
 	, Sail			(cyclone::Matrix3(0,0,0, 0,0,0, 0,0,-1.0f), {2.0f, 0, 0}, &WindSpeed)
-	, Buoyancy		({0.0f, 0.5f, 0.0f}, 1.0f, 3.0f, 1.6f)
 {
-    // Set up the boat's rigid body.
-	Sailboat.Position = {0, 1.6f, 0};
-    Sailboat.setOrientation(1,0,0,0);
+	// Set up the boat's rigid body.
+	Sailboat.Position						= {0, 1.6f, 0};
+	Sailboat.Orientation					= {1, 0, 0, 0};
+	Sailboat.Velocity						= {};
+	Sailboat.Rotation						= {};
 
-    Sailboat.Velocity = {};
-    Sailboat.Rotation = {};
-
-    Sailboat.setMass(200.0f);
-    cyclone::Matrix3 it;
+	Sailboat.setMass(200.0f);
+	cyclone::Matrix3							it;
 	it.setBlockInertiaTensor({2, 1, 1}, 100.0f);
-    Sailboat.setInertiaTensor(it);
+	Sailboat.setInertiaTensor(it);
 
-    Sailboat.setDamping(0.8f, 0.8f);
+	Sailboat.setDamping(0.8f, 0.8f);
 
-    Sailboat.Acceleration = cyclone::Vector3::GRAVITY;
-    Sailboat.CalculateDerivedData();
+	Sailboat.Acceleration					= cyclone::Vector3::GRAVITY;
+	Sailboat.CalculateDerivedData();
 
-    Sailboat.setAwake();
-    Sailboat.setCanSleep(false);
+	Sailboat.setAwake();
+	Sailboat.setCanSleep(false);
 
-    Registry.Registrations.push_back({&Sailboat, &Sail		});
-    Registry.Registrations.push_back({&Sailboat, &Buoyancy	});
+	Registry.Registrations.push_back({&Sailboat, &Sail		});
+	Registry.Registrations.push_back({&Sailboat, &Buoyancy	});
 }
 
-static void drawBoat()
-{
-    // Left Hull
-    glPushMatrix();
-    glTranslatef(0, 0, -1.0f);
-    glScalef(2.0f, 0.4f, 0.4f);
-    glutSolidCube(1.0f);
-    glPopMatrix();
+void									SailboatDemo::Key					(unsigned char key)					{
+	switch(key) {
+	case 'q': case 'Q': SailControl				-= 0.1f; break;
+	case 'e': case 'E': SailControl				+= 0.1f; break;
+	case 'w': case 'W': SailControl				=  0.0f; break;
+	default:
+		Application::Key(key);
+	}
 
-    // Right Hull
-    glPushMatrix();
-    glTranslatef(0, 0, 1.0f);
-    glScalef(2.0f, 0.4f, 0.4f);
-    glutSolidCube(1.0f);
-    glPopMatrix();
+	// Make sure the controls are in range
+		 if (SailControl < -1.0f) SailControl	= -1.0f;
+	else if (SailControl >  1.0f) SailControl	=  1.0f;
 
-    // Deck
-    glPushMatrix();
-    glTranslatef(0, 0.3f, 0);
-    glScalef(1.0f, 0.1f, 2.0f);
-    glutSolidCube(1.0f);
-    glPopMatrix();
-
-    // Mast
-    glPushMatrix();
-    glTranslatef(0, 1.8f, 0);
-    glScalef(0.1f, 3.0f, 0.1f);
-    glutSolidCube(1.0f);
-    glPopMatrix();
-
+	//sail.setControl(sail_control);	// Update the control surfaces
 }
 
-void SailboatDemo::Display()
-{
+void									SailboatDemo::Update				()									{
+	float										duration							= (float)TimingData::get().LastFrameDuration * 0.001f;	// Find the duration of the last frame in seconds
+	if (duration <= 0.0f) 
+		return;
+
+	Sailboat.clearAccumulators();	// Start with no forces or acceleration.
+	Registry.UpdateForces(duration);	// Add the forces acting on the boat.
+	Sailboat.integrate(duration);	// Update the boat's physics.
+	WindSpeed								= WindSpeed * 0.9f + R.randomXZVector(1.0f);	// Change the wind speed.
+	Application::Update();
+}
+
+static void								drawBoat							()									{
+	// Left Hull
+	glPushMatrix	();
+	glTranslatef	(0, 0, -1.0f);
+	glScalef		(2.0f, 0.4f, 0.4f);
+	glutSolidCube	(1.0f);
+	glPopMatrix		();
+
+	// Right Hull
+	glPushMatrix	();
+	glTranslatef	(0, 0, 1.0f);
+	glScalef		(2.0f, 0.4f, 0.4f);
+	glutSolidCube	(1.0f);
+	glPopMatrix		();
+
+	// Deck
+	glPushMatrix	();
+	glTranslatef	(0, 0.3f, 0);
+	glScalef		(1.0f, 0.1f, 2.0f);
+	glutSolidCube	(1.0f);
+	glPopMatrix();
+
+	// Mast
+	glPushMatrix	();
+	glTranslatef	(0, 1.8f, 0);
+	glScalef		(0.1f, 3.0f, 0.1f);
+	glutSolidCube	(1.0f);
+	glPopMatrix		();
+}
+
+void									SailboatDemo::Display				()									{
 	// Clear the view port and set the camera direction
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
-	cyclone::Vector3			pos			= Sailboat.Position;
-	cyclone::Vector3			offset			= {4.0f, 0, 0};
-	offset = Sailboat.TransformMatrix.transformDirection(offset);
+	cyclone::Vector3							pos									= Sailboat.Position;
+	cyclone::Vector3							offset								= {4.0f, 0, 0};
+	offset									= Sailboat.TransformMatrix.transformDirection(offset);
 	gluLookAt(pos.x+offset.x, pos.y+5.0f, pos.z+offset.z,
-	          pos.x, pos.y, pos.z,
-	          0.0, 1.0, 0.0);
+			pos.x, pos.y, pos.z,
+			0.0, 1.0, 0.0);
 
 	glColor3f(0.6f,0.6f,0.6f);
-	int bx = int(pos.x);
-	int bz = int(pos.z);
+	int											bx									= int(pos.x);
+	int											bz									= int(pos.z);
 	glBegin(GL_QUADS);
 	for (int x = -20; x <= 20; x++) for (int z = -20; z <= 20; z++) {
 		glVertex3f(bx+x-0.1f, 0, bz+z-0.1f);
@@ -125,7 +142,7 @@ void SailboatDemo::Display()
 	glEnd();
 
 	// Set the transform matrix for the aircraft
-	GLfloat gl_transform[16];
+	GLfloat										gl_transform[16]					= {};
 	Sailboat.TransformMatrix.fillGLArray(gl_transform);
 	glPushMatrix();
 	glMultMatrixf(gl_transform);
@@ -135,7 +152,7 @@ void SailboatDemo::Display()
 	drawBoat();
 	glPopMatrix();
 
-	char buffer[256];
+	char										buffer[256]							= {};
 	sprintf_s(buffer, "Speed %.1f", Sailboat.Velocity.magnitude() );
 	glColor3f(0,0,0);
 	RenderText(10.0f, 24.0f, buffer);
@@ -144,35 +161,4 @@ void SailboatDemo::Display()
 	RenderText(10.0f, 10.0f, buffer);
 }
 
-void SailboatDemo::Update() {
-	float duration = (float)TimingData::get().LastFrameDuration * 0.001f;	// Find the duration of the last frame in seconds
-	if (duration <= 0.0f) 
-		return;
-
-	Sailboat.clearAccumulators();	// Start with no forces or acceleration.
-	Registry.UpdateForces(duration);	// Add the forces acting on the boat.
-	Sailboat.integrate(duration);	// Update the boat's physics.
-	WindSpeed = WindSpeed * 0.9f + R.randomXZVector(1.0f);	// Change the wind speed.
-
-	Application::Update();
-}
-
-const char* SailboatDemo::GetTitle() { return "Cyclone > Sail Boat Demo"; }
-
-void SailboatDemo::Key(unsigned char key) {
-	switch(key) {
-	case 'q': case 'Q': SailControl -= 0.1f; break;
-	case 'e': case 'E': SailControl += 0.1f; break;
-	case 'w': case 'W': SailControl =  0.0f; break;
-	default:
-		Application::Key(key);
-	}
-
-	// Make sure the controls are in range
-		 if (SailControl < -1.0f) SailControl = -1.0f;
-	else if (SailControl >  1.0f) SailControl =  1.0f;
-
-	//sail.setControl(sail_control);	// Update the control surfaces
-}
-
-Application* getApplication() { return new SailboatDemo(); }	// Called by the common demo framework to create an application object (with new) and return a pointer.
+Application*							getApplication						()									{ return new SailboatDemo(); }	// Called by the common demo framework to create an application object (with new) and return a pointer.
