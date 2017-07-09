@@ -305,14 +305,14 @@ void BigBallisticDemo::GenerateContacts()
     plane.Offset				= 0;
 
     // Set up the collision data structure
-    CData.reset(MaxContacts);
-    CData.friction				= 0.9;
-    CData.restitution			= 0.1;
-    CData.tolerance				= 0.1;
+    CData.Reset(MaxContacts);
+    CData.Friction				= 0.9;
+    CData.Restitution			= 0.1;
+    CData.Tolerance				= 0.1;
 
     // Check ground plane collisions
     for (Box *box = BoxData; box < BoxData + Boxes; box++) {
-        if (!CData.hasMoreContacts()) 
+        if (!CData.HasMoreContacts()) 
 			return;
         cyclone::CollisionDetector::boxAndHalfSpace(*box, plane, &CData);
 
@@ -320,7 +320,7 @@ void BigBallisticDemo::GenerateContacts()
         // Check for collisions with each shot
         for (AmmoRound *shot = Ammo; shot < Ammo + AmmoRounds; shot++) {
             if (shot->type != UNUSED) {
-                if (!CData.hasMoreContacts()) return;
+                if (!CData.HasMoreContacts()) return;
 
                 // When we get a collision, remove the shot
                 if (cyclone::CollisionDetector::boxAndSphere(*box, *shot, &CData))

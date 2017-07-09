@@ -63,8 +63,8 @@ SailboatDemo::SailboatDemo()
     sailboat.setAwake();
     sailboat.setCanSleep(false);
 
-    registry.add(&sailboat, &sail);
-    registry.add(&sailboat, &buoyancy);
+    registry.Registrations.push_back({&sailboat, &sail		});
+    registry.Registrations.push_back({&sailboat, &buoyancy	});
 }
 
 static void drawBoat()

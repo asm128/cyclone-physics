@@ -125,23 +125,23 @@ void RagdollDemo::GenerateContacts()
     plane.Offset					= 0;
 
     // Set up the collision data structure
-    CData.reset(MaxContacts);
-    CData.friction					= (double)0.9;
-    CData.restitution				= (double)0.6;
-    CData.tolerance					= (double)0.1;
+    CData.Reset(MaxContacts);
+    CData.Friction					= (double)0.9;
+    CData.Restitution				= (double)0.6;
+    CData.Tolerance					= (double)0.1;
 
     // Perform exhaustive collision detection on the ground plane
     cyclone::Matrix4					transform	, otherTransform;
     cyclone::Vector3					position	, otherPosition;
     for (Bone *bone = bones; bone < bones+NUM_BONES; bone++) {
         // Check for collisions with the ground plane
-        if (!CData.hasMoreContacts()) 
+        if (!CData.HasMoreContacts()) 
 			return;
 
         cyclone::CollisionDetector::boxAndHalfSpace(*bone, plane, &CData);
         cyclone::CollisionSphere		boneSphere	= bone->getCollisionSphere();
         for (Bone *other = bone+1; other < bones+NUM_BONES; other++) {	// Check for collisions with each other box
-            if (!CData.hasMoreContacts()) return;
+            if (!CData.HasMoreContacts()) return;
 
             cyclone::CollisionSphere otherSphere = other->getCollisionSphere();
             cyclone::CollisionDetector::sphereAndSphere(
@@ -155,8 +155,8 @@ void RagdollDemo::GenerateContacts()
     // Check for joint violation
     for (cyclone::Joint *joint = joints; joint < joints+NUM_JOINTS; joint++)
     {
-        if (!CData.hasMoreContacts()) return;
-        unsigned added = joint->AddContact(CData.contacts, CData.contactsLeft);
+        if (!CData.HasMoreContacts()) return;
+        unsigned added = joint->AddContact(CData.Contacts, CData.ContactsLeft);
         CData.AddContacts(added);
     }
 }
@@ -187,7 +187,7 @@ void RagdollDemo::Reset()
 		{ random.randomBinomial(4.0f), random.randomBinomial(3.0f), 0}
 	    );
 
-	CData.contactCount = 0;	// Reset the contacts
+	CData.ContactCount = 0;	// Reset the contacts
 }
 
 void RagdollDemo::UpdateObjects(double duration)

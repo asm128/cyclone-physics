@@ -77,10 +77,10 @@ FlightSimDemo::FlightSimDemo()
     Aircraft.setAwake();
     Aircraft.setCanSleep(false);
 
-    Registry.add(&Aircraft, &Left_wing);
-    Registry.add(&Aircraft, &Right_wing);
-    Registry.add(&Aircraft, &Rudder);
-    Registry.add(&Aircraft, &Tail);
+    Registry.Registrations.push_back({&Aircraft, &Left_wing		});
+    Registry.Registrations.push_back({&Aircraft, &Right_wing	});
+    Registry.Registrations.push_back({&Aircraft, &Rudder		});
+    Registry.Registrations.push_back({&Aircraft, &Tail			});
 }
 
 void FlightSimDemo::ResetPlane()
@@ -249,9 +249,9 @@ void FlightSimDemo::Key(unsigned char key) {
     else if (Rudder_control		>  1.0f) Rudder_control		= 1.0f;
 
     // Update the control surfaces
-    Left_wing	.setControl(Left_wing_control	);
-    Right_wing	.setControl(Right_wing_control	);
-    Rudder		.setControl(Rudder_control		);
+    Left_wing	.SetControl(Left_wing_control	);
+    Right_wing	.SetControl(Right_wing_control	);
+    Rudder		.SetControl(Rudder_control		);
 }
 
 // Called by the common demo framework to create an application object (with new) and return a pointer.

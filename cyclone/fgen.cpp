@@ -5,50 +5,42 @@
 using namespace cyclone;
 
 void ForceRegistry::UpdateForces(double duration) {
-	Registry::iterator i = registrations.begin();
-	for (; i != registrations.end(); i++)
-		i->fg->UpdateForce(i->body, duration);
+	TRegistry::iterator i = Registrations.begin();
+	for (; i != Registrations.end(); i++)
+		i->ForceGenerator->UpdateForce(i->Body, duration);
 }
 
-void ForceRegistry::add(RigidBody *body, ForceGenerator *fg)
+Buoyancy::Buoyancy(const Vector3 &centreOfBuoyancy, double maxDepth, double volume, double waterHeight, double liquidDensity /* = 1000.0f */)
 {
-    ForceRegistry::ForceRegistration registration;
-    registration.body = body;
-    registration.fg = fg;
-    registrations.push_back(registration);
-}
-
-Buoyancy::Buoyancy(const Vector3 &cOfB, double maxDepth, double volume, double waterHeight, double liquidDensity /* = 1000.0f */)
-{
-    centreOfBuoyancy = cOfB;
-    Buoyancy::liquidDensity = liquidDensity;
-    Buoyancy::maxDepth = maxDepth;
-    Buoyancy::volume = volume;
-    Buoyancy::waterHeight = waterHeight;
+    CentreOfBuoyancy	= centreOfBuoyancy;
+    LiquidDensity		= liquidDensity;
+    MaxDepth			= maxDepth;
+    Volume				= volume;
+    WaterHeight			= waterHeight;
 }
 
 void Buoyancy::UpdateForce(RigidBody *body, double duration)
 {
     // Calculate the submersion depth
-    Vector3		pointInWorld = body->getPointInWorldSpace(centreOfBuoyancy);
+    Vector3		pointInWorld = body->getPointInWorldSpace(CentreOfBuoyancy);
     double		depth = pointInWorld.y;
 
     // Check if we're out of the water
-    if (depth >= waterHeight + maxDepth) 
+    if (depth >= WaterHeight + MaxDepth) 
 		return;
 	Vector3		force = {};
 
     // Check if we're at maximum depth
-    if (depth <= waterHeight - maxDepth) {
-        force.y = liquidDensity * volume;
-        body->addForceAtBodyPoint(force, centreOfBuoyancy);
+    if (depth <= WaterHeight - MaxDepth) {
+        force.y = LiquidDensity * Volume;
+        body->addForceAtBodyPoint(force, CentreOfBuoyancy);
         return;
     }
 
     // Otherwise we are partly submerged
-    force.y = liquidDensity * volume *
-        (depth - maxDepth - waterHeight) / 2 * maxDepth;
-    body->addForceAtBodyPoint(force, centreOfBuoyancy);
+    force.y = LiquidDensity * Volume *
+        (depth - MaxDepth - WaterHeight) / 2 * MaxDepth;
+    body->addForceAtBodyPoint(force, CentreOfBuoyancy);
 }
 
 Spring::Spring(const Vector3 &localConnectionPt,
@@ -56,27 +48,27 @@ Spring::Spring(const Vector3 &localConnectionPt,
                const Vector3 &otherConnectionPt,
                double springConstant,
                double restLength)
-: connectionPoint(localConnectionPt),
-  otherConnectionPoint(otherConnectionPt),
-  other(other),
-  springConstant(springConstant),
-  restLength(restLength)
+: ConnectionPoint(localConnectionPt),
+  OtherConnectionPoint(otherConnectionPt),
+  Other(other),
+  SpringConstant(springConstant),
+  RestLength(restLength)
 {
 }
 
 void Spring::UpdateForce(RigidBody* body, double duration)
 {
     // Calculate the two ends in world space
-    Vector3 lws = body->getPointInWorldSpace(connectionPoint);
-    Vector3 ows = other->getPointInWorldSpace(otherConnectionPoint);
+    Vector3 lws = body->getPointInWorldSpace(ConnectionPoint);
+    Vector3 ows = Other->getPointInWorldSpace(OtherConnectionPoint);
 
     // Calculate the vector of the spring
     Vector3 force = lws - ows;
 
     // Calculate the magnitude of the force
     double magnitude = force.magnitude();
-    magnitude = real_abs(magnitude - restLength);
-    magnitude *= springConstant;
+    magnitude = real_abs(magnitude - RestLength);
+    magnitude *= SpringConstant;
 
     // Calculate the final force and apply it
     force.normalise();
@@ -108,7 +100,7 @@ AeroControl::AeroControl(const Matrix3 &base, const Matrix3 &min, const Matrix3 
     ControlSetting	= 0.0f;
 }
 
-Matrix3 AeroControl::getTensor() {
+Matrix3 AeroControl::GetTensor() {
 		 if (ControlSetting <= -1.0f)	return MinTensor;
     else if (ControlSetting >= 1.0f)	return MaxTensor;
     else if (ControlSetting < 0)		return Matrix3::linearInterpolate(MinTensor, Tensor, ControlSetting + 1.0f);

@@ -241,10 +241,10 @@ void FractureDemo::GenerateContacts()
     plane.Offset									= 0;
 
     // Set up the collision data structure
-    CData.reset(MaxContacts);
-    CData.friction									= (double)0.9;
-    CData.restitution								= (double)0.2;
-    CData.tolerance									= (double)0.1;
+    CData.Reset(MaxContacts);
+    CData.Friction									= (double)0.9;
+    CData.Restitution								= (double)0.2;
+    CData.Tolerance									= (double)0.1;
 
     // Perform collision detection
     cyclone::Matrix4									transform, otherTransform;
@@ -254,18 +254,18 @@ void FractureDemo::GenerateContacts()
 			continue;
 
         // Check for collisions with the ground plane
-        if (!CData.hasMoreContacts()) 
+        if (!CData.HasMoreContacts()) 
 			return;
 
         cyclone::CollisionDetector::boxAndHalfSpace(*block, plane, &CData);
 
         if (ball_active) {
             // And with the sphere
-            if (!CData.hasMoreContacts()) 
+            if (!CData.HasMoreContacts()) 
 				return;
             if (cyclone::CollisionDetector::boxAndSphere(*block, ball, &CData)) {
                 hit												= true;
-                fracture_contact								= CData.contactCount-1;
+                fracture_contact								= CData.ContactCount-1;
             }
         }
 
@@ -273,7 +273,7 @@ void FractureDemo::GenerateContacts()
         for (Block *other = block+1; other < blocks+MAX_BLOCKS; other++) {
             if (!other->exists) 
 				continue;
-            if (!CData.hasMoreContacts()) 
+            if (!CData.HasMoreContacts()) 
 				return;
             cyclone::CollisionDetector::boxAndBox(*block, *other, &CData);
         }
@@ -282,7 +282,7 @@ void FractureDemo::GenerateContacts()
     // Check for sphere ground collisions
     if (ball_active)
     {
-        if (!CData.hasMoreContacts()) return;
+        if (!CData.HasMoreContacts()) return;
         cyclone::CollisionDetector::sphereAndHalfSpace(ball, plane, &CData);
     }
 }
@@ -331,7 +331,7 @@ void FractureDemo::Reset()
     hit = false;
 
     // Reset the contacts
-    CData.contactCount = 0;
+    CData.ContactCount = 0;
 }
 
 void FractureDemo::Update()
@@ -342,7 +342,7 @@ void FractureDemo::Update()
     if (hit)
     {
         blocks[0].divideBlock(
-            CData.contactArray[fracture_contact],
+            CData.ContactArray[fracture_contact],
             blocks,
             blocks+1
             );

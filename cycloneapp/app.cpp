@@ -175,7 +175,7 @@ RigidBodyApplication::RigidBodyApplication()
 	,	PauseSimulation		(true)
 	,	AutoPauseSimulation	(false)
 {
-    CData.contactArray = Contacts;
+    CData.ContactArray = Contacts;
 }
 
 void RigidBodyApplication::Update()
@@ -205,8 +205,8 @@ void RigidBodyApplication::Update()
 
     // Resolve detected contacts
     Resolver.resolveContacts(
-        CData.contactArray,
-        CData.contactCount,
+        CData.ContactArray,
+        CData.ContactCount,
         duration
         );
 
@@ -233,7 +233,7 @@ void RigidBodyApplication::DrawDebug()
 
     // Render the contacts, if required
     glBegin(GL_LINES);
-    for (unsigned i = 0; i < CData.contactCount; i++)
+    for (unsigned i = 0; i < CData.ContactCount; i++)
     {
         // Interbody contacts are in green, floor contacts are red.
         if (Contacts[i].Body[1]) {

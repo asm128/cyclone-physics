@@ -103,7 +103,7 @@ class Box : public cyclone::CollisionBox
 {
 	::cyclone::RigidBody		_boxBody				= {};
 public:
-	bool isOverlapping;
+	bool						isOverlapping;
 	
 	inline						Box						()			{ Body = &_boxBody; }
 
@@ -240,7 +240,7 @@ void ExplosionDemo::Reset()
     for (Ball *ball = BallData; ball < BallData + Balls; ball++)
         ball->random(&random);
 
-    CData.contactCount = 0;	// Reset the contacts
+    CData.ContactCount = 0;	// Reset the contacts
 }
 
 // Note that this method makes a lot of use of early returns to avoid processing lots of potential contacts that it hasn't got room to store.
@@ -253,33 +253,33 @@ void ExplosionDemo::GenerateContacts() {
     plane.Offset			= 0;
 
     // Set up the collision data structure
-    CData.reset(MaxContacts);
-    CData.friction			= 0.9;
-    CData.restitution		= 0.6;
-    CData.tolerance			= 0.1;
+    CData.Reset(MaxContacts);
+    CData.Friction			= 0.9;
+    CData.Restitution		= 0.6;
+    CData.Tolerance			= 0.1;
 
     // Perform exhaustive collision detection
     cyclone::Matrix4 transform, otherTransform;
     cyclone::Vector3 position, otherPosition;
     for (Box *box = BoxData; box < BoxData + Boxes; box++) {
         // Check for collisions with the ground plane
-        if (!CData.hasMoreContacts()) 
+        if (!CData.HasMoreContacts()) 
 			return;
         cyclone::CollisionDetector::boxAndHalfSpace(*box, plane, &CData);
 
         // Check for collisions with each other box
         for (Box *other = box+1; other < BoxData + Boxes; other++) {
-            if (!CData.hasMoreContacts()) 
+            if (!CData.HasMoreContacts()) 
 				return;
             cyclone::CollisionDetector::boxAndBox(*box, *other, &CData);
 
-            if (cyclone::IntersectionTests::boxAndBox(*box, *other))
+            if (cyclone::IntersectionTests::BoxAndBox(*box, *other))
                 box->isOverlapping = other->isOverlapping = true;
         }
 
         // Check for collisions with each ball
         for (Ball *other = BallData; other < BallData + Balls; other++) {
-            if (!CData.hasMoreContacts()) 
+            if (!CData.HasMoreContacts()) 
 				return;
             cyclone::CollisionDetector::boxAndSphere(*box, *other, &CData);
         }
@@ -287,13 +287,12 @@ void ExplosionDemo::GenerateContacts() {
 
     for (Ball *ball = BallData; ball < BallData + Balls; ball++) {
         // Check for collisions with the ground plane
-        if (!CData.hasMoreContacts()) 
+        if (!CData.HasMoreContacts()) 
 			return;
         cyclone::CollisionDetector::sphereAndHalfSpace(*ball, plane, &CData);
 
-        for (Ball *other = ball + 1; other < BallData + Balls; other++) {
-            // Check for collisions with the ground plane
-            if (!CData.hasMoreContacts()) 
+        for (Ball *other = ball + 1; other < BallData + Balls; other++) {	// Check for collisions with the ground plane
+            if (!CData.HasMoreContacts()) 
 				return;
             cyclone::CollisionDetector::sphereAndSphere(*ball, *other, &CData);
         }
