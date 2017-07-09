@@ -22,45 +22,51 @@ namespace cyclone {
 		bool								CanSleep;
 		Matrix4								TransformMatrix;
 		Vector3								AccumulatedForce;
-		Vector3								TorqueAccum;
+		Vector3								AccumulatedTorque;
 		Vector3								Acceleration;
 		Vector3								LastFrameAcceleration;
 		
-		void								calculateDerivedData();
+		void								calculateDerivedData			();
 		void								integrate						(double duration);
-		void								setMass							(const double mass);
-		double								getMass							()								const;
-		bool								hasFiniteMass					()								const;
-		void								setInertiaTensor				(const Matrix3 &inertiaTensor);
-		Matrix3								getInertiaTensor				()								const;
-		Matrix3								getInertiaTensorWorld			()								const;
 
-		inline void							getInertiaTensorWorld			(Matrix3 *inertiaTensor)						const	{ inertiaTensor->setInverse(InverseInertiaTensorWorld);	}
-		inline void							getInertiaTensor				(Matrix3 *inertiaTensor)						const	{ inertiaTensor->setInverse(InverseInertiaTensor);		}
+		inline	void						setMass							(const double mass)															{ InverseMass = 1.0 / mass;											}
+		inline	double						getMass							()																	const	{ return (InverseMass == 0) ? REAL_MAX : 1.0 / InverseMass;			}
+		inline	bool						hasFiniteMass					()																	const	{ return InverseMass >= 0.0f;										}
+
+		void								setInertiaTensor				(const Matrix3 &inertiaTensor);
+		Matrix3								getInertiaTensor				()																	const;
+		Matrix3								getInertiaTensorWorld			()																	const;
+
+		inline	void						getInertiaTensorWorld			(Matrix3 *inertiaTensor)											const	{ inertiaTensor->setInverse(InverseInertiaTensorWorld);				}
+		inline	void						getInertiaTensor				(Matrix3 *inertiaTensor)											const	{ inertiaTensor->setInverse(InverseInertiaTensor);					}
 
 		void								setInverseInertiaTensor			(const Matrix3 &inverseInertiaTensor);
-		void								setDamping						(const double linearDamping, const double angularDamping);
-		
-		void								setOrientation					(const Quaternion &orientation);
-		void								setOrientation					(const double r, const double i, const double j, const double k);
-		
-		void								getOrientation					(Matrix3 *matrix)								const;
-		void								getOrientation					(double matrix[9])								const;
-		void								getTransform					(Matrix4 *transform)							const;
-		void								getTransform					(double matrix[16])								const;
-		void								getGLTransform					(float matrix[16])								const;
-		inline	Matrix4						getTransform					()												const	{ return TransformMatrix; }
-		inline	Vector3						GetPointInLocalSpace			(const Vector3 &point)							const	{ return TransformMatrix.transformInverse			(point); }
-		inline	Vector3						getPointInWorldSpace			(const Vector3 &point)							const	{ return TransformMatrix.transform					(point); }
-		inline	Vector3						getDirectionInLocalSpace		(const Vector3 &direction)						const	{ return TransformMatrix.transformInverseDirection	(direction); }
-		inline	Vector3						getDirectionInWorldSpace		(const Vector3 &direction)						const	{ return TransformMatrix.transformDirection			(direction); }
-		void								setAwake(const bool awake=true);
-		void								setCanSleep(const bool canSleep=true);
-		void								clearAccumulators();
-		void								addForce(const Vector3 &force);
-		void								addForceAtPoint(const Vector3 &force, const Vector3 &point);
-		void								addForceAtBodyPoint(const Vector3 &force, const Vector3 &point);
-		void								addTorque(const Vector3 &torque);
+		inline	void						setDamping						(const double linearDamping, const double angularDamping)					{	
+			LinearDamping						= linearDamping;
+			AngularDamping						= angularDamping;
+		}
+		void								getOrientation					(double matrix[9])													const;
+		inline	void						getOrientation					(Matrix3 *matrix)													const	{ getOrientation(matrix->data);										}
+		inline	void						setOrientation					(const Quaternion &orientation)												{ Orientation = orientation;	Orientation.normalise();			}
+		inline	void						setOrientation					(const double r, const double i, const double j, const double k)			{ Orientation = {r, i, j, k};	Orientation.normalise();			}
+
+		inline	void						getTransform					(Matrix4 *transform)												const	{ *transform = TransformMatrix;										}
+		void								getTransform					(double matrix[16])													const;
+		void								getGLTransform					(float matrix[16])													const;
+		inline	Vector3						GetPointInLocalSpace			(const Vector3 &point)												const	{ return TransformMatrix.transformInverse			(point);		}
+		inline	Vector3						getPointInWorldSpace			(const Vector3 &point)												const	{ return TransformMatrix.transform					(point);		}
+		inline	Vector3						getDirectionInLocalSpace		(const Vector3 &direction)											const	{ return TransformMatrix.transformInverseDirection	(direction);	}
+		inline	Vector3						getDirectionInWorldSpace		(const Vector3 &direction)											const	{ return TransformMatrix.transformDirection			(direction);	}
+		void								setAwake						(const bool awake = true);
+		void								setCanSleep						(const bool canSleep = true);
+		void								addForce						(const Vector3 &force);
+		void								addForceAtPoint					(const Vector3 &force, const Vector3 &point);
+		void								addForceAtBodyPoint				(const Vector3 &force, const Vector3 &point);
+		void								addTorque						(const Vector3 &torque);
+		inline	void						clearAccumulators				()																			{
+			AccumulatedForce	.clear();
+			AccumulatedTorque			.clear();
+		}
 	};
 
 } // namespace cyclone

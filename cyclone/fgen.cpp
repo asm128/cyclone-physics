@@ -82,11 +82,11 @@ void Aero::UpdateForceFromTensor	(RigidBody *body, double duration, const Matrix
     Vector3 velocity = body->Velocity;
     velocity += *Windspeed;
 
-    Vector3 bodyVel = body->getTransform().transformInverseDirection(velocity);		// Calculate the velocity in body coordinates
+    Vector3 bodyVel = body->TransformMatrix.transformInverseDirection(velocity);		// Calculate the velocity in body coordinates
 
     // Calculate the force in body coordinates
     Vector3 bodyForce = tensor.transform(bodyVel);
-    Vector3 force = body->getTransform().transformDirection(bodyForce);
+    Vector3 force = body->TransformMatrix.transformDirection(bodyForce);
 
     body->addForceAtBodyPoint(force, Position);		// Apply the force
 }

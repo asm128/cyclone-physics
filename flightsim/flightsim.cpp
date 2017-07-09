@@ -138,7 +138,7 @@ void FlightSimDemo::Display()
 
     cyclone::Vector3						pos			= Aircraft.Position;
 	cyclone::Vector3						offset		= { 4.0f + Aircraft.Velocity.magnitude(), 0, 0 };
-    offset								= Aircraft.getTransform().transformDirection(offset);
+    offset								= Aircraft.TransformMatrix.transformDirection(offset);
     gluLookAt(pos.x+offset.x, pos.y+5.0f, pos.z+offset.z,
               pos.x, pos.y, pos.z,
               0.0, 1.0, 0.0);
@@ -157,7 +157,7 @@ void FlightSimDemo::Display()
     glEnd();
 
     // Set the transform matrix for the aircraft
-    cyclone::Matrix4 transform = Aircraft.getTransform();
+    cyclone::Matrix4 transform = Aircraft.TransformMatrix;
     GLfloat gl_transform[16];
     transform.fillGLArray(gl_transform);
     glPushMatrix();
@@ -205,7 +205,7 @@ void FlightSimDemo::Update()
 
     // Add the propeller force
 	cyclone::Vector3			propulsion						= {-10.0f, 0, 0};
-    propulsion				= Aircraft.getTransform().transformDirection(propulsion);
+    propulsion				= Aircraft.TransformMatrix.transformDirection(propulsion);
     Aircraft.addForce		(propulsion);
     Registry.UpdateForces	(duration);	// Add the forces acting on the aircraft.
     Aircraft.integrate		(duration);	// Update the aircraft's physics.

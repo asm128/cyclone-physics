@@ -128,7 +128,7 @@ void RigidBody::integrate(double duration){
 	LastFrameAcceleration.addScaledVector(AccumulatedForce, InverseMass);
 	
 
-	Vector3 angularAcceleration = InverseInertiaTensorWorld.transform(TorqueAccum);	// Calculate angular acceleration from torque inputs.
+	Vector3 angularAcceleration = InverseInertiaTensorWorld.transform(AccumulatedTorque);	// Calculate angular acceleration from torque inputs.
 	
 	// Adjust velocities
 	Velocity.addScaledVector(LastFrameAcceleration, duration);	// Update linear velocity from both acceleration and impulse.
@@ -155,28 +155,7 @@ void RigidBody::integrate(double duration){
 		}
 }
 
-void RigidBody::setMass(const double mass)
-{
-    assert(mass != 0);
-    RigidBody::InverseMass = 1.0 / mass;
-}
-
-double RigidBody::getMass() const
-{
-    if (InverseMass == 0) {
-        return REAL_MAX;
-    } else {
-        return 1.0 / InverseMass;
-    }
-}
-
-bool RigidBody::hasFiniteMass() const
-{
-    return InverseMass >= 0.0f;
-}
-
-void RigidBody::setInertiaTensor(const Matrix3 &inertiaTensor)
-{
+void RigidBody::setInertiaTensor(const Matrix3 &inertiaTensor) {
     InverseInertiaTensor.setInverse(inertiaTensor);
     _checkInverseInertiaTensor(InverseInertiaTensor);
 }
@@ -201,32 +180,6 @@ void RigidBody::setInverseInertiaTensor(const Matrix3 &inverseInertiaTensor)
 	RigidBody::InverseInertiaTensor = inverseInertiaTensor;
 }
 
-void RigidBody::setDamping(const double linearDamping, const double angularDamping)
-{
-    LinearDamping	= linearDamping;
-    AngularDamping	= angularDamping;
-}
-
-void RigidBody::setOrientation(const Quaternion &orientation)
-{
-    RigidBody::Orientation = orientation;
-    RigidBody::Orientation.normalise();
-}
-
-void RigidBody::setOrientation(const double r, const double i, const double j, const double k)
-{
-    Orientation.r = r;
-    Orientation.i = i;
-    Orientation.j = j;
-    Orientation.k = k;
-    Orientation.normalise();
-}
-
-void RigidBody::getOrientation(Matrix3 *matrix) const
-{
-    getOrientation(matrix->data);
-}
-
 void RigidBody::getOrientation(double matrix[9]) const
 {
     matrix[0] = TransformMatrix.data[0];
@@ -240,11 +193,6 @@ void RigidBody::getOrientation(double matrix[9]) const
     matrix[6] = TransformMatrix.data[8];
     matrix[7] = TransformMatrix.data[9];
     matrix[8] = TransformMatrix.data[10];
-}
-
-void RigidBody::getTransform(Matrix4 *transform) const
-{
-    memcpy(transform, &TransformMatrix.data, sizeof(Matrix4));
 }
 
 void RigidBody::getTransform(double matrix[16]) const
@@ -294,18 +242,13 @@ void						RigidBody::setCanSleep					(const bool canSleep)									{
 		setAwake();
 }
 
-void						RigidBody::clearAccumulators			()														{
-	AccumulatedForce	.clear();
-	TorqueAccum			.clear();
-}
-
 void						RigidBody::addForce						(const Vector3 &force)									{
-	AccumulatedForce	+= force;
-	IsAwake				= true;
+	AccumulatedForce			+= force;
+	IsAwake						= true;
 }
 
 void						RigidBody::addForceAtBodyPoint			(const Vector3 &force, const Vector3 &point)			{
-    Vector3 pt = getPointInWorldSpace(point);	// Convert to coordinates relative to center of mass.
+    Vector3							pt										= getPointInWorldSpace(point);	// Convert to coordinates relative to center of mass.
     addForceAtPoint(force, pt);
 
 }
@@ -316,12 +259,12 @@ void RigidBody::addForceAtPoint(const Vector3 &force, const Vector3 &point) {
     pt								-= Position;
 
     AccumulatedForce				+= force;
-    TorqueAccum						+= pt % force;
+    AccumulatedTorque						+= pt % force;
 
     IsAwake							= true;
 }
 
 void RigidBody::addTorque(const Vector3 &torque) {
-    TorqueAccum						+= torque;
+    AccumulatedTorque						+= torque;
     IsAwake							= true;
 }

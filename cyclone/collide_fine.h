@@ -16,7 +16,7 @@ namespace cyclone {
 		Matrix4						Offset								= {};		// The offset of this primitive from the given rigid body.
 		Matrix4						Transform;	// The resultant transform of the primitive. This is calculated by combining the offset of the primitive with the transform of the rigid body.
 
-		void						CalculateInternals					()									noexcept	{ Transform = Body->getTransform() * Offset;	}	// Calculates the internals for the primitive.
+		void						CalculateInternals					()									noexcept	{ Transform = Body->TransformMatrix * Offset;	}	// Calculates the internals for the primitive.
 		inline Vector3				GetAxis								(uint32_t index)			const	noexcept	{ return Transform.getAxisVector(index);		} // This is a convenience function to allow access to the axis vectors in the transform for this primitive.
 	};
 	

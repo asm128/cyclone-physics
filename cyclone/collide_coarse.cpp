@@ -4,64 +4,40 @@
 
 using namespace cyclone;
 
-BoundingSphere::BoundingSphere(const Vector3 &centre, double radius)
+BoundingSphere::BoundingSphere(const BoundingSphere &one, const BoundingSphere &two)
 {
-    BoundingSphere::centre = centre;
-    BoundingSphere::radius = radius;
-}
+	Vector3						centreOffset = two.Centre - one.Centre;
+	double distance			= centreOffset.squareMagnitude();
+	double radiusDiff		= two.Radius - one.Radius;
 
-BoundingSphere::BoundingSphere(const BoundingSphere &one,
-                               const BoundingSphere &two)
-{
-    Vector3 centreOffset = two.centre - one.centre;
-    double distance = centreOffset.squareMagnitude();
-    double radiusDiff = two.radius - one.radius;
+	if (radiusDiff*radiusDiff >= distance) {	// Check if the larger sphere encloses the small one
+		if (one.Radius > two.Radius) {
+			Centre					= one.Centre;
+			Radius					= one.Radius;
+		}
+		else {
+			Centre					= two.Centre;
+			Radius					= two.Radius;
+		}
+	}
+	else {	// Otherwise we need to work with partially overlapping spheres
+		distance				= real_sqrt(distance);
+		Radius					= (distance + one.Radius + two.Radius) * 0.5;
 
-    // Check if the larger sphere encloses the small one
-    if (radiusDiff*radiusDiff >= distance)
-    {
-        if (one.radius > two.radius)
-        {
-            centre = one.centre;
-            radius = one.radius;
-        }
-        else
-        {
-            centre = two.centre;
-            radius = two.radius;
-        }
-    }
-
-    // Otherwise we need to work with partially
-    // overlapping spheres
-    else
-    {
-        distance = real_sqrt(distance);
-        radius = (distance + one.radius + two.radius) * 0.5;
-
-        // The new centre is based on one's centre, moved towards
-        // two's centre by an ammount proportional to the spheres'
-        // radii.
-        centre = one.centre;
-        if (distance > 0)
-        {
-            centre += centreOffset * ((radius - one.radius)/distance);
-        }
-    }
+		// The new centre is based on one's centre, moved towards two's centre by an ammount proportional to the spheres' radii.
+		Centre					= one.Centre;
+		if (distance > 0)
+			Centre += centreOffset * ((Radius - one.Radius)/distance);
+	}
 
 }
 
-bool BoundingSphere::overlaps(const BoundingSphere *other) const
-{
-    double distanceSquared = (centre - other->centre).squareMagnitude();
-    return distanceSquared < (radius+other->radius)*(radius+other->radius);
+bool BoundingSphere::Overlaps(const BoundingSphere *other) const {
+	double distanceSquared = (Centre - other->Centre).squareMagnitude();
+	return distanceSquared < (Radius + other->Radius) * (Radius + other->Radius);
 }
 
-double BoundingSphere::getGrowth(const BoundingSphere &other) const
-{
-    BoundingSphere newSphere(*this, other);
-
-    // We return a value proportional to the change in surface
-    // area of the sphere.
-    return newSphere.radius*newSphere.radius - radius*radius;
+double BoundingSphere::GetGrowth(const BoundingSphere &other) const {
+	BoundingSphere newSphere(*this, other);
+	return newSphere.Radius * newSphere.Radius - Radius * Radius;	// We return a value proportional to the change in surface area of the sphere.
 }

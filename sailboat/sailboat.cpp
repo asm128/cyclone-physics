@@ -107,7 +107,7 @@ void SailboatDemo::Display()
 
 	cyclone::Vector3			pos			= sailboat.Position;
 	cyclone::Vector3			offset			= {4.0f, 0, 0};
-	offset = sailboat.getTransform().transformDirection(offset);
+	offset = sailboat.TransformMatrix.transformDirection(offset);
 	gluLookAt(pos.x+offset.x, pos.y+5.0f, pos.z+offset.z,
 	          pos.x, pos.y, pos.z,
 	          0.0, 1.0, 0.0);
@@ -125,9 +125,8 @@ void SailboatDemo::Display()
 	glEnd();
 
 	// Set the transform matrix for the aircraft
-	cyclone::Matrix4 transform = sailboat.getTransform();
 	GLfloat gl_transform[16];
-	transform.fillGLArray(gl_transform);
+	sailboat.TransformMatrix.fillGLArray(gl_transform);
 	glPushMatrix();
 	glMultMatrixf(gl_transform);
 
