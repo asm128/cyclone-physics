@@ -35,7 +35,7 @@ void									World::RunPhysics				(double duration)					{
 	// Then integrate the objects
 	BodyRegistration							* reg							= FirstBody;
 	while (reg) {
-		reg->Body->integrate(duration);	// Remove all forces from the accumulator
+		reg->Body->Integrate(duration);	// Remove all forces from the accumulator
 		reg										= reg->Next;	// Get the next registration
 	}
 	uint32_t									usedContacts					= GenerateContacts();	// Generate contacts

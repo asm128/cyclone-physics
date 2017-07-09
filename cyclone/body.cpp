@@ -61,7 +61,7 @@ void									RigidBody::CalculateDerivedData			()																						{
 	_transformInertiaTensor		(InverseInertiaTensorWorld, Pivot.Orientation, Mass.InverseInertiaTensor, TransformMatrix);	// Calculate the inertiaTensor in world space.
 }
 
-void									RigidBody::integrate					(double duration)																		{
+void									RigidBody::Integrate					(double duration)																		{
 	if (!IsAwake) 
 		return;
 	

@@ -16,15 +16,15 @@
 // Platforms are two dimensional: lines on which the particles can rest. Platforms are also contact generators for the physics.
 class Platform : public cyclone::ParticleContactGenerator {
 public:
-			::cyclone::Vector3			Start							= {};
-			::cyclone::Vector3			End								= {};
-			::cyclone::Particle			* Particles						= 0;	// Holds a pointer to the particles we're checking for collisions with.
+			::cyclone::Vector3				Start								= {};
+			::cyclone::Vector3				End									= {};
+			::cyclone::Particle				* Particles							= 0;	// Holds a pointer to the particles we're checking for collisions with.
 
-	virtual	uint32_t					AddContact						(cyclone::ParticleContact *contact, uint32_t limit) const;
+	virtual	uint32_t						AddContact							(cyclone::ParticleContact *contact, uint32_t limit) const;
 };
 
-uint32_t								Platform::AddContact			(cyclone::ParticleContact *contact, uint32_t limit) const {
-	const static double restitution = 0.0f;
+uint32_t								Platform::AddContact				(cyclone::ParticleContact *contact, uint32_t limit)		const {
+	const static double							restitution							= 0.0f;
 
 	uint32_t used = 0;
 	for (uint32_t i = 0; i < BLOB_COUNT; ++i) {
@@ -32,10 +32,10 @@ uint32_t								Platform::AddContact			(cyclone::ParticleContact *contact, uint3
 			break;
 
 		// Check for penetration
-		::cyclone::Vector3							toParticle						= Particles[i].Position - Start;
-		::cyclone::Vector3							lineDirection					= End - Start;
-		double										projected						= toParticle * lineDirection;
-		double										platformSqLength				= lineDirection.squareMagnitude();
+		::cyclone::Vector3							toParticle							= Particles[i].Position - Start;
+		::cyclone::Vector3							lineDirection						= End - Start;
+		double										projected							= toParticle * lineDirection;
+		double										platformSqLength					= lineDirection.squareMagnitude();
 		if (projected <= 0) {	// The blob is nearest to the start point
 			if (toParticle.squareMagnitude() < BLOB_RADIUS*BLOB_RADIUS) {	// We have a collision
 				contact->ContactNormal					= toParticle.unit();
@@ -83,29 +83,29 @@ uint32_t								Platform::AddContact			(cyclone::ParticleContact *contact, uint3
 // A force generator for proximal attraction.
 class BlobForceGenerator : public cyclone::ParticleForceGenerator {
 public:
-			::cyclone::Particle			* Particles						= 0; // Holds a pointer to the particles we might be attracting.
-			double						MaxReplusion					= 0; // The maximum force used to push the particles apart.
-			double						MaxAttraction					= 0; // The maximum force used to pull particles together.
-			double						MinNaturalDistance				= 0; // The separation between particles where there is no force.
-			double						MaxNaturalDistance				= 0; // The separation between particles where there is no force.
-			double						FloatHead						= 0; // The force with which to float the head particle, if it is joined to others.
-			uint32_t					MaxFloat						= 0; // The maximum number of particles in the blob before the head is floated at maximum force.
-			double						MaxDistance						= 0; // The separation between particles after which they 'break' apart and there is no force.
+			::cyclone::Particle				* Particles						= 0; // Holds a pointer to the particles we might be attracting.
+			double							MaxReplusion					= 0; // The maximum force used to push the particles apart.
+			double							MaxAttraction					= 0; // The maximum force used to pull particles together.
+			double							MinNaturalDistance				= 0; // The separation between particles where there is no force.
+			double							MaxNaturalDistance				= 0; // The separation between particles where there is no force.
+			double							FloatHead						= 0; // The force with which to float the head particle, if it is joined to others.
+			uint32_t						MaxFloat						= 0; // The maximum number of particles in the blob before the head is floated at maximum force.
+			double							MaxDistance						= 0; // The separation between particles after which they 'break' apart and there is no force.
 
-	virtual	void						UpdateForce						(::cyclone::Particle *particle, double duration)				{
+	virtual	void							UpdateForce						(::cyclone::Particle *particle, double /*duration*/)				{
 		uint32_t									joinCount						= 0;
 		for (uint32_t i = 0; i < BLOB_COUNT; i++) {
 			if (Particles + i == particle)	// Don't attract yourself
 				continue;
 
 			// Work out the separation distance
-			cyclone::Vector3				separation				= Particles[i].Position - particle->Position;
-			separation.z				= 0.0f;
-			double							distance				= separation.magnitude();
+			cyclone::Vector3							separation						= Particles[i].Position - particle->Position;
+			separation.z							= 0.0f;
+			double										distance						= separation.magnitude();
 
-			if (distance < MinNaturalDistance) {	// Use a repulsion force.
-				distance					= 1.0f - distance / MinNaturalDistance;
-				particle->AccumulatedForce	+= separation.unit() * (1.0f - distance) * MaxReplusion * -1.0f;
+			if (distance < MinNaturalDistance) {		// Use a repulsion force.
+				distance								= 1.0f - distance / MinNaturalDistance;
+				particle->AccumulatedForce				+= separation.unit() * (1.0f - distance) * MaxReplusion * -1.0f;
 				joinCount++;
 			}
 			else if (distance > MaxNaturalDistance && distance < MaxDistance) {	// Use an attraction force.
@@ -113,56 +113,54 @@ public:
 					= (distance		- MaxNaturalDistance) 
 					/ (MaxDistance	- MaxNaturalDistance)
 					;
-				particle->AccumulatedForce			+= separation.unit() * distance * MaxAttraction;
+				particle->AccumulatedForce				+= separation.unit() * distance * MaxAttraction;
 				joinCount++;
 			}
 		}
 
 		// If the particle is the head, and we've got a join count, then float it.
 		if (particle == Particles && joinCount > 0 && MaxFloat > 0) {
-			double									force						= (double(joinCount) / MaxFloat) * FloatHead;
+			double										force							= (double(joinCount) / MaxFloat) * FloatHead;
 			if (force > FloatHead) 
-				force								= FloatHead;
-			particle->AccumulatedForce			+= {0, force, 0};
+				force									= FloatHead;
+			particle->AccumulatedForce				+= {0, force, 0};
 		}
 	}
 };
 
 // The main demo class definition.
 class BlobDemo : public Application {
-			cyclone::Particle			* Blobs				= 0;
-			Platform					* Platforms			= 0;
-			cyclone::ParticleWorld		World				;
-			BlobForceGenerator			BlobForceGenerator	;
-			float						AxisX				= 0;						// The control for the x-axis.
-			float						AxisY				= 0;						// The control for the y-axis.
+			cyclone::Particle				* Blobs				= 0;
+			Platform						* Platforms			= 0;
+			cyclone::ParticleWorld			World				;
+			BlobForceGenerator				BlobForceGenerator	;
+			float							AxisX				= 0;						// The control for the x-axis.
+			float							AxisY				= 0;						// The control for the y-axis.
 			
-			void						Reset				();
+			void							Reset				();
 public:
-	virtual								~BlobDemo			()										{ if(Blobs)	delete Blobs;		}		
-										BlobDemo			();
+	virtual									~BlobDemo			()										{ if(Blobs)	delete Blobs;		}		
+											BlobDemo			();
 
-	virtual	void						Display				();						// Display the particles. 
-	virtual	void						Update				();						// Update the particle positions. 
+	virtual	void							Display				();						// Display the particles. 
+	virtual	void							Update				();						// Update the particle positions. 
 
-	virtual	const char*					GetTitle			()										{ return "Cyclone > Blob Demo";	}
-	virtual	void						Mouse				(int button, int state, int x, int y)	{}	// Called when GLUT detects a mouse button press.
-	virtual	void						MouseDrag			(int x, int y)							{}	// Called when GLUT detects a mouse drag.
-	virtual	void						Key					(unsigned char key)						{
+	virtual	const char*						GetTitle			()										{ return "Cyclone > Blob Demo";	}
+	virtual	void							Mouse				(int , int, int, int)					{}	// Called when GLUT detects a mouse button press.
+	virtual	void							MouseDrag			(int , int)								{}	// Called when GLUT detects a mouse drag.
+	virtual	void							Key					(unsigned char key)						{
 		switch(key) {
-		case 'w': case 'W': AxisY				=  1.0;	break;
-		case 's': case 'S': AxisY				= -1.0;	break;
-		case 'a': case 'A': AxisX				= -1.0;	break;
-		case 'd': case 'D': AxisX				=  1.0;	break;
-		case 'r': case 'R': Reset();					break;
+		case 'w': case 'W': AxisY					=  1.0;	break;
+		case 's': case 'S': AxisY					= -1.0;	break;
+		case 'a': case 'A': AxisX					= -1.0;	break;
+		case 'd': case 'D': AxisX					=  1.0;	break;
+		case 'r': case 'R': Reset();						break;
 		}
 	}
 };
 
 // Method definitions
-BlobDemo::BlobDemo()
-	: World(PLATFORM_COUNT+BLOB_COUNT, PLATFORM_COUNT)
-{
+										BlobDemo::BlobDemo	()										: World(PLATFORM_COUNT+BLOB_COUNT, PLATFORM_COUNT)	{
 	Blobs									= new cyclone::Particle[BLOB_COUNT];	// Create the blob storage
 	cyclone::Random								r;
 
@@ -179,24 +177,24 @@ BlobDemo::BlobDemo()
 	// Create the platforms
 	Platforms								= new Platform[PLATFORM_COUNT];
 	for (uint32_t i = 0; i < PLATFORM_COUNT; i++) {
-		Platforms[i].Start						= 
+		Platforms[i].Start							= 
 			{ (i % 2) * 10.0f - 5.0f
-			, i * 4.0f + ((i % 2) ? 0.0f : 2.0f)
+			, i * 4.0f + ((i % 2) ? 0.0f : 2.0f)	
 			, 0
 			};
-		Platforms[i].Start.x					+= r.RandomBinomial(2.0f);
-		Platforms[i].Start.y					+= r.RandomBinomial(2.0f);
+		Platforms[i].Start.x						+= r.RandomBinomial(2.0f);
+		Platforms[i].Start.y						+= r.RandomBinomial(2.0f);
 
-		Platforms[i].End						= 
+		Platforms[i].End							= 
 			{ (i % 2) * 10.0 + 5.0
 			, i * 4.0 + ((i % 2) ? 2.0 : 0.0)
 			, 0
 			};
-		Platforms[i].End.x						+= r.RandomBinomial(2.0f);
-		Platforms[i].End.y						+= r.RandomBinomial(2.0f);
+		Platforms[i].End.x							+= r.RandomBinomial(2.0f);
+		Platforms[i].End.y							+= r.RandomBinomial(2.0f);
 
 		// Make sure the platform knows which particles it should collide with.
-		Platforms[i].Particles					= Blobs;
+		Platforms[i].Particles						= Blobs;
 		World.ContactGenerators.push_back(Platforms + i);
 	}
 
@@ -205,9 +203,8 @@ BlobDemo::BlobDemo()
 	double						fraction	= 1.0 / BLOB_COUNT;
 	cyclone::Vector3			delta		= p->End - p->Start;
 	for (uint32_t i = 0; i < BLOB_COUNT; i++) {
-		uint32_t me = (i + BLOB_COUNT / 2) % BLOB_COUNT;
-		Blobs[i].Position = (p->Start + delta * (me * 0.8 * fraction + 0.1) + cyclone::Vector3{0, 1.0 + r.RandomReal(), 0});
-
+		uint32_t					me			= (i + BLOB_COUNT / 2) % BLOB_COUNT;
+		Blobs[i].Position			= (p->Start + delta * (me * 0.8 * fraction + 0.1) + cyclone::Vector3{0, 1.0 + r.RandomReal(), 0});
 		Blobs[i].Velocity			= {};
 		Blobs[i].Damping			= 0.2f;
 		Blobs[i].Acceleration		= cyclone::Vector3::GRAVITY * 0.4f;
@@ -283,18 +280,16 @@ void BlobDemo::Display() {
 	glPopMatrix();
 }
 
-void BlobDemo::Update()
-{
+void BlobDemo::Update() {
 	World.StartFrame();	// Clear accumulators
 
-	// Find the duration of the last frame in seconds
-	double duration = TimingData::get().LastFrameDuration * 0.001;
+	double							duration				= TimingData::get().LastFrameDuration * 0.001;	// Find the duration of the last frame in seconds
 	if (duration <= 0.0f) 
 		return;
 	
 	// Recenter the axes
-	AxisX *= pow(0.1f, duration);
-	AxisY *= pow(0.1f, duration);
+	AxisX						*= pow(0.1f, duration);
+	AxisY						*= pow(0.1f, duration);
 	
 	Blobs[0].AccumulatedForce	+= cyclone::Vector3{AxisX, AxisY, 0} * 10.0f;	// Move the controlled blob
 	World.RunPhysics(duration);	// Run the simulation

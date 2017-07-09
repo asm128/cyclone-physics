@@ -184,7 +184,7 @@ void RagdollDemo::Reset()
 
 void RagdollDemo::UpdateObjects(double duration) {
     for (Bone *bone = Bones; bone < Bones + NUM_BONES; ++bone) {
-        bone->Body->integrate(duration);
+        bone->Body->Integrate(duration);
         bone->CalculateInternals();
     }
 }

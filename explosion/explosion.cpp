@@ -301,13 +301,13 @@ void ExplosionDemo::GenerateContacts() {
 
 void ExplosionDemo::UpdateObjects(double duration) {
 	for (Box *box = BoxData; box < BoxData + Boxes; box++) {	// Update the physics of each box in turn
-		box->Body->integrate(duration);	// Run the physics
+		box->Body->Integrate(duration);	// Run the physics
 		box->CalculateInternals();
 		box->IsOverlapping = false;
 	}
 	
 	for (Ball *ball = BallData; ball < BallData + Balls; ball++) {	// Update the physics of each ball in turn
-		ball->Body->integrate(duration);	// Run the physics
+		ball->Body->Integrate(duration);	// Run the physics
 		ball->CalculateInternals();
 	}
 }

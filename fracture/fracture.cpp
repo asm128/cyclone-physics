@@ -336,12 +336,12 @@ void FractureDemo::UpdateObjects(double duration)
 {
 	for (Block *block = Blocks; block < Blocks + MAX_BLOCKS; block++)
 		if (block->Exists) {
-			block->Body->integrate(duration);
+			block->Body->Integrate(duration);
 			block->CalculateInternals();
 		}
 
 	if (Ball_active) {
-		Ball.Body->integrate(duration);
+		Ball.Body->Integrate(duration);
 		Ball.CalculateInternals();
 	}
 }

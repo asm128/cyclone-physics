@@ -214,7 +214,7 @@ void BigBallisticDemo::Fire()
 void BigBallisticDemo::UpdateObjects(double duration) {
 	for(AmmoRound *shot = Ammo; shot < Ammo + AmmoRounds; shot++) {	// Update the physics of each particle in turn
 		if (shot->type != UNUSED) {
-			shot->Body->integrate(duration);	// Run the physics
+			shot->Body->Integrate(duration);	// Run the physics
 			shot->CalculateInternals();
 	
 			// Check if the particle is now invalid
@@ -229,7 +229,7 @@ void BigBallisticDemo::UpdateObjects(double duration) {
 	
 	
 	for (Box *box = BoxData; box < BoxData + Boxes; box++) {	// Update the boxes
-		box->Body->integrate(duration);	// Run the physics
+		box->Body->Integrate(duration);	// Run the physics
 		box->CalculateInternals();
 	}
 }

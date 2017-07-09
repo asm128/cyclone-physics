@@ -204,7 +204,7 @@ void FlightSimDemo::Update() {
     propulsion				= Aircraft.TransformMatrix.transformDirection(propulsion);
     Aircraft.addForce		(propulsion);
     Registry.UpdateForces	(duration);	// Add the forces acting on the aircraft.
-    Aircraft.integrate		(duration);	// Update the aircraft's physics.
+    Aircraft.Integrate		(duration);	// Update the aircraft's physics.
 
     // Do a very basic collision detection and response with the ground.
     cyclone::Vector3 pos = Aircraft.Pivot.Position;

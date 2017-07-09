@@ -8,7 +8,7 @@
 namespace cyclone {
 #pragma pack(push, 1)
 	// Internal function that checks the validity of an inverse inertia tensor.
-	static inline constexpr	void		checkInverseInertiaTensor		(const Matrix3 &/*iitWorld*/)											noexcept	{}	// TODO: Perform a validity check in an assert.
+	static inline constexpr	void		checkInverseInertiaTensor		(const Matrix3 &/*iitWorld*/)										noexcept	{}	// TODO: Perform a validity check in an assert.
 
 	struct SMass3D {
 				double						InverseMass;
@@ -54,7 +54,7 @@ namespace cyclone {
 				Vector3						LastFrameAcceleration;
 				
 				void						CalculateDerivedData			();
-				void						integrate						(double duration);
+				void						Integrate						(double duration);
 
 				void						getGLTransform					(float matrix[16])													const;
 				void						setAwake						(const bool awake = true);
