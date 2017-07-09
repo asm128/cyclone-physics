@@ -6,75 +6,62 @@
 
 using namespace cyclone;
 
-World::World(unsigned maxContacts, unsigned iterations)
-:
-firstBody(NULL),
-resolver(iterations),
-firstContactGen(NULL),
-maxContacts(maxContacts)
+World::World(uint32_t maxContacts, uint32_t iterations)
+	: FirstBody			(NULL)
+	, Resolver			(iterations)
+	, FirstContactGen	(NULL)
+	, MaxContacts			(maxContacts)
 {
-    contacts = new Contact[maxContacts];
-    calculateIterations = (iterations == 0);
+	Contacts				= new Contact[maxContacts];
+	calculateIterations		= (iterations == 0);
 }
 
-World::~World()
-{
-    delete[] contacts;
+void World::startFrame() {
+	BodyRegistration *reg = FirstBody;
+	while (reg) {
+		// Remove all forces from the accumulator
+		reg->body->clearAccumulators();
+		reg->body->calculateDerivedData();
+		reg				= reg->next;	// Get the next registration
+	}
 }
 
-void World::startFrame()
+uint32_t World::GenerateContacts()
 {
-    BodyRegistration *reg = firstBody;
-    while (reg)
-    {
-        // Remove all forces from the accumulator
-        reg->body->clearAccumulators();
-        reg->body->calculateDerivedData();
+	uint32_t					limit			= MaxContacts;
+	Contact						* nextContact	= Contacts;
 
-        // Get the next registration
-        reg = reg->next;
-    }
-}
+	ContactGenRegistration		* reg			= FirstContactGen;
+	while (reg) {
+		uint32_t					used			= reg->gen->AddContact(nextContact, limit);
+		limit					-= used;
+		nextContact				+= used;
 
-unsigned World::GenerateContacts()
-{
-    uint32_t limit = maxContacts;
-    Contact *nextContact = contacts;
-
-    ContactGenRegistration * reg = firstContactGen;
-    while (reg)
-    {
-        uint32_t used = reg->gen->AddContact(nextContact, limit);
-        limit -= used;
-        nextContact += used;
-
-        // We've run out of contacts to fill. This means we're missing contacts.
-        if (limit <= 0) 
+		// We've run out of contacts to fill. This means we're missing contacts.
+		if (limit <= 0) 
 			break;
 
-        reg = reg->next;
-    }
-
-    // Return the number of contacts used.
-    return maxContacts - limit;
+		reg						= reg->next;
+	}
+	return MaxContacts - limit;	// Return the number of contacts used.
 }
 
 void World::runPhysics(double duration)
 {
-    //registry.UpdateForces(duration);	// First apply the force generators
+	//registry.UpdateForces(duration);	// First apply the force generators
 
-    // Then integrate the objects
-    BodyRegistration *reg = firstBody;
-    while (reg) {
-        reg->body->integrate(duration);	// Remove all forces from the accumulator
-        reg = reg->next;	// Get the next registration
-    }
+	// Then integrate the objects
+	BodyRegistration *reg = FirstBody;
+	while (reg) {
+		reg->body->integrate(duration);	// Remove all forces from the accumulator
+		reg = reg->next;	// Get the next registration
+	}
 
-    
-    uint32_t usedContacts = GenerateContacts();	// Generate contacts
+	
+	uint32_t usedContacts = GenerateContacts();	// Generate contacts
 
-    // And process them
-    if (calculateIterations) 
-		resolver.setIterations(usedContacts * 4);
-    resolver.resolveContacts(contacts, usedContacts, duration);
+	// And process them
+	if (calculateIterations) 
+		Resolver.setIterations(usedContacts * 4);
+	Resolver.resolveContacts(Contacts, usedContacts, duration);
 }

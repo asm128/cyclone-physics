@@ -1,7 +1,6 @@
 // This file contains the coarse collision detection system. It is used to return pairs of objects that may be in contact, which can then be tested using fined grained methods.
 // Copyright (c) Icosagon 2003. Published by Ian Millington under the MIT License for his book "Game Physics Engine Development" or something like that (a really good book that I actually bought in paperback after reading it).
 // Heavily modified by asm128 in order to make this code readable and free of potential bugs and inconsistencies and a large set of sources of problems and improductivity originally introduced thanks to poor advice, bad practices and OOP vices.
-
 #include "contacts.h"
 
 #include <vector>
@@ -27,12 +26,12 @@ namespace cyclone {
 			
 		// Returns the volume of this bounding volume. This is used to calculate how to recurse into the bounding volume tree. For a bounding sphere it is a simple calculation.
 		double						getSize						()																const		{ return 1.333333 * R_PI * radius * radius * radius; }
-    };
+	};
 
-    // Stores a potential contact to check later.
-    struct PotentialContact {
+	// Stores a potential contact to check later.
+	struct PotentialContact {
 		RigidBody *					body		[2]				= {};	// Holds the bodies that might be in contact.
-    };
+	};
 
 	// A base class for nodes in a bounding volume hierarchy. This class uses a binary tree to store the bounding volumes.
 	template<class BoundingVolumeClass>
@@ -158,7 +157,7 @@ namespace cyclone {
 				return count;
 		}
 		else {	// Recurse into the other node
-			unsigned count = getPotentialContactsWith(other->children[0], contacts, limit);
+			uint32_t count = getPotentialContactsWith(other->children[0], contacts, limit);
 
 			if (limit > count) 	// Check we have enough slots to do the other side too
 				return count + getPotentialContactsWith(other->children[1], contacts+count, limit-count);
@@ -166,8 +165,6 @@ namespace cyclone {
 				return count;
 		}
 	}
-
-
 } // namespace cyclone
 
 #endif // CYCLONE_COLLISION_FINE_H

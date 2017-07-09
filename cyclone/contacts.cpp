@@ -86,7 +86,7 @@ inline void Contact::calculateContactBasis()
         contactTangent[1]);
 }
 
-Vector3 Contact::calculateLocalVelocity(unsigned bodyIndex, double duration) {
+Vector3 Contact::calculateLocalVelocity(uint32_t bodyIndex, double duration) {
     RigidBody											* thisBody						= Body[bodyIndex];
     Vector3												velocity						= thisBody->Rotation % RelativeContactPosition[bodyIndex];	// Work out the velocity of the contact point.
     velocity										+= thisBody->Velocity;
@@ -286,7 +286,7 @@ void Contact::applyPositionChange	( Vector3 linearChange	[2]
 	double							linearInertia	[2]				= {};
 	double							angularInertia	[2]				= {};
 	
-	for (unsigned i = 0; i < 2; i++)	// We need to work out the inertia of each object in the direction of the contact normal, due to angular inertia only.
+	for (uint32_t i = 0; i < 2; i++)	// We need to work out the inertia of each object in the direction of the contact normal, due to angular inertia only.
 		if (Body[i]) {
 			Matrix3							inverseInertiaTensor = Body[i]->InverseInertiaTensorWorld;
 
@@ -302,7 +302,7 @@ void Contact::applyPositionChange	( Vector3 linearChange	[2]
 		}
 
     // Loop through again calculating and applying the changes
-    for (unsigned i = 0; i < 2; i++) 
+    for (uint32_t i = 0; i < 2; i++) 
 		if (Body[i]) {
 			// The linear and angular movements required are in proportion to the two inverse inertias.
 			double sign = (i == 0)?1:-1;
@@ -363,7 +363,7 @@ void Contact::applyPositionChange	( Vector3 linearChange	[2]
 
 // Contact resolver implementation
 void ContactResolver::resolveContacts(Contact *contacts,
-                                      unsigned numContacts,
+                                      uint32_t numContacts,
                                       double duration)
 {
     // Make sure we have something to do.
@@ -377,7 +377,7 @@ void ContactResolver::resolveContacts(Contact *contacts,
 }
 
 void ContactResolver::prepareContacts(Contact* contacts,
-                                      unsigned numContacts,
+                                      uint32_t numContacts,
                                       double duration)
 {
     // Generate contact velocity and axis information.
@@ -398,8 +398,8 @@ void ContactResolver::adjustVelocities(Contact *c,
 	while (VelocityIterationsUsed < VelocityIterations) {
 		// Find contact with maximum magnitude of probable velocity change.
 		double max = VelocityEpsilon;
-		unsigned index = numContacts;
-		for (unsigned i = 0; i < numContacts; i++)
+		uint32_t index = numContacts;
+		for (uint32_t i = 0; i < numContacts; i++)
 		{
 		    if (c[i].DesiredDeltaVelocity > max)
 		    {
@@ -414,9 +414,9 @@ void ContactResolver::adjustVelocities(Contact *c,
 		c[index].applyVelocityChange(velocityChange, rotationChange);	// Do the resolution on the contact that came out top.
 
 		
-		for (unsigned i = 0; i < numContacts; i++) // With the change in velocity of the two bodies, the update of contact velocities means that some of the relative closing velocities need recomputing.
-			for (unsigned b = 0; b < 2; b++) if (c[i].Body[b])	// Check each body in the contact
-				for (unsigned d = 0; d < 2; d++) // Check for a match with each body in the newly resolved contact
+		for (uint32_t i = 0; i < numContacts; i++) // With the change in velocity of the two bodies, the update of contact velocities means that some of the relative closing velocities need recomputing.
+			for (uint32_t b = 0; b < 2; b++) if (c[i].Body[b])	// Check each body in the contact
+				for (uint32_t d = 0; d < 2; d++) // Check for a match with each body in the newly resolved contact
 					if (c[i].Body[b] == c[index].Body[d]) {
 						deltaVel						= velocityChange[d] + rotationChange[d].vectorProduct(c[i].RelativeContactPosition[b]);
 						c[i].ContactVelocity			+= c[i].ContactToWorld.transformTranspose(deltaVel) * ( b ? -1 : 1);	// The sign of the change is negative if we're dealing with the second body in a contact.
@@ -430,7 +430,7 @@ void ContactResolver::adjustPositions(Contact *c,
                                       uint32_t numContacts,
                                       double duration)
 {
-    unsigned	i, index;
+    uint32_t	i, index;
     Vector3		linearChange[2], angularChange[2];
     double		max;
     Vector3		deltaPosition;

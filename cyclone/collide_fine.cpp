@@ -85,7 +85,7 @@ bool IntersectionTests::BoxAndHalfSpace(const CollisionBox &box, const Collision
     return boxDistance <= plane.Offset;    // Check for the intersection
 }
 
-unsigned CollisionDetector::sphereAndTruePlane(
+uint32_t CollisionDetector::sphereAndTruePlane(
     const CollisionSphere &sphere,
     const CollisionPlane &plane,
     CollisionData *data
@@ -120,7 +120,7 @@ unsigned CollisionDetector::sphereAndTruePlane(
     return 1;
 }
 
-unsigned CollisionDetector::sphereAndHalfSpace(
+uint32_t CollisionDetector::sphereAndHalfSpace(
     const CollisionSphere &sphere,
     const CollisionPlane &plane,
     CollisionData *data
@@ -145,7 +145,7 @@ unsigned CollisionDetector::sphereAndHalfSpace(
     return 1;
 }
 
-unsigned CollisionDetector::sphereAndSphere(
+uint32_t CollisionDetector::sphereAndSphere(
     const CollisionSphere &one,
     const CollisionSphere &two,
     CollisionData *data
@@ -333,7 +333,7 @@ unsigned CollisionDetector::boxAndBox(
 	CHECK_OVERLAP(two.GetAxis(2), 5);
 	
 	// Store the best axis-major, in case we run into almost parallel edge collisions later
-	unsigned bestSingleAxis = best;
+	uint32_t bestSingleAxis = best;
 	
 	CHECK_OVERLAP(one.GetAxis(0) % two.GetAxis(0), 6);
 	CHECK_OVERLAP(one.GetAxis(0) % two.GetAxis(1), 7);
@@ -377,7 +377,7 @@ unsigned CollisionDetector::boxAndBox(
 		// We know its component in the direction of the box's collision axis is zero (its a mid-point) and we determine which of the extremes in each of the other axes is closest.
 		Vector3							ptOnOneEdge					= one.HalfSize;
 		Vector3							ptOnTwoEdge					= two.HalfSize;
-		for (unsigned i = 0; i < 3; i++) {
+		for (uint32_t i = 0; i < 3; i++) {
 				 if (i == oneAxisIndex)			ptOnOneEdge[i] = 0;
 			else if (one.GetAxis(i) * axis > 0)	ptOnOneEdge[i] = -ptOnOneEdge[i];
 
@@ -513,7 +513,7 @@ unsigned CollisionDetector::boxAndSphere(
 	return 1;
 }
 
-unsigned CollisionDetector::boxAndHalfSpace(
+uint32_t CollisionDetector::boxAndHalfSpace(
     const CollisionBox &box,
     const CollisionPlane &plane,
     CollisionData *data
@@ -530,8 +530,8 @@ unsigned CollisionDetector::boxAndHalfSpace(
 	
 	static double		mults[8][3]			= {{1,1,1},{-1,1,1},{1,-1,1},{-1,-1,1}, {1,1,-1},{-1,1,-1},{1,-1,-1},{-1,-1,-1}};	// Go through each combination of + and - for each half-size
 	Contact				* contact			= data->Contacts;
-	unsigned			contactsUsed = 0;
-	for (unsigned i = 0; i < 8; i++) {
+	uint32_t			contactsUsed = 0;
+	for (uint32_t i = 0; i < 8; i++) {
 	    // Calculate the position of each vertex
 		Vector3 vertexPos	= {mults[i][0], mults[i][1], mults[i][2]};
 	    vertexPos.componentProductUpdate(box.HalfSize);
@@ -552,7 +552,7 @@ unsigned CollisionDetector::boxAndHalfSpace(
 	        // Move onto the next contact
 	        ++contact;
 	        ++contactsUsed;
-	        if (contactsUsed == (unsigned)data->ContactsLeft) 
+	        if (contactsUsed == (uint32_t)data->ContactsLeft) 
 				return contactsUsed;
 	    }
 	}

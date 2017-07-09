@@ -46,8 +46,8 @@ void								ParticleWorld::integrate			(double duration)														{
 }
 
 void								ParticleWorld::runPhysics			(double duration)														{
-	Registry.UpdateForces	(duration);		// First apply the force generators
-	integrate				(duration);		// Then integrate the objects
+	ForceRegistry.UpdateForces	(duration);		// First apply the force generators
+	integrate					(duration);		// Then integrate the objects
 	uint32_t								usedContacts						= GenerateContacts();	// Generate contacts
 	
 	if (usedContacts) {// And process them

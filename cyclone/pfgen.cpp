@@ -6,19 +6,10 @@ using namespace cyclone;
 
 void ParticleForceRegistry::UpdateForces(double duration)
 {
-    TRegistry::iterator i = registrations.begin();
-    for (; i != registrations.end(); i++)
-        i->fg->UpdateForce(i->particle, duration);
+    TRegistry::iterator i = Registrations.begin();
+    for (; i != Registrations.end(); i++)
+        i->ForceGenerator->UpdateForce(i->Particle, duration);
 }
-
-void ParticleForceRegistry::add(Particle* particle, ParticleForceGenerator *fg)
-{
-    ParticleForceRegistry::ParticleForceRegistration registration;
-    registration.particle = particle;
-    registration.fg = fg;
-    registrations.push_back(registration);
-}
-
 
 void ParticleGravity::UpdateForce(Particle* particle, double duration) {
     if (!particle->HasFiniteMass())		// Check that we do not have infinite mass

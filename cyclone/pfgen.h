@@ -15,6 +15,21 @@ namespace cyclone {
 		virtual	void									UpdateForce						(Particle *particle, double duration)													= 0;	// Overload this in implementations of the interface to calculate and update the force applied to the given particle.
 	};
 	
+	
+	// Holds all the force generators and the particles they apply to.
+	struct ParticleForceRegistry {
+		// Keeps track of one force generator and the particle it applies to.
+		struct ParticleForceRegistration {
+					Particle								* Particle;
+					ParticleForceGenerator					* ForceGenerator;
+		};
+		
+		typedef	std::vector<ParticleForceRegistration>	TRegistry;	
+				TRegistry								Registrations;										// Holds the list of registrations.
+	
+				void									UpdateForces					(double duration);									// Calls all the force generators to update the forces of their corresponding particles.
+	};
+
 	// A force generator that applies a gravitational force. One instance can be used for multiple particles.
 	class ParticleGravity : public ParticleForceGenerator {
 				Vector3									Gravity;	// Holds the acceleration due to gravity.
@@ -106,25 +121,6 @@ namespace cyclone {
 														ParticleBuoyancy				(double maxDepth, double volume, double waterHeight, double liquidDensity = 1000.0f)	: MaxDepth(maxDepth), Volume(volume), WaterHeight(waterHeight), LiquidDensity(liquidDensity)	{}
 	
 		virtual	void									UpdateForce						(Particle *particle, double duration);	// Applies the buoyancy force to the given particle.
-	};
-	
-	// Holds all the force generators and the particles they apply to.
-	class ParticleForceRegistry {
-	protected:
-		// Keeps track of one force generator and the particle it applies to.
-		struct ParticleForceRegistration {
-					Particle								* particle;
-					ParticleForceGenerator					* fg;
-		};
-		
-		typedef	std::vector<ParticleForceRegistration>	TRegistry;	
-				TRegistry								registrations;										// Holds the list of registrations.
-	
-	public:
-				void									add								(Particle* particle, ParticleForceGenerator *fg);	// Registers the given force generator to apply to the given particle.
-				void									remove							(Particle* particle, ParticleForceGenerator *fg);	// Removes the given registered pair from the registry. If the pair is not registered, this method will have no effect.
-				void									clear							();													// Clears all registrations from the registry. This will not delete the particles or the force generators themselves, just the records of their connection.
-				void									UpdateForces					(double duration);									// Calls all the force generators to update the forces of their corresponding particles.
 	};
 }
 

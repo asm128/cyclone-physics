@@ -198,7 +198,7 @@ BlobDemo::BlobDemo()
 
         // Make sure the platform knows which particles it should collide with.
         platforms[i].Particles					= blobs;
-        world.getContactGenerators().push_back(platforms + i);
+        world.ContactGenerators.push_back(platforms + i);
     }
 
 	// Create the blobs.
@@ -216,8 +216,8 @@ BlobDemo::BlobDemo()
         blobs[i].SetMass			(1.0f);
         blobs[i].AccumulatedForce	= {};
 
-        world.getParticles().push_back(blobs + i);
-        world.getForceRegistry().add(blobs + i, &blobForceGenerator);
+        world.Particles.push_back(blobs + i);
+		world.ForceRegistry.Registrations.push_back({blobs + i, &blobForceGenerator});
     }
 }
 

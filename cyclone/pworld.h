@@ -15,7 +15,7 @@ namespace cyclone {
 		
 		TParticles											Particles				= {};				// Holds the particles
 		bool												CalculateIterations		= false;			// True if the world should calculate the number of iterations to give the contact resolver at each frame.
-		ParticleForceRegistry								Registry				= {};				// Holds the force generators for the particles in this world.
+		ParticleForceRegistry								ForceRegistry			= {};				// Holds the force generators for the particles in this world.
 		ParticleContactResolver								Resolver				= 0;				// Holds the resolver for contacts.
 		TContactGenerators									ContactGenerators		= {};				// Contact generators.
 		ParticleContact										* Contacts				= 0;				// Holds the list of contacts.
@@ -28,10 +28,6 @@ namespace cyclone {
 		void												integrate				(double duration);	// Integrates all the particles in this world forward in time by the given duration.
 		void												runPhysics				(double duration);	// Processes all the physics for the particle world.
 		void												startFrame				();	// Initializes the world for a simulation frame. This clears the force accumulators for particles in the world. After calling this, the particles can have their forces for this frame added.
-
-		inline ParticleWorld::TParticles			&		getParticles			() { return Particles;			}
-		inline ParticleWorld::TContactGenerators	&		getContactGenerators	() { return ContactGenerators;	}
-		inline ParticleForceRegistry				&		getForceRegistry		() { return Registry;			}
 	};
 
 	// A contact generator that takes an STL vector of particle pointers and collides them against the ground.
@@ -40,7 +36,7 @@ namespace cyclone {
 	
 	public:
 		void												Init					(cyclone::ParticleWorld::TParticles *particles);
-		virtual uint32_t									AddContact				(cyclone::ParticleContact *contact, unsigned limit)		const;
+		virtual uint32_t									AddContact				(cyclone::ParticleContact *contact, uint32_t limit)		const;
 	};
 } // namespace cyclone
 

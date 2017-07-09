@@ -54,28 +54,28 @@ PlatformDemo::PlatformDemo() : MassAggregateApplication(6)
 
     Rods = new cyclone::ParticleRod[ROD_COUNT];
 
-    Rods[0].particle[0] = &ParticleArray[0];	Rods[0].particle[1] = &ParticleArray[1];	Rods[0].length = 2;
-    Rods[1].particle[0] = &ParticleArray[2];	Rods[1].particle[1] = &ParticleArray[3];	Rods[1].length = 2;
-    Rods[2].particle[0] = &ParticleArray[4];	Rods[2].particle[1] = &ParticleArray[5];	Rods[2].length = 2;
-
-    Rods[3].particle[0] = &ParticleArray[2];	Rods[3].particle[1] = &ParticleArray[4];	Rods[3].length = 7;
-    Rods[4].particle[0] = &ParticleArray[3];	Rods[4].particle[1] = &ParticleArray[5];	Rods[4].length = 7;
-
-    Rods[5].particle[0] = &ParticleArray[0];	Rods[5].particle[1] = &ParticleArray[2];	Rods[5].length = 3.606;
-    Rods[6].particle[0] = &ParticleArray[1];	Rods[6].particle[1] = &ParticleArray[3];	Rods[6].length = 3.606;
-
-    Rods[7].particle[0] = &ParticleArray[0];	Rods[7].particle[1] = &ParticleArray[4];	Rods[7].length = 4.472;
-    Rods[8].particle[0] = &ParticleArray[1];	Rods[8].particle[1] = &ParticleArray[5];	Rods[8].length = 4.472;
-
-    Rods[9].particle[0] = &ParticleArray[0];	Rods[9].particle[1] = &ParticleArray[3];	Rods[9].length = 4.123;
-    Rods[10].particle[0] = &ParticleArray[2];	Rods[10].particle[1] = &ParticleArray[5];	Rods[10].length = 7.28;
-    Rods[11].particle[0] = &ParticleArray[4];	Rods[11].particle[1] = &ParticleArray[1];	Rods[11].length = 4.899;
-    Rods[12].particle[0] = &ParticleArray[1];	Rods[12].particle[1] = &ParticleArray[2];	Rods[12].length = 4.123;
-    Rods[13].particle[0] = &ParticleArray[3];	Rods[13].particle[1] = &ParticleArray[4];	Rods[13].length = 7.28;
-    Rods[14].particle[0] = &ParticleArray[5];	Rods[14].particle[1] = &ParticleArray[0];	Rods[14].length = 4.899;
+    Rods[0] .Particle[0] = &ParticleArray[0];	Rods[0] .Particle[1] = &ParticleArray[1];	Rods[0] .Length = 2;
+    Rods[1] .Particle[0] = &ParticleArray[2];	Rods[1] .Particle[1] = &ParticleArray[3];	Rods[1] .Length = 2;
+    Rods[2] .Particle[0] = &ParticleArray[4];	Rods[2] .Particle[1] = &ParticleArray[5];	Rods[2] .Length = 2;
+			 											 										    
+    Rods[3] .Particle[0] = &ParticleArray[2];	Rods[3] .Particle[1] = &ParticleArray[4];	Rods[3] .Length = 7;
+    Rods[4] .Particle[0] = &ParticleArray[3];	Rods[4] .Particle[1] = &ParticleArray[5];	Rods[4] .Length = 7;
+			 											 										    
+    Rods[5] .Particle[0] = &ParticleArray[0];	Rods[5] .Particle[1] = &ParticleArray[2];	Rods[5] .Length = 3.606;
+    Rods[6] .Particle[0] = &ParticleArray[1];	Rods[6] .Particle[1] = &ParticleArray[3];	Rods[6] .Length = 3.606;
+			 											 										    
+    Rods[7] .Particle[0] = &ParticleArray[0];	Rods[7] .Particle[1] = &ParticleArray[4];	Rods[7] .Length = 4.472;
+    Rods[8] .Particle[0] = &ParticleArray[1];	Rods[8] .Particle[1] = &ParticleArray[5];	Rods[8] .Length = 4.472;
+			 											 										    
+    Rods[9] .Particle[0] = &ParticleArray[0];	Rods[9] .Particle[1] = &ParticleArray[3];	Rods[9] .Length = 4.123;
+    Rods[10].Particle[0] = &ParticleArray[2];	Rods[10].Particle[1] = &ParticleArray[5];	Rods[10].Length = 7.28;
+    Rods[11].Particle[0] = &ParticleArray[4];	Rods[11].Particle[1] = &ParticleArray[1];	Rods[11].Length = 4.899;
+    Rods[12].Particle[0] = &ParticleArray[1];	Rods[12].Particle[1] = &ParticleArray[2];	Rods[12].Length = 4.123;
+    Rods[13].Particle[0] = &ParticleArray[3];	Rods[13].Particle[1] = &ParticleArray[4];	Rods[13].Length = 7.28;
+    Rods[14].Particle[0] = &ParticleArray[5];	Rods[14].Particle[1] = &ParticleArray[0];	Rods[14].Length = 4.899;
 
     for (unsigned i = 0; i < ROD_COUNT; i++)
-        World.getContactGenerators().push_back(&Rods[i]);
+        World.ContactGenerators.push_back(&Rods[i]);
 
     UpdateAdditionalMass();
 }
@@ -131,7 +131,7 @@ void PlatformDemo::Display()
     glColor3f(0,0,1);
     for (unsigned i = 0; i < ROD_COUNT; i++)
     {
-        cyclone::Particle **particles = Rods[i].particle;
+        cyclone::Particle **particles = Rods[i].Particle;
         const cyclone::Vector3 &p0 = particles[0]->Position;
         const cyclone::Vector3 &p1 = particles[1]->Position;
         glVertex3f(p0.x, p0.y, p0.z);

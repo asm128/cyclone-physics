@@ -49,7 +49,7 @@ protected:
 
 public:
 	virtual							~MassAggregateApplication			();
-									MassAggregateApplication			(unsigned int particleCount);
+									MassAggregateApplication			(uint32_t particleCount);
 
 	virtual void					Update								();	// Update the particle positions.
 	virtual void					InitGraphics						();	// Sets up the graphic rendering. 

@@ -105,17 +105,14 @@ void Application::RenderText(float x, float y, const char *text, void *font)
 
 
 MassAggregateApplication::MassAggregateApplication(unsigned int particleCount)
-:
-World(particleCount*10)
+: World(particleCount*10)
 {
     ParticleArray = new cyclone::Particle[particleCount];
     for (unsigned i = 0; i < particleCount; i++)
-    {
-        World.getParticles().push_back(ParticleArray + i);
-    }
+		World.Particles.push_back(ParticleArray + i);
 
-    GroundContactGenerator.Init(&World.getParticles());
-    World.getContactGenerators().push_back(&GroundContactGenerator);
+    GroundContactGenerator.Init(&World.Particles);
+    World.ContactGenerators.push_back(&GroundContactGenerator);
 }
 
 MassAggregateApplication::~MassAggregateApplication()
@@ -138,7 +135,7 @@ void MassAggregateApplication::Display()
 
     glColor3f(0,0,0);
 
-    cyclone::ParticleWorld::TParticles &particles = World.getParticles();
+    cyclone::ParticleWorld::TParticles &particles = World.Particles;
     for (cyclone::ParticleWorld::TParticles::iterator p = particles.begin();
         p != particles.end();
         p++)
@@ -225,11 +222,9 @@ void RigidBodyApplication::Display()
 
 void RigidBodyApplication::DrawDebug()
 {
-    if (!RenderDebugInfo) return;
-
-    // Recalculate the contacts, so they are current (in case we're
-    // paused, for example).
-    GenerateContacts();
+    if (!RenderDebugInfo) 
+		return;
+    GenerateContacts();	// Recalculate the contacts, so they are current (in case we're paused, for example).
 
     // Render the contacts, if required
     glBegin(GL_LINES);

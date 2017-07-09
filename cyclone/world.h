@@ -17,10 +17,9 @@ namespace cyclone {
 			RigidBody					* body						= 0;
 			BodyRegistration			* next						= 0;
 		};
-
 		
-		BodyRegistration			* firstBody					= 0;	// Holds the head of the list of registered bodies.
-		ContactResolver				resolver					;					// Holds the resolver for sets of contacts.
+		BodyRegistration			* FirstBody					= 0;	// Holds the head of the list of registered bodies.
+		ContactResolver				Resolver					;					// Holds the resolver for sets of contacts.
 
 		// Holds one contact generators in a linked list.
 		struct ContactGenRegistration {
@@ -28,14 +27,18 @@ namespace cyclone {
 			ContactGenRegistration		* next						= 0;
 		};
 
-		ContactGenRegistration		* firstContactGen			= 0;	// Holds the head of the list of contact generators.
-		Contact						* contacts					= 0;	// Holds an array of contacts, for filling by the contact generators.
-		uint32_t					maxContacts;	// Holds the maximum number of contacts allowed (i.e. the size of the contacts array).
+		ContactGenRegistration		* FirstContactGen			= 0;	// Holds the head of the list of contact generators.
+		Contact						* Contacts					= 0;	// Holds an array of contacts, for filling by the contact generators.
+		uint32_t					MaxContacts					= 0;	// Holds the maximum number of contacts allowed (i.e. the size of the contacts array).
 
 	public:
 		// Creates a new simulator that can handle up to the given number of contacts per frame. You can also optionally give a number of contact-resolution iterations to use. 
 									World						(uint32_t maxContacts, uint32_t iterations = 0);
-									~World						();
+									~World						()													{
+			if(Contacts)
+				delete[] Contacts;
+		}
+
 
 		uint32_t					GenerateContacts			();	// Calls each of the registered contact generators to report their contacts. Returns the number of generated contacts.
 		void						runPhysics					(double duration);	// Processes all the physics for the world.
