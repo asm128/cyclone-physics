@@ -74,8 +74,7 @@ namespace cyclone {
 
 	// Holds a vector in 3 dimensions. Four data members are allocated to ensure alignment in an array.
 	// This class contains a lot of inline methods for basic mathematics. The implementations are included in the header file.
-	class Vector3 {
-	public:
+	struct Vector3 {
 				double					x						;	// Holds the value along the x axis. 
 				double					y						;	// Holds the value along the y axis. 
 				double					z						;	// Holds the value along the z axis. 
@@ -114,7 +113,7 @@ namespace cyclone {
  		void							clear					()														noexcept	{ x = y = z = 0;															}	// Zero all the components of the vector.
 		void							invert					()														noexcept	{ x = -x; y = -y; z = -z;													}	// Flips all the components of the vector.
 		real							squareMagnitude			()												const	noexcept	{ return x * x + y * y + z * z;												}	// Gets the squared magnitude of this vector.
-		inline real						magnitude				()												const				{ double sqLen = squareMagnitude(); return sqLen ? real_sqrt(sqLen) : 0;	}	// Gets the magnitude of this vector.
+		inline real						magnitude				()												const	noexcept	{ double sqLen = squareMagnitude(); return sqLen ? real_sqrt(sqLen) : 0;	}	// Gets the magnitude of this vector.
 		real							scalarProduct			(const Vector3 &vector)							const	noexcept	{ return x * vector.x + y * vector.y + z * vector.z;						}	// Calculates and returns the scalar product of this vector with the given vector.
 		Vector3							componentProduct		(const Vector3 &vector)							const	noexcept	{ return {x * vector.x, y * vector.y, z * vector.z};						}	// Calculates and returns a component-wise product of this vector with the given vector.
 		void							componentProductUpdate	(const Vector3 &vector)									noexcept	{ x *= vector.x; y *= vector.y; z *= vector.z;								}	// Performs a component-wise product with the given vector and sets this vector to its result.
@@ -126,132 +125,103 @@ namespace cyclone {
 				};	
 		}	
 
-        // Adds the given vector to this, scaled by the given amount.
-        void							addScaledVector			(const Vector3& vector, real scale)									{
-            x								+= vector.x * scale;
-            y								+= vector.y * scale;
-            z								+= vector.z * scale;
-        }
+		// Adds the given vector to this, scaled by the given amount.
+		void							addScaledVector			(const Vector3& vector, real scale)						noexcept	{
+			x								+= vector.x * scale;
+			y								+= vector.y * scale;
+			z								+= vector.z * scale;
+		}
 
-        // Limits the size of the vector to the given maximum.
-        void							trim					(real size)															{
-            if (squareMagnitude() > size*size) {
-                normalise();
-                x								*= size;
-                y								*= size;
-                z								*= size;
-            }
-        }
+		// Limits the size of the vector to the given maximum.
+		void							trim					(real size)															{
+			if (squareMagnitude() > size*size) {
+				normalise();
+				x								*= size;
+				y								*= size;
+				z								*= size;
+			}
+		}
 
-        // Turns a non-zero vector into a vector of unit length.
-        void							normalise				()																	{
+		// Turns a non-zero vector into a vector of unit length.
+		void							normalise				()																	{
 			real								l						= magnitude();
 			if(l > 0)
 				(*this) *= ((real)1) / l;
 		}
-		
-		/** Returns the normalised version of a vector. */
+
+		// Returns the normalised version of a vector.
 		Vector3							unit					()												const				{
-		    Vector3								result					= *this;
-		    result.normalise();
-		    return result;
+			Vector3								result					= *this;
+			result.normalise();
+			return result;
 		}
-		
-    };
+	};
 
 	// Holds a three degree of freedom orientation.
 	// Quaternions have several mathematical properties that make them useful for representing orientations, but require four items of data to hold the three degrees of freedom. 
 	// These four items of data can be viewed as the coefficients of a complex number with three imaginary parts. The mathematics of the quaternion is then defined and is roughly correspondent to the math of 3D rotations. 
 	// A quaternion is only a valid rotation if it is normalised: i.e. it has a length of 1.
 	// Note: Angular velocity and acceleration can be correctly represented as vectors. Quaternions are only needed for orientation.
-    class Quaternion {
-    public:
-		union {
-		    struct {
-		        real r;	// Holds the real component of the quaternion.
-		        real i;	// Holds the first complex component of the quaternion.
-		        real j;	// Holds the second complex component of the quaternion.
-		        real k;	// Holds the third complex component of the quaternion.
-		    };
-		    real data[4];	// Holds the quaternion data in array form.
-		};
+	// The explicit constructor creates a quaternion with the given components.
+	// r The real component of the rigid body's orientation quaternion.
+	// i The first complex component of the rigid body's orientation quaternion.
+	// j The second complex component of the rigid body's orientation quaternion.
+	// k The third complex component of the rigid body's orientation quaternion.
+	// The given orientation does not need to be normalised, and can be zero. This function will not alter the given values, or normalise the quaternion. To normalise the quaternion (and make a zero quaternion a legal rotation), use the normalise function.
+	struct Quaternion {
+		double			r;	// Holds the real component of the quaternion.
+		double			i;	// Holds the first complex component of the quaternion.
+		double			j;	// Holds the second complex component of the quaternion.
+		double			k;	// Holds the third complex component of the quaternion.
 		// The default constructor creates a quaternion representing a zero rotation.
-		Quaternion() : r(1), i(0), j(0), k(0) {}
-		
-		// The explicit constructor creates a quaternion with the given components.
-		// r The real component of the rigid body's orientation quaternion.
-		// i The first complex component of the rigid body's orientation quaternion.
-		// j The second complex component of the rigid body's orientation quaternion.
-		// k The third complex component of the rigid body's orientation quaternion.
-		// 
-		// @note The given orientation does not need to be normalised, and can be zero. This function will not alter the given values, or normalise the quaternion. To normalise the quaternion (and make a zero quaternion a legal rotation), use the normalise function.
-		Quaternion(const real r, const real i, const real j, const real k)
-		    : r(r), i(i), j(j), k(k)
-		{
-		}
-		
-		/**
-		 * Normalises the quaternion to unit length, making it a valid
-		 * orientation quaternion.
-		 */
-		void normalise()
-		{
-		    real d = r*r+i*i+j*j+k*k;
-		
-		    // Check for zero length quaternion, and use the no-rotation
-		    // quaternion in that case.
-		    if (d < real_epsilon) {
-		        r = 1;
-		        return;
-		    }
-		
-		    d = ((real)1.0)/real_sqrt(d);
-		    r *= d;
-		    i *= d;
-		    j *= d;
-		    k *= d;
+						Quaternion						(const real r = 1, const real i = 0, const real j = 0, const real k = 0) : r(r), i(i), j(j), k(k)	{}
+		// Normalises the quaternion to unit length, making it a valid orientation quaternion.
+		void			normalise						()																									{
+			double				d								= r*r+i*i+j*j+k*k;
+			
+			// Check for zero length quaternion, and use the no-rotation
+			// quaternion in that case.
+			if (d < real_epsilon) {
+			    r			= 1;
+			    return;
+			}
+			
+			d				= ((real)1.0)/real_sqrt(d);
+			r				*= d;
+			i				*= d;
+			j				*= d;
+			k				*= d;
 		}
 		
 		// Multiplies the quaternion by the given quaternion. multiplier: The quaternion by which to multiply.
-		void operator *=(const Quaternion &multiplier)
-		{
-		    Quaternion q = *this;
-		    r = q.r*multiplier.r - q.i*multiplier.i -
-		        q.j*multiplier.j - q.k*multiplier.k;
-		    i = q.r*multiplier.i + q.i*multiplier.r +
-		        q.j*multiplier.k - q.k*multiplier.j;
-		    j = q.r*multiplier.j + q.j*multiplier.r +
-		        q.k*multiplier.i - q.i*multiplier.k;
-		    k = q.r*multiplier.k + q.k*multiplier.r +
-		        q.i*multiplier.j - q.j*multiplier.i;
+		void			operator*=						(const Quaternion &multiplier)																		{
+			Quaternion			q							= *this;
+			r				= q.r * multiplier.r - q.i * multiplier.i - q.j * multiplier.j - q.k * multiplier.k;
+			i				= q.r * multiplier.i + q.i * multiplier.r + q.j * multiplier.k - q.k * multiplier.j;
+			j				= q.r * multiplier.j + q.j * multiplier.r + q.k * multiplier.i - q.i * multiplier.k;
+			k				= q.r * multiplier.k + q.k * multiplier.r + q.i * multiplier.j - q.j * multiplier.i;
 		}
 		
 		// Adds the given vector to this, scaled by the given amount. This is used to update the orientation quaternion by a rotation and time.
 		// vector	: The vector to add.
 		// scale	: The amount of the vector to add.
-		void addScaledVector(const Vector3& vector, real scale)
-		{
-		    Quaternion q(0,
-		        vector.x * scale,
-		        vector.y * scale,
-		        vector.z * scale);
-		    q *= *this;
-		    r += q.r * ((real)0.5);
-		    i += q.i * ((real)0.5);
-		    j += q.j * ((real)0.5);
-		    k += q.k * ((real)0.5);
+		void			addScaledVector					(const Vector3& vector, real scale)																	{
+			Quaternion			q							= {0, vector.x * scale, vector.y * scale, vector.z * scale};
+			q				*= *this;
+			r				+= q.r * ((real)0.5);
+			i				+= q.i * ((real)0.5);
+			j				+= q.j * ((real)0.5);
+			k				+= q.k * ((real)0.5);
 		}
 		
-		void rotateByVector(const Vector3& vector)
-		{
-		    Quaternion q(0, vector.x, vector.y, vector.z);
-		    (*this) *= q;
+		void			rotateByVector					(const Vector3& vector)																				{
+			Quaternion			q							= {0, vector.x, vector.y, vector.z};
+			(*this)			*= q;
 		}
-    };
+	};
 
-    // Holds a transform matrix, consisting of a rotation matrix and a position. The matrix has 12 elements, it is assumed that the remaining four are (0,0,0,1); producing a homogenous matrix.
-    class Matrix4 {
-    public:
+	// Holds a transform matrix, consisting of a rotation matrix and a position. The matrix has 12 elements, it is assumed that the remaining four are (0,0,0,1); producing a homogenous matrix.
+	struct Matrix4 {
 		// Holds the transform matrix data in array form.
 		real data[12];
 		// Creates an identity matrix.
@@ -270,7 +240,7 @@ namespace cyclone {
 		}
 		
 		// Returns a matrix which is this matrix multiplied by the given other matrix.
-		Matrix4 operator*(const Matrix4 &o) const
+		Matrix4			operator*						(const Matrix4 &o)																	const
 		{
             Matrix4 result;
             result.data[0] = (o.data[0]*data[0]) + (o.data[4]*data[1]) + (o.data[8]*data[2]);
@@ -310,17 +280,17 @@ namespace cyclone {
 
         
         void			setInverse			(const Matrix4 &matrixToInvert);		// Sets the matrix to be the inverse of the given matrix. matrixToInvert: The matrix to invert and use to set this.
-        void			invert				()										{ setInverse(*this);		}
-        Vector3			transform			(const Vector3 &vector)			const	{ return (*this) * vector;	}	// Transform the given vector by this matrix.
-        real			getDeterminant		()								const;
-        Matrix4			inverse				()								const	{ // Returns a new matrix containing the inverse of this matrix. 
+        void			invert				()															{ setInverse(*this);		}
+        Vector3			transform			(const Vector3 &vector)								const	{ return (*this) * vector;	}	// Transform the given vector by this matrix.
+        real			getDeterminant		()													const;
+        Matrix4			inverse				()													const	{ // Returns a new matrix containing the inverse of this matrix. 
             Matrix4 result;
             result.setInverse(*this);
             return result;
         }
 
 		// Transform the given direction vector by this matrix. When a direction is converted between frames of reference, there is no translation required.
-		Vector3			transformDirection		(const Vector3 &vector)			const	{
+		Vector3			transformDirection		(const Vector3 &vector)							const	{
 			return 
 				{	vector.x * data[0] +
 					vector.y * data[1] +
@@ -337,7 +307,7 @@ namespace cyclone {
 		// Transform the given direction vector by the transformational inverse of this matrix.
 		// This function relies on the fact that the inverse of a pure rotation matrix is its transpose. It separates the translational and rotation components, transposes the rotation, and multiplies out. If the matrix is not a scale and shear free transform matrix, then this function will not give correct results.
 		// When a direction is converted between frames of reference, there is no translation required.
-        Vector3		transformInverseDirection	(const Vector3 &vector)			const	{
+        Vector3		transformInverseDirection	(const Vector3 &vector)							const	{
             return 
 				{	vector.x * data[0] +
 					vector.y * data[4] +
@@ -416,8 +386,7 @@ namespace cyclone {
     };
 
 	// Holds an inertia tensor, consisting of a 3x3 row-major matrix. This matrix is not padding to produce an aligned structure, since it is most commonly used with a mass (single real) and two damping coefficients to make the 12-element characteristics array of a rigid body.
-    class Matrix3 {
-    public:
+	struct Matrix3 {
 		real		data		[9]			=		{};					// Holds the tensor matrix data in array form.
 
 					Matrix3					()		= default;

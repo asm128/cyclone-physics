@@ -19,13 +19,13 @@ unsigned Joint::AddContact(Contact *contact, unsigned limit) const
     // Check if it is violated
     if (real_abs(length) > Error)
     {
-        contact->body[0] = body[0];
-        contact->body[1] = body[1];
-        contact->contactNormal = normal;
-        contact->contactPoint = (a_pos_world + b_pos_world) * 0.5f;
-        contact->penetration = length - Error;
-        contact->friction = 1.0f;
-        contact->restitution = 0;
+        contact->Body[0]		= body[0];
+        contact->Body[1]		= body[1];
+        contact->ContactNormal	= normal;
+        contact->ContactPoint	= (a_pos_world + b_pos_world) * 0.5f;
+        contact->Penetration	= length - Error;
+        contact->Friction		= 1.0f;
+        contact->Restitution	= 0;
         return 1;
     }
 

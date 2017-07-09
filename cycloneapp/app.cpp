@@ -236,16 +236,16 @@ void RigidBodyApplication::DrawDebug()
     for (unsigned i = 0; i < CData.contactCount; i++)
     {
         // Interbody contacts are in green, floor contacts are red.
-        if (Contacts[i].body[1]) {
+        if (Contacts[i].Body[1]) {
             glColor3f(0,1,0);
         } else {
             glColor3f(1,0,0);
         }
 
-        cyclone::Vector3 vec = Contacts[i].contactPoint;
+        cyclone::Vector3 vec = Contacts[i].ContactPoint;
         glVertex3f(vec.x, vec.y, vec.z);
 
-        vec += Contacts[i].contactNormal;
+        vec += Contacts[i].ContactNormal;
         glVertex3f(vec.x, vec.y, vec.z);
     }
 

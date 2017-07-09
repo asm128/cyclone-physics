@@ -12,39 +12,39 @@ namespace cyclone {
 	 // It can be a good idea to create a contact object even when the contact isn't violated. Because resolving one contact can violate another, contacts that are close to being violated should be sent to the resolver; 
 	 // that way if one resolution moves the body, the contact may be violated, and can be resolved. If the contact is not violated, it will not be resolved, so you only loose a small amount of execution time.
 	struct Contact {
-		friend			class ContactResolver;	// The contact resolver object needs access into the contacts to set and effect the contact.
+		friend				class ContactResolver;	// The contact resolver object needs access into the contacts to set and effect the contact.
 	//public:
-		RigidBody		* body[2]						= {};	// Holds the bodies that are involved in the contact. The second of these can be NULL, for contacts with the scenery.
-		real			friction						= 0;	// Holds the lateral friction coefficient at the contact.
-		real			restitution						= 0;	// Holds the normal restitution coefficient at the contact.
-		Vector3			contactPoint					= {};	// Holds the position of the contact in world coordinates.
-		Vector3			contactNormal					= {};	// Holds the direction of the contact in world coordinates.
-		real			penetration						= 0;	// Holds the depth of penetration at the contact point. If both bodies are specified then the contact point should be midway between the inter-penetrating points.
+		RigidBody			* Body[2]							= {};	// Holds the bodies that are involved in the contact. The second of these can be NULL, for contacts with the scenery.
+		double				Friction							= 0;	// Holds the lateral friction coefficient at the contact.
+		double				Restitution							= 0;	// Holds the normal restitution coefficient at the contact.
+		Vector3				ContactPoint						= {};	// Holds the position of the contact in world coordinates.
+		Vector3				ContactNormal						= {};	// Holds the direction of the contact in world coordinates.
+		double				Penetration							= 0;	// Holds the depth of penetration at the contact point. If both bodies are specified then the contact point should be midway between the inter-penetrating points.
 		
-		void			setBodyData						(RigidBody* one, RigidBody *two, real friction, real restitution);// Sets the data that doesn't normally depend on the position of the contact (i.e. the bodies, and their material properties).
+		void				setBodyData							(RigidBody* one, RigidBody *two, double friction, double restitution);// Sets the data that doesn't normally depend on the position of the contact (i.e. the bodies, and their material properties).
 	
 	//protected:
-		Matrix3			contactToWorld;							// A transform matrix that converts co-ordinates in the contact's frame of reference to world co-ordinates. The columns of this matrix form an orthonormal set of vectors.
-		Vector3			contactVelocity;						// Holds the closing velocity at the point of contact. This is set when the calculateInternals function is run.
-		double			desiredDeltaVelocity;					// Holds the required change in velocity for this contact to be resolved.
-		Vector3			relativeContactPosition[2]		= {};	// Holds the world space position of the contact point relative to centre of each body. This is set when the calculateInternals function is run.
+		Matrix3				ContactToWorld						= {};							// A transform matrix that converts co-ordinates in the contact's frame of reference to world co-ordinates. The columns of this matrix form an orthonormal set of vectors.
+		Vector3				ContactVelocity						= {};						// Holds the closing velocity at the point of contact. This is set when the calculateInternals function is run.
+		double				DesiredDeltaVelocity				= 0;					// Holds the required change in velocity for this contact to be resolved.
+		Vector3				RelativeContactPosition[2]			= {};	// Holds the world space position of the contact point relative to centre of each body. This is set when the calculateInternals function is run.
 	
-		void			calculateInternals				(real duration);						// Calculates internal data from state data. This is called before the resolution algorithm tries to do any resolution. It should never need to be called manually.
-		void			swapBodies						();										// Reverses the contact. This involves swapping the two rigid bodies and reversing the contact normal. The internal values should then be recalculated using calculateInternals (this is not done automatically).
-		void			matchAwakeState					();										// Updates the awake state of rigid bodies that are taking place in the given contact. A body will be made awake if it is in contact with a body that is awake.
-		void			calculateDesiredDeltaVelocity	(real duration);						// Calculates and sets the internal value for the desired delta velocity.
-		Vector3			calculateLocalVelocity			(unsigned bodyIndex, real duration);	// Calculates and returns the velocity of the contact point on the given body.
-		void			calculateContactBasis			();										// Calculates an orthonormal basis for the contact point, based on the primary friction direction (for anisotropic friction) or a random orientation (for isotropic friction).
-		//void			applyImpulse					(const Vector3 &impulse, RigidBody *body, Vector3 *velocityChange, Vector3 *rotationChange);	// Applies an impulse to the given body, returning the change in velocities.
-		void			applyVelocityChange				(Vector3 velocityChange[2], Vector3 rotationChange[2]);	// Performs an inertia-weighted impulse based resolution of this contact alone.
+		void				calculateInternals					(double duration);						// Calculates internal data from state data. This is called before the resolution algorithm tries to do any resolution. It should never need to be called manually.
+		void				swapBodies							();										// Reverses the contact. This involves swapping the two rigid bodies and reversing the contact normal. The internal values should then be recalculated using calculateInternals (this is not done automatically).
+		void				matchAwakeState						();										// Updates the awake state of rigid bodies that are taking place in the given contact. A body will be made awake if it is in contact with a body that is awake.
+		void				calculateDesiredDeltaVelocity		(double duration);						// Calculates and sets the internal value for the desired delta velocity.
+		Vector3				calculateLocalVelocity				(uint32_t bodyIndex, double duration);	// Calculates and returns the velocity of the contact point on the given body.
+		void				calculateContactBasis				();										// Calculates an orthonormal basis for the contact point, based on the primary friction direction (for anisotropic friction) or a random orientation (for isotropic friction).
+		//void				applyImpulse						(const Vector3 &impulse, RigidBody *body, Vector3 *velocityChange, Vector3 *rotationChange);	// Applies an impulse to the given body, returning the change in velocities.
+		void				applyVelocityChange					(Vector3 velocityChange[2], Vector3 rotationChange[2]);	// Performs an inertia-weighted impulse based resolution of this contact alone.
 		
 		
-		void			applyPositionChange				(Vector3 linearChange[2], Vector3 angularChange[2], real penetration);	// Performs an inertia weighted penetration resolution of this contact alone.
-		Vector3			calculateFrictionlessImpulse	(Matrix3 *inverseInertiaTensor);	// Calculates the impulse needed to resolve this contact, given that the contact has no friction. A pair of inertia tensors - one for each contact object - is specified to save calculation time: the calling function has access to these anyway.
+		void				applyPositionChange					(Vector3 linearChange[2], Vector3 angularChange[2], double penetration);	// Performs an inertia weighted penetration resolution of this contact alone.
+		Vector3				calculateFrictionlessImpulse		(Matrix3 *inverseInertiaTensor);	// Calculates the impulse needed to resolve this contact, given that the contact has no friction. A pair of inertia tensors - one for each contact object - is specified to save calculation time: the calling function has access to these anyway.
 	
 		// Calculates the impulse needed to resolve this contact, given that the contact has a non-zero coefficient of friction. 
 		// A pair of inertia tensors - one for each contact object - is specified to save calculation time: the calling function has access to these anyway.
-		Vector3			calculateFrictionImpulse		(Matrix3 *inverseInertiaTensor);
+		Vector3				calculateFrictionImpulse			(Matrix3 *inverseInertiaTensor);
 	};
 	
 	// The contact resolution routine. One resolver instance can be shared for the whole simulation, as long as you need roughly the same parameters each time (which is normal).
@@ -69,34 +69,44 @@ namespace cyclone {
 	// In general this resolver is not suitable for stacks of bodies, but is perfect for handling impact, explosive, and flat resting situations.
 	class ContactResolver {
 	protected:
-		uint32_t			VelocityIterations;	// Holds the number of iterations to perform when resolving velocity.
-		uint32_t			PositionIterations;	// Holds the number of iterations to perform when resolving position.
-		real				VelocityEpsilon;	// To avoid instability velocities smaller than this value are considered to be zero. Too small and the simulation may be unstable, too large and the bodies may interpenetrate visually. A good starting point is the default of 0.01.
-		real				PositionEpsilon;	// To avoid instability penetrations smaller than this value are considered to be not interpenetrating. Too small and the simulation may be unstable, too large and the bodies may interpenetrate visually. A good starting point is the default of0.01.
+		uint32_t			VelocityIterations					= 0;	// Holds the number of iterations to perform when resolving velocity.
+		uint32_t			PositionIterations					= 0;	// Holds the number of iterations to perform when resolving position.
+		double				VelocityEpsilon						= 0;	// To avoid instability velocities smaller than this value are considered to be zero. Too small and the simulation may be unstable, too large and the bodies may interpenetrate visually. A good starting point is the default of 0.01.
+		double				PositionEpsilon						= 0;	// To avoid instability penetrations smaller than this value are considered to be not interpenetrating. Too small and the simulation may be unstable, too large and the bodies may interpenetrate visually. A good starting point is the default of0.01.
 
 	public:
-		uint32_t			VelocityIterationsUsed;	// Stores the number of velocity iterations used in the last call to resolve contacts.
-		uint32_t			PositionIterationsUsed;	// Stores the number of position iterations used in the last call to resolve contacts.
+		uint32_t			VelocityIterationsUsed				= 0;	// Stores the number of velocity iterations used in the last call to resolve contacts.
+		uint32_t			PositionIterationsUsed				= 0;	// Stores the number of position iterations used in the last call to resolve contacts.
 
 	private:
-		bool				ValidSettings;	// Keeps track of whether the internal settings are valid.
+		bool				ValidSettings						= false;	// Keeps track of whether the internal settings are valid.
 
 	public:
-							ContactResolver						(uint32_t iterations										, double velocityEpsilon = 0.01, double positionEpsilon = 0.01); 
-							ContactResolver						(uint32_t velocityIterations, uint32_t positionIterations	, double velocityEpsilon = 0.01, double positionEpsilon = 0.01);
+
+							ContactResolver						(uint32_t iterations, double velocityEpsilon = 0.01, double positionEpsilon = 0.01) 
+			: VelocityIterations	(iterations)
+			, PositionIterations	(iterations)
+			, VelocityEpsilon		(velocityEpsilon)
+			, PositionEpsilon		(positionEpsilon)
+			{}
+							ContactResolver						(uint32_t velocityIterations, uint32_t positionIterations, double velocityEpsilon = 0.01, double positionEpsilon = 0.01) 
+			: VelocityIterations	(velocityIterations)
+			, PositionIterations	(positionIterations)
+			, VelocityEpsilon		(velocityEpsilon)
+			, PositionEpsilon		(positionEpsilon)
+			{}
 
 		// Returns true if the resolver has valid settings and is ready to go.
-		bool				isValid								()	{
+		inline void			setIterations						(uint32_t	iterations)														{ setIterations(iterations, iterations);	}	// Sets the number of iterations for both resolution stages.
+		inline void			setIterations						(uint32_t	velocityIterations	, uint32_t	positionIterations	)			{ VelocityIterations	= velocityIterations	; PositionIterations	= positionIterations	; }					// Sets the number of iterations for each resolution stage.
+		inline void			setEpsilon							(double		velocityEpsilon		, double	positionEpsilon		)			{ VelocityEpsilon		= velocityEpsilon		; PositionEpsilon		= positionEpsilon		; }							// Sets the tolerance value for both velocity and position.
+		bool				isValid								()																			{
 			return (VelocityIterations > 0) 
 				&& (PositionIterations > 0) 
 				&& (PositionEpsilon >= 0.0f)
 				&& (PositionEpsilon >= 0.0f)
 				;
 		}
-		void				setIterations						(uint32_t iterations);										// Sets the number of iterations for both resolution stages.
-		void				setIterations						(uint32_t velocityIterations, uint32_t positionIterations);	// Sets the number of iterations for each resolution stage.
-		void				setEpsilon							(double velocityEpsilon, double positionEpsilon);			// Sets the tolerance value for both velocity and position.
-
 		// Resolves a set of contacts for both penetration and velocity.
 		// Contacts that cannot interact with each other should be passed to separate calls to resolveContacts, as the resolution algorithm takes much longer for lots of contacts than it does for the same number of contacts in small sets.
 		// @param numIterations The number of iterations through the resolution algorithm. This should be at least the number of contacts (otherwise some constraints will not be resolved - although sometimes this is not noticable). 
@@ -104,12 +114,12 @@ namespace cyclone {
 		// Think about the number of iterations as a bound: if you specify a large number, sometimes the algorithm WILL use it, and you may drop lots of frames.
 		// 
 		// @param duration The duration of the previous integration step. This is used to compensate for forces applied.
-       void					resolveContacts						(Contact *contactArray	, uint32_t numContacts, real duration);
+       void					resolveContacts						(Contact *contactArray	, uint32_t numContacts, double duration);
 
     protected:
-        void				prepareContacts						(Contact *contactArray	, uint32_t numContacts, real duration);	// Sets up contacts ready for processing. This makes sure their internal data is configured correctly and the correct set of bodies is made alive.
-        void				adjustVelocities					(Contact *contactArray	, uint32_t numContacts, real duration);	// Resolves the velocity issues with the given array of constraints, using the given number of iterations.
-        void				adjustPositions						(Contact *contacts		, uint32_t numContacts, real duration);	// Resolves the positional issues with the given array of constraints, using the given number of iterations.
+        void				prepareContacts						(Contact *contactArray	, uint32_t numContacts, double duration);	// Sets up contacts ready for processing. This makes sure their internal data is configured correctly and the correct set of bodies is made alive.
+        void				adjustVelocities					(Contact *contactArray	, uint32_t numContacts, double duration);	// Resolves the velocity issues with the given array of constraints, using the given number of iterations.
+        void				adjustPositions						(Contact *contacts		, uint32_t numContacts, double duration);	// Resolves the positional issues with the given array of constraints, using the given number of iterations.
     };
 
 	// This is the basic polymorphic interface for contact generators applying to rigid bodies.
@@ -117,7 +127,7 @@ namespace cyclone {
 	public:
 		// Fills the given contact structure with the generated contact. The contact pointer should point to the first available contact in a contact array, where limit is the maximum number of contacts in the array that can be written to. 
 		// The method returns the number of contacts that have been written.
-		virtual unsigned	AddContact							(Contact *contact, unsigned limit)									const = 0;
+		virtual unsigned	AddContact							(Contact *contact, unsigned limit)									const	= 0;
 	};
 } // namespace cyclone
 

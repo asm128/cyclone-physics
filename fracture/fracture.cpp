@@ -99,16 +99,16 @@ public:
     {
         // Find out if we're block one or two in the contact structure, and
         // therefore what the contact normal is.
-        cyclone::Vector3 normal = contact.contactNormal;
-        cyclone::RigidBody *body = contact.body[0];
+        cyclone::Vector3 normal = contact.ContactNormal;
+        cyclone::RigidBody *body = contact.Body[0];
         if (body != target->Body)
         {
             normal.invert();
-            body = contact.body[1];
+            body = contact.Body[1];
         }
 
         // Work out where on the body (in body coordinates) the contact is and its direction.
-        cyclone::Vector3							point									= body->GetPointInLocalSpace(contact.contactPoint);
+        cyclone::Vector3							point									= body->GetPointInLocalSpace(contact.ContactPoint);
         normal									= body->getDirectionInLocalSpace(normal);
         point									= point - normal * (point * normal);	// Work out the centre of the split: this is the point coordinates for each of the axes perpendicular to the normal, and 0 for the axis along the normal.
 
@@ -160,7 +160,7 @@ public:
             cyclone::Vector3 newPos = halfSize + min;
             newPos = tempBody.getPointInWorldSpace(newPos);	// Convert the origin to world coordinates.
 
-            cyclone::Vector3 direction = newPos - contact.contactPoint;	// Work out the direction to the impact.
+            cyclone::Vector3 direction = newPos - contact.ContactPoint;	// Work out the direction to the impact.
             direction.normalise();
 
             // Set the body's properties (we assume the block has a body already that we're going to overwrite).
