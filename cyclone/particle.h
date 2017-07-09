@@ -6,7 +6,6 @@
 #define CYCLONE_PARTICLE_H
 
 namespace cyclone {
-
 	// A particle is the simplest object that can be simulated in the physics system.
 	// It has position data (no orientation data), along with velocity. It can be integrated forward through time, and have linear forces, and impulses applied to it. The particle manages its state and allows access through a set of methods.
 	struct Particle {

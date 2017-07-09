@@ -164,7 +164,7 @@
     <ClCompile Include="contacts.cpp" />
     <ClCompile Include="core.cpp" />
     <ClCompile Include="fgen.cpp" />
-    <ClCompile Include="joints.cpp" />
+    <ClCompile Include="joint.cpp" />
     <ClCompile Include="pcontacts.cpp" />
     <ClCompile Include="pfgen.cpp" />
     <ClCompile Include="plinks.cpp" />
@@ -180,7 +180,6 @@
     <ClInclude Include="core.h" />
     <ClInclude Include="cyclone.h" />
     <ClInclude Include="fgen.h" />
-    <ClInclude Include="joints.h" />
     <ClInclude Include="particle.h" />
     <ClInclude Include="pcontacts.h" />
     <ClInclude Include="pfgen.h" />

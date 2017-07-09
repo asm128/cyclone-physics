@@ -115,8 +115,8 @@ void									RigidBody::setAwake						(const bool awake)										{
 		Motion									= sleepEpsilon * 2.0f;	// Add a bit of motion to avoid it falling asleep immediately.
 	} else {
 		IsAwake									= false;
-		Force.Velocity.clear();
-		Force.Rotation.clear();
+		Force.Velocity							= 
+		Force.Rotation							= {};
 	}
 }
 

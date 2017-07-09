@@ -12,8 +12,6 @@ namespace cyclone {
 	 // It can be a good idea to create a contact object even when the contact isn't violated. Because resolving one contact can violate another, contacts that are close to being violated should be sent to the resolver; 
 	 // that way if one resolution moves the body, the contact may be violated, and can be resolved. If the contact is not violated, it will not be resolved, so you only loose a small amount of execution time.
 	struct Contact {
-	//	friend				class ContactResolver;	// The contact resolver object needs access into the contacts to set and effect the contact.
-	//public:
 		RigidBody			* Body[2]							= {};	// Holds the bodies that are involved in the contact. The second of these can be NULL, for contacts with the scenery.
 		double				Friction							= 0;	// Holds the lateral friction coefficient at the contact.
 		double				Restitution							= 0;	// Holds the normal restitution coefficient at the contact.
@@ -24,9 +22,9 @@ namespace cyclone {
 		void				setBodyData							(RigidBody* one, RigidBody *two, double friction, double restitution);// Sets the data that doesn't normally depend on the position of the contact (i.e. the bodies, and their material properties).
 	
 	//protected:
-		Matrix3				ContactToWorld						= {};							// A transform matrix that converts co-ordinates in the contact's frame of reference to world co-ordinates. The columns of this matrix form an orthonormal set of vectors.
-		Vector3				ContactVelocity						= {};						// Holds the closing velocity at the point of contact. This is set when the calculateInternals function is run.
-		double				DesiredDeltaVelocity				= 0;					// Holds the required change in velocity for this contact to be resolved.
+		Matrix3				ContactToWorld						= {};	// A transform matrix that converts co-ordinates in the contact's frame of reference to world co-ordinates. The columns of this matrix form an orthonormal set of vectors.
+		Vector3				ContactVelocity						= {};	// Holds the closing velocity at the point of contact. This is set when the calculateInternals function is run.
+		double				DesiredDeltaVelocity				= 0;	// Holds the required change in velocity for this contact to be resolved.
 		Vector3				RelativeContactPosition[2]			= {};	// Holds the world space position of the contact point relative to centre of each body. This is set when the calculateInternals function is run.
 	
 		void				calculateInternals					(double duration);						// Calculates internal data from state data. This is called before the resolution algorithm tries to do any resolution. It should never need to be called manually.
@@ -128,6 +126,17 @@ namespace cyclone {
 		// Fills the given contact structure with the generated contact. The contact pointer should point to the first available contact in a contact array, where limit is the maximum number of contacts in the array that can be written to. 
 		// The method returns the number of contacts that have been written.
 		virtual uint32_t	AddContact							(Contact *contact, uint32_t limit)									const	= 0;
+	};
+
+	// Joints link together two rigid bodies and make sure they do not separate. In a general phyiscs engine there may be many different types of joint, that reduce the number of relative degrees of freedom between two objects. 
+	// This joint is a common position joint: each object has a location (given in body-coordinates) that will be kept at the same point in the simulation.
+	struct Joint : public ContactGenerator {
+		RigidBody			* Body		[2]						= {};	// Holds the two rigid bodies that are connected by this joint.
+		Vector3				Position	[2]						= {};	// Holds the relative location of the connection for each body, given in local coordinates.
+		double				Error								= 0;	// Holds the maximum displacement at the joint before the joint is considered to be violated. This is normally a small, epsilon value. It can be larger, however, in which case the joint will behave as if an inelastic cable joined the bodies at their joint locations.
+
+		void				Set									( RigidBody *a, const Vector3& a_pos, RigidBody *b, const Vector3& b_pos, double error);	// Configures the joint in one go.
+		uint32_t			AddContact							(Contact *contact, uint32_t limit) const;	// Generates the contacts required to restore the joint if it has been violated.
 	};
 } // namespace cyclone
 

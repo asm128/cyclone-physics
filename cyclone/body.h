@@ -6,6 +6,7 @@
 #define CYCLONE_BODY_H
 
 namespace cyclone {
+#pragma pack(push, 1)
 	// Internal function that checks the validity of an inverse inertia tensor.
 	static inline constexpr	void		checkInverseInertiaTensor		(const Matrix3 &/*iitWorld*/)											noexcept	{}	// TODO: Perform a validity check in an assert.
 
@@ -74,6 +75,8 @@ namespace cyclone {
 			AccumulatedTorque	.clear();
 		}
 	};
+#pragma pack(pop)
+
 } // namespace cyclone
 
 #endif // CYCLONE_BODY_H
