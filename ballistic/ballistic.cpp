@@ -113,7 +113,7 @@ void BallisticDemo::Fire() {
 
     // Set the data common to all particle types
 	shot->particle.Position				= {0.0f, 1.5f, 0.0f};
-    shot->startTime						= TimingData::get().lastFrameTimestamp;
+    shot->startTime						= TimingData::get().LastFrameTimestamp;
     shot->type							= CurrentShotType;
 
     // Clear the force accumulators
@@ -123,7 +123,7 @@ void BallisticDemo::Fire() {
 void BallisticDemo::Update()
 {
     // Find the duration of the last frame in seconds
-    float duration = (float)TimingData::get().lastFrameDuration * 0.001f;
+    float duration = (float)TimingData::get().LastFrameDuration * 0.001f;
     if (duration <= 0.0f) return;
 
     // Update the physics of each particle in turn
@@ -135,7 +135,7 @@ void BallisticDemo::Update()
 
             // Check if the particle is now invalid
             if (shot->particle.Position.y < 0.0f ||
-                shot->startTime+5000 < TimingData::get().lastFrameTimestamp ||
+                shot->startTime+5000 < TimingData::get().LastFrameTimestamp ||
                 shot->particle.Position.z > 200.0f)
             {
                 shot->type = UNUSED;	// We simply set the shot type to be unused, so the memory it occupies can be reused by another shot.

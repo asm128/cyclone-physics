@@ -293,7 +293,7 @@ void BlobDemo::Update()
 	world.startFrame();	// Clear accumulators
 
 	// Find the duration of the last frame in seconds
-	double duration = TimingData::get().lastFrameDuration * 0.001;
+	double duration = TimingData::get().LastFrameDuration * 0.001;
 	if (duration <= 0.0f) 
 		return;
 	

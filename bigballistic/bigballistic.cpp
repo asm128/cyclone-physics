@@ -34,44 +34,44 @@ public:
         glPopMatrix();
     }
 
-    /** Sets the box to a specific location. */
+    // Sets the box to a specific location.
     void								setState						(ShotType shotType)			{
-        type = shotType;
+        type								= shotType;
 
         // Set the properties of the particle
         switch(type) {
         case PISTOL:
             Body->setMass(1.5f);
-            Body->Velocity			= {0.0f, 0.0f, 20.0f};
-            Body->Acceleration		= {0.0f, -0.5f, 0.0f};
+            Body->Velocity						= {0.0f, 0.0f, 20.0f};
+            Body->Acceleration					= {0.0f, -0.5f, 0.0f};
             Body->setDamping(0.99f, 0.8f);
-            Radius = 0.2f;
+            Radius								= 0.2f;
             break;
 
         case ARTILLERY:
             Body->setMass(200.0f); // 200.0kg
-            Body->Velocity			= {0.0f, 30.0f, 40.0f}; // 50m/s
-            Body->Acceleration		= {0.0f, -21.0f, 0.0f};
+            Body->Velocity						= {0.0f, 30.0f, 40.0f}; // 50m/s
+            Body->Acceleration					= {0.0f, -21.0f, 0.0f};
             Body->setDamping(0.99f, 0.8f);
-            Radius = 0.4f;
+            Radius								= 0.4f;
             break;
 
         case FIREBALL:
             Body->setMass(4.0f); // 4.0kg - mostly blast damage
-            Body->Velocity			= {0.0f, -0.5f, 10.0}; // 10m/s
-            Body->Acceleration		= {0.0f,  0.3f, 0.0f}; // Floats up
+            Body->Velocity						= {0.0f, -0.5f, 10.0}; // 10m/s
+            Body->Acceleration					= {0.0f,  0.3f, 0.0f}; // Floats up
             Body->setDamping(0.9f, 0.8f);
-            Radius = 0.6f;
+            Radius								= 0.6f;
             break;
 
         case LASER:
             // Note that this is the kind of laser bolt seen in films,
             // not a realistic laser beam!
             Body->setMass(0.1f); // 0.1kg - almost no weight
-            Body->Velocity			= {0.0f, 0.0f, 100.0f	}; // 100m/s
-            Body->Acceleration		= {0.0f, 0.0f, 0.0f		}; // No gravity
+            Body->Velocity						= {0.0f, 0.0f, 100.0f	}; // 100m/s
+            Body->Acceleration					= {0.0f, 0.0f, 0.0f		}; // No gravity
             Body->setDamping(0.99f, 0.8f);
-            Radius = 0.2f;
+            Radius								= 0.2f;
             break;
         }
 
@@ -85,7 +85,7 @@ public:
 
         // Set the data common to all particle types
 		Body->Position = {0.0f, 1.5f, 0.0f};
-        startTime = TimingData::get().lastFrameTimestamp;
+        startTime = TimingData::get().LastFrameTimestamp;
 
         // Clear the force accumulators
         Body->calculateDerivedData();
@@ -200,7 +200,7 @@ void BigBallisticDemo::Reset(){
 
 void BigBallisticDemo::Fire()
 {
-	AmmoRound				* shot;	// Find the first available round.
+	AmmoRound				* shot						= 0;	// Find the first available round.
 	for (shot = Ammo; shot < Ammo + AmmoRounds; ++shot)
 		if (shot->type == UNUSED) 
 			break;
@@ -219,7 +219,7 @@ void BigBallisticDemo::UpdateObjects(double duration) {
 	
 			// Check if the particle is now invalid
 			if (shot->Body->Position.y < 0.0f ||
-				shot->startTime+5000 < TimingData::get().lastFrameTimestamp ||
+				shot->startTime+5000 < TimingData::get().LastFrameTimestamp ||
 				shot->Body->Position.z > 200.0f)
 			{
 				shot->type = UNUSED;	// We simply set the shot type to be unused, so the memory it occupies can be reused by another shot.
@@ -243,8 +243,7 @@ void BigBallisticDemo::Display()
 	glLoadIdentity();
 	gluLookAt(-25.0, 8.0, 5.0,  0.0, 5.0, 22.0,  0.0, 1.0, 0.0);
 
-	// Draw a sphere at the firing point, and add a shadow projected
-	// onto the ground plane.
+	// Draw a sphere at the firing point, and add a shadow projected onto the ground plane.
 	glColor3f(0.0f, 0.0f, 0.0f);
 	glPushMatrix();
 	glTranslatef(0.0f, 1.5f, 0.0f);
@@ -299,39 +298,38 @@ void BigBallisticDemo::Display()
 
 void BigBallisticDemo::GenerateContacts()
 {
-    // Create the ground plane data
-    cyclone::CollisionPlane			plane;
-	plane.Direction				= {0,1,0};
-    plane.Offset				= 0;
+	// Create the ground plane data
+	cyclone::CollisionPlane					plane;
+	plane.Direction						= {0,1,0};
+	plane.Offset						= 0;
 
-    // Set up the collision data structure
-    CData.Reset(MaxContacts);
-    CData.Friction				= 0.9;
-    CData.Restitution			= 0.1;
-    CData.Tolerance				= 0.1;
+	// Set up the collision data structure
+	Collisions.Reset(MaxContacts);
+	Collisions.Friction					= 0.9;
+	Collisions.Restitution				= 0.1;
+	Collisions.Tolerance				= 0.1;
 
-    // Check ground plane collisions
-    for (Box *box = BoxData; box < BoxData + Boxes; box++) {
-        if (!CData.HasMoreContacts()) 
+	// Check ground plane collisions
+	for (Box *box = BoxData; box < BoxData + Boxes; box++) {
+		if (!Collisions.HasMoreContacts()) 
 			return;
-        cyclone::CollisionDetector::boxAndHalfSpace(*box, plane, &CData);
+		cyclone::CollisionDetector::boxAndHalfSpace(*box, plane, &Collisions);
 
 
-        // Check for collisions with each shot
-        for (AmmoRound *shot = Ammo; shot < Ammo + AmmoRounds; shot++) {
-            if (shot->type != UNUSED) {
-                if (!CData.HasMoreContacts()) return;
+		// Check for collisions with each shot
+		for (AmmoRound *shot = Ammo; shot < Ammo + AmmoRounds; shot++) {
+			if (shot->type != UNUSED) {
+				if (!Collisions.HasMoreContacts()) 
+					return;
 
-                // When we get a collision, remove the shot
-                if (cyclone::CollisionDetector::boxAndSphere(*box, *shot, &CData))
-                {
-                    shot->type = UNUSED;
-                }
-            }
-        }
-    }
+				// When we get a collision, remove the shot
+				if (cyclone::CollisionDetector::boxAndSphere(*box, *shot, &Collisions))
+					shot->type = UNUSED;
+			}
+		}
+	}
 
-    // NB We aren't checking box-box collisions.
+	// NB We aren't checking box-box collisions.
 }
 
 void BigBallisticDemo::Mouse(int button, int state, int x, int y) {

@@ -122,39 +122,39 @@ void RagdollDemo::GenerateContacts() {
     plane.Offset					= 0;
 
     // Set up the collision data structure
-    CData.Reset(MaxContacts);
-    CData.Friction					= (double)0.9;
-    CData.Restitution				= (double)0.6;
-    CData.Tolerance					= (double)0.1;
+    Collisions.Reset(MaxContacts);
+    Collisions.Friction					= (double)0.9;
+    Collisions.Restitution				= (double)0.6;
+    Collisions.Tolerance				= (double)0.1;
 
     // Perform exhaustive collision detection on the ground plane
     cyclone::Matrix4					transform	, otherTransform;
     cyclone::Vector3					position	, otherPosition;
     for (Bone *bone = Bones; bone < Bones + NUM_BONES; bone++) {
 		// Check for collisions with the ground plane
-		if (!CData.HasMoreContacts()) 
+		if (!Collisions.HasMoreContacts()) 
 			return;
 
-		cyclone::CollisionDetector::boxAndHalfSpace(*bone, plane, &CData);
+		cyclone::CollisionDetector::boxAndHalfSpace(*bone, plane, &Collisions);
 		cyclone::CollisionSphere			boneSphere			= bone->getCollisionSphere();
 		for (Bone *other = bone+1; other < Bones + NUM_BONES; other++) {	// Check for collisions with each other box
-			if (!CData.HasMoreContacts()) 
+			if (!Collisions.HasMoreContacts()) 
 				return;
 			cyclone::CollisionSphere otherSphere = other->getCollisionSphere();
 			cyclone::CollisionDetector::sphereAndSphere(
 			    boneSphere,
 			    otherSphere,
-			    &CData
+			    &Collisions
 			    );
         }
 	}
 
 	// Check for joint violation
 	for (cyclone::Joint *joint = Joints; joint < Joints + NUM_JOINTS; joint++) {
-		if (!CData.HasMoreContacts()) 
+		if (!Collisions.HasMoreContacts()) 
 			return;
-		unsigned added = joint->AddContact(CData.Contacts, CData.ContactsLeft);
-		CData.AddContacts(added);
+		uint32_t added = joint->AddContact(Collisions.Contacts, Collisions.ContactsLeft);
+		Collisions.AddContacts(added);
 	}
 }
 
@@ -184,7 +184,7 @@ void RagdollDemo::Reset()
 		{ Random.randomBinomial(4.0f), Random.randomBinomial(3.0f), 0}
 	    );
 
-	CData.ContactCount = 0;	// Reset the contacts
+	Collisions.ContactCount = 0;	// Reset the contacts
 }
 
 void RagdollDemo::UpdateObjects(double duration) {

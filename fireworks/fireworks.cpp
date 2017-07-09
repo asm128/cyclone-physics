@@ -230,7 +230,7 @@ void FireworksDemo::Create(uint32_t type, uint32_t number, const Firework *paren
 }
 
 void FireworksDemo::Update() {
-	double duration = TimingData::get().lastFrameDuration * 0.001;	// Find the duration of the last frame in seconds
+	double duration = TimingData::get().LastFrameDuration * 0.001;	// Find the duration of the last frame in seconds
 	if (duration <= 0.0) 
 		return;
 

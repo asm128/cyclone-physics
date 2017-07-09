@@ -1,188 +1,122 @@
-/*
- * Timing functions, frame management and profiling.
- *
- * Part of the Cyclone physics system.
- *
- * Copyright (c) Ian Millington 2003-2006. All Rights Reserved.
- *
- * This software is distributed under licence. Use of this software
- * implies agreement with all terms and conditions of the accompanying
- * software licence.
- */
-
+// Timing functions, frame management and profiling.
+// Copyright (c) Icosagon 2003. Published by Ian Millington under the MIT License for his book "Game Physics Engine Development" or something like that (a really good book that I actually bought in paperback after reading it).
+// Heavily modified by asm128 in order to make this code readable and free of potential bugs and inconsistencies and a large set of sources of problems and improductivity originally introduced thanks to poor advice, bad practices and OOP vices.
 #include "timing.h"
 
-
-// Hold internal timing data for the performance counter.
-static bool qpcFlag;
-
-#if (__APPLE__ || __unix)
+#if (__APPLE__ || __unix)	// assume unix based OS
 	#define TIMING_UNIX	1
-
 	#include <stdlib.h>
 	#include <sys/time.h>
-
-	// assume unix based OS
 	typedef unsigned long long	LONGLONG;
-#else
+#else	// assume windows
 	#define TIMING_WINDOWS	1
-	// assume windows
-
-	// Import the high performance timer (c. 4ms).
 	#include <windows.h>
-	#include <mmsystem.h>
-
+	#include <mmsystem.h>	// Import the high performance timer (c. 4ms).
 	static double qpcFrequency;
 #endif
 
-
+static bool qpcFlag;		// Hold internal timing data for the performance counter.
 
 // Internal time and clock access functions
-unsigned systemTime()
-{
+uint32_t									systemTime									()						{
 #if TIMING_UNIX
-	struct timeval tv;
+	struct timeval									tv;
 	gettimeofday(&tv, 0);
 
 	return tv.tv_sec * 1000 + tv.tv_usec/1000;
-
 #else
-    if(qpcFlag)
-    {
-        static LONGLONG qpcMillisPerTick;
-        QueryPerformanceCounter((LARGE_INTEGER*)&qpcMillisPerTick);
-        return (unsigned)(qpcMillisPerTick * qpcFrequency);
-    }
-    else
-    {
-        return unsigned(timeGetTime());
-    }
+	if(!qpcFlag)
+		return (uint32_t)timeGetTime();
+	static LONGLONG qpcMillisPerTick;
+	QueryPerformanceCounter((LARGE_INTEGER*)&qpcMillisPerTick);
+	return (uint32_t)(qpcMillisPerTick * qpcFrequency);
 #endif
-
 }
 
-unsigned TimingData::getTime()
-{
-    return systemTime();
-}
+uint32_t									TimingData::getTime							()						{ return systemTime(); }
 
 #if TIMING_WINDOWS
-unsigned long systemClock()
-{
-    __asm {
-    	rdtsc;
-    }
-}
+uint64_t									systemClock									()						{ return __rdtsc(); }
 #endif
 
-unsigned long TimingData::getClock()
-{
-
+unsigned long								TimingData::getClock						()						{
 #if TIMING_UNIX
-	struct timeval tv;
+	struct timeval									tv;
 	gettimeofday(&tv, 0);
 
 	return tv.tv_sec * 1000 + tv.tv_usec/1000;
 #else
-    return systemClock();
+	return systemClock();
 #endif
 }
 
 // Sets up the timing system and registers the performance timer.
-void initTime()
-{
+void										initTime									()						{
 #if TIMING_UNIX
-    qpcFlag = false;
+	qpcFlag										= false;
 #else
-    LONGLONG time;
-
-    qpcFlag = (QueryPerformanceFrequency((LARGE_INTEGER*)&time) > 0);
-
-    // Check if we have access to the performance counter at this
-    // resolution.
-    if (qpcFlag) qpcFrequency = 1000.0 / time;
+	LONGLONG										time;
+	qpcFlag										= (QueryPerformanceFrequency((LARGE_INTEGER*)&time) > 0);
+	if (qpcFlag)	// Check if we have access to the performance counter at this resolution.
+		qpcFrequency								= 1000.0 / time;
 #endif
 }
 
-
-// Holds the global frame time that is passed around
-static TimingData *timingData = NULL;
+static TimingData *timingData = NULL;	// Holds the global frame time that is passed around
 
 // Retrieves the global frame info instance
-TimingData& TimingData::get()
-{
-    return (TimingData&)*timingData;
-}
+TimingData&									TimingData::get								()						{ return (TimingData&)*timingData; }
 
 // Updates the global frame information. Should be called once per frame.
-void TimingData::update()
-{
-    if (!timingData) return;
+void										TimingData::update							()						{
+	if (!timingData) 
+		return;
 
-    // Advance the frame number.
-    if (!timingData->isPaused)
-    {
-        timingData->frameNumber++;
-    }
+	if (!timingData->IsPaused)	// Advance the frame number.
+		++timingData->FrameNumber;
 
-    // Update the timing information.
-    unsigned thisTime = systemTime();
-    timingData->lastFrameDuration = thisTime -
-        timingData->lastFrameTimestamp;
-    timingData->lastFrameTimestamp = thisTime;
+	uint32_t										thisTime									= systemTime();	// Update the timing information.
+	timingData->LastFrameDuration				= thisTime - timingData->LastFrameTimestamp;
+	timingData->LastFrameTimestamp				= thisTime;
 
-    // Update the tick information.
-    unsigned long thisClock = getClock();
-    timingData->lastFrameClockTicks =
-    thisClock - timingData->lastFrameClockstamp;
-    timingData->lastFrameClockstamp = thisClock;
+	// Update the tick information.
+	uint64_t										thisClock									= getClock();
+	timingData->LastFrameClockTicks				= thisClock - timingData->LastFrameClockstamp;
+	timingData->LastFrameClockstamp				= thisClock;
 
-    // Update the RWA frame rate if we are able to.
-    if (timingData->frameNumber > 1) {
-        if (timingData->averageFrameDuration <= 0)
-        {
-            timingData->averageFrameDuration =
-                (double)timingData->lastFrameDuration;
-        }
-        else
-        {
-            // RWA over 100 frames.
-            timingData->averageFrameDuration *= 0.99;
-            timingData->averageFrameDuration +=
-                0.01 * (double)timingData->lastFrameDuration;
-
-            // Invert to get FPS
-            timingData->fps =
-                (float)(1000.0/timingData->averageFrameDuration);
-        }
-    }
+	// Update the RWA frame rate if we are able to.
+	if (timingData->FrameNumber > 1) {
+		if (timingData->AverageFrameDuration <= 0)
+			timingData->AverageFrameDuration			= (double)timingData->LastFrameDuration;
+		else {
+			// RWA over 100 frames.
+			timingData->AverageFrameDuration			*= 0.99;
+			timingData->AverageFrameDuration			+= 0.01 * (double)timingData->LastFrameDuration;
+			timingData->FramesPerSecond					= (float)(1000.0/timingData->AverageFrameDuration);	// Invert to get FPS
+		}
+	}
 }
 
-void TimingData::init()
-{
-    // Set up the timing system.
-    initTime();
-
-    // Create the frame info object
-    if (!timingData) timingData = new TimingData();
-
-    // Set up the frame info structure.
-    timingData->frameNumber = 0;
-
-    timingData->lastFrameTimestamp = systemTime();
-    timingData->lastFrameDuration = 0;
-
-    timingData->lastFrameClockstamp = getClock();
-    timingData->lastFrameClockTicks = 0;
-
-    timingData->isPaused = false;
-
-    timingData->averageFrameDuration = 0;
-    timingData->fps = 0;
+void										TimingData::deinit							()						{
+	if(timingData) {
+		delete timingData;
+		timingData									= 0;
+	}
 }
 
-void TimingData::deinit()
-{
-        delete timingData;
-        timingData = NULL;
+void										TimingData::init							()						{
+	initTime();	// Set up the timing system.
+
+	if (0 == timingData)		// Create the frame info object
+		timingData									= new TimingData();
+
+	// Set up the frame info structure.
+	timingData->FrameNumber						= 0;
+	timingData->LastFrameTimestamp				= systemTime();
+	timingData->LastFrameDuration				= 0;
+	timingData->LastFrameClockstamp				= getClock();
+	timingData->LastFrameClockTicks				= 0;
+	timingData->IsPaused						= false;
+	timingData->AverageFrameDuration			= 0;
+	timingData->FramesPerSecond					= 0;
 }

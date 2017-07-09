@@ -5,37 +5,33 @@
 #include "ogl_headers.h"	// Include appropriate OpenGL headers.
 #include "timing.h"			// Include the timing functions
 
-
-extern Application*		getApplication();	// Forward declaration of the function that will return the application object for this particular demo. This should be implemented in the demo's .cpp file.
+extern Application*		getApplication			();	// Forward declaration of the function that will return the application object for this particular demo. This should be implemented in the demo's .cpp file.
 
 Application				* app					= nullptr;	// Store the global application object.
 
-// Creates a window in which to display the scene.
-void					createWindow			(const char* title)									{
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutInitWindowSize(640,320);
-	glutInitWindowPosition(0,0);
-	glutCreateWindow(title);
-}
-
-// Called each frame to update the 3D scene. Delegates to the application.
-void					update					()													{
-	TimingData::get().update();	// Update the timing.
-	app->Update();				// Delegate to the application.
-}
-
-// Called each frame to display the 3D scene. Delegates to the application.
-void					display					()													{
-	app->Display();
-	// Update the displayed content.
-	glFlush();
-	glutSwapBuffers();
-}
 
 void					mouse					(int button, int state, int x, int y)				{ app->Mouse(button, state, x, y);	}	// Called when a mouse button is pressed. Delegates to the application.
 void					reshape					(int width, int height)								{ app->Resize(width, height);		}	// Called when the display window changes size.
 void					keyboard				(unsigned char key, int /*x*/, int /*y*/)			{ app->Key(key);					}	// Called when a key is pressed. Note we omit passing on the x and y: they are rarely needed.
 void					motion					(int x, int y)										{ app->MouseDrag(x, y);				}	// Called when the mouse is dragged.
+void					createWindow			(const char* title)									{	// Creates a window in which to display the scene.
+	glutInitDisplayMode		(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+	glutInitWindowSize		(640,320);
+	glutInitWindowPosition	(0,0);
+	glutCreateWindow		(title);
+}
+
+void					update					()													{	// Called each frame to update the 3D scene. Delegates to the application.
+	TimingData::get().update();	// Update the timing.
+	app->Update();				// Delegate to the application.
+}
+
+void					display					()													{	// Called each frame to display the 3D scene. Delegates to the application.
+	app->Display();
+	// Update the displayed content.
+	glFlush();
+	glutSwapBuffers();
+}
 
 // The main entry point. We pass arguments onto GLUT.
 int						main					(int argc, char** argv)								{

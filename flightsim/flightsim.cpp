@@ -196,7 +196,7 @@ void FlightSimDemo::Display()
 void FlightSimDemo::Update()
 {
     // Find the duration of the last frame in seconds
-    float						duration						= (float)TimingData::get().lastFrameDuration * 0.001f;
+    float						duration						= (float)TimingData::get().LastFrameDuration * 0.001f;
     if (duration <= 0.0f) 
 		return;
 

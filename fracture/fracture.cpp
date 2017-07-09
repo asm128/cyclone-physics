@@ -224,18 +224,18 @@ FractureDemo::FractureDemo()
 
 void FractureDemo::GenerateContacts()
 {
-	Hit												= false;
+	Hit													= false;
 
 	// Create the ground plane data
-	cyclone::CollisionPlane								plane;
-	plane.Direction									= {0,1,0};
-	plane.Offset									= 0;
+	cyclone::CollisionPlane									plane;
+	plane.Direction										= {0,1,0};
+	plane.Offset										= 0;
 
 	// Set up the collision data structure
-	CData.Reset(MaxContacts);
-	CData.Friction									= (double)0.9;
-	CData.Restitution								= (double)0.2;
-	CData.Tolerance									= (double)0.1;
+	Collisions.Reset(MaxContacts);
+	Collisions.Friction									= (double)0.9;
+	Collisions.Restitution								= (double)0.2;
+	Collisions.Tolerance								= (double)0.1;
 
 	// Perform collision detection
 	cyclone::Matrix4									transform, otherTransform;
@@ -245,18 +245,18 @@ void FractureDemo::GenerateContacts()
 			continue;
 
 		// Check for collisions with the ground plane
-		if (!CData.HasMoreContacts()) 
+		if (!Collisions.HasMoreContacts()) 
 			return;
 
-		cyclone::CollisionDetector::boxAndHalfSpace(*block, plane, &CData);
+		cyclone::CollisionDetector::boxAndHalfSpace(*block, plane, &Collisions);
 
 		if (Ball_active) {
 			// And with the sphere
-			if (!CData.HasMoreContacts()) 
+			if (!Collisions.HasMoreContacts()) 
 				return;
-			if (cyclone::CollisionDetector::boxAndSphere(*block, Ball, &CData)) {
+			if (cyclone::CollisionDetector::boxAndSphere(*block, Ball, &Collisions)) {
 				Hit												= true;
-				Fracture_contact								= CData.ContactCount-1;
+				Fracture_contact								= Collisions.ContactCount-1;
 			}
 		}
 
@@ -264,17 +264,17 @@ void FractureDemo::GenerateContacts()
 		for (Block *other = block+1; other < Blocks + MAX_BLOCKS; other++) {
 			if (!other->Exists) 
 				continue;
-			if (!CData.HasMoreContacts()) 
+			if (!Collisions.HasMoreContacts()) 
 				return;
-			cyclone::CollisionDetector::boxAndBox(*block, *other, &CData);
+			cyclone::CollisionDetector::boxAndBox(*block, *other, &Collisions);
 		}
 	}
 
 	// Check for sphere ground collisions
 	if (Ball_active) {
-		if (!CData.HasMoreContacts()) 
+		if (!Collisions.HasMoreContacts()) 
 			return;
-		cyclone::CollisionDetector::sphereAndHalfSpace(Ball, plane, &CData);
+		cyclone::CollisionDetector::sphereAndHalfSpace(Ball, plane, &Collisions);
 	}
 }
 
@@ -321,14 +321,14 @@ void FractureDemo::Reset()
 
     Hit = false;
 
-    CData.ContactCount = 0;	// Reset the contacts
+    Collisions.ContactCount = 0;	// Reset the contacts
 }
 
 void FractureDemo::Update() {
 	RigidBodyApplication::Update();
 	if (Hit) {	// Handle fractures.
 		Blocks[0].DivideBlock(
-			CData.ContactArray[Fracture_contact],
+			Collisions.ContactArray[Fracture_contact],
 			Blocks,
 			Blocks+1
 			);
