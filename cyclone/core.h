@@ -1,8 +1,7 @@
 // The core contains utility functions, helpers and a basic set of mathematical types.
 // Copyright (c) Icosagon 2003. Published by Ian Millington under the MIT License for his book "Game Physics Engine Development" or something like that (a really good book that I actually bought in paperback after reading it).
 // Heavily modified by asm128 in order to make this code readable and free of potential bugs and inconsistencies and a large set of sources of problems and improductivity originally introduced thanks to poor advice, bad practices and OOP vices.
-
-
+//
 // -- Cyclone Reference
 //
 // Cyclone is a general purpose and robust system for real-time simulation of rigid bodies. The library was designed to be used in computer games, but may be applicable to other areas of simulation or research.
@@ -222,61 +221,50 @@ namespace cyclone {
 
 	// Holds a transform matrix, consisting of a rotation matrix and a position. The matrix has 12 elements, it is assumed that the remaining four are (0,0,0,1); producing a homogenous matrix.
 	struct Matrix4 {
-		// Holds the transform matrix data in array form.
-		real data[12];
+		real data[12];						// Holds the transform matrix data in array form.
 		// Creates an identity matrix.
-		Matrix4()
-		{
-		    data[1] = data[2] = data[3] = data[4] = data[6] =
-		        data[7] = data[8] = data[9] = data[11] = 0;
-		    data[0] = data[5] = data[10] = 1;
+		Matrix4() {
+			data[1] = data[2] = data[3] = data[4] = data[6] = data[7] = data[8] = data[9] = data[11] = 0;
+			data[0] = data[5] = data[10] = 1;
 		}
 		
 		// Sets the matrix to be a diagonal matrix with the given coefficients.
 		void setDiagonal(real a, real b, real c) {
-		    data[0] = a;
-		    data[5] = b;
+			data[0] = a;
+			data[5] = b;
 		    data[10] = c;
 		}
 		
 		// Returns a matrix which is this matrix multiplied by the given other matrix.
-		Matrix4			operator*						(const Matrix4 &o)																	const
-		{
-            Matrix4 result;
-            result.data[0] = (o.data[0]*data[0]) + (o.data[4]*data[1]) + (o.data[8]*data[2]);
-            result.data[4] = (o.data[0]*data[4]) + (o.data[4]*data[5]) + (o.data[8]*data[6]);
-            result.data[8] = (o.data[0]*data[8]) + (o.data[4]*data[9]) + (o.data[8]*data[10]);
+		Matrix4			operator*						(const Matrix4 &o)																	const	{
+			Matrix4				result;
+			result.data[0]	= (o.data[0]*data[0]) + (o.data[4]*data[1]) + (o.data[8]*data[2]);
+			result.data[4]	= (o.data[0]*data[4]) + (o.data[4]*data[5]) + (o.data[8]*data[6]);
+			result.data[8]	= (o.data[0]*data[8]) + (o.data[4]*data[9]) + (o.data[8]*data[10]);
 
-            result.data[1] = (o.data[1]*data[0]) + (o.data[5]*data[1]) + (o.data[9]*data[2]);
-            result.data[5] = (o.data[1]*data[4]) + (o.data[5]*data[5]) + (o.data[9]*data[6]);
-            result.data[9] = (o.data[1]*data[8]) + (o.data[5]*data[9]) + (o.data[9]*data[10]);
+			result.data[1]	= (o.data[1]*data[0]) + (o.data[5]*data[1]) + (o.data[9]*data[2]);
+			result.data[5]	= (o.data[1]*data[4]) + (o.data[5]*data[5]) + (o.data[9]*data[6]);
+			result.data[9]	= (o.data[1]*data[8]) + (o.data[5]*data[9]) + (o.data[9]*data[10]);
 
-            result.data[2] = (o.data[2]*data[0]) + (o.data[6]*data[1]) + (o.data[10]*data[2]);
-            result.data[6] = (o.data[2]*data[4]) + (o.data[6]*data[5]) + (o.data[10]*data[6]);
-            result.data[10] = (o.data[2]*data[8]) + (o.data[6]*data[9]) + (o.data[10]*data[10]);
+			result.data[2]	= (o.data[2]*data[0]) + (o.data[6]*data[1]) + (o.data[10]*data[2]);
+			result.data[6]	= (o.data[2]*data[4]) + (o.data[6]*data[5]) + (o.data[10]*data[6]);
+			result.data[10]	= (o.data[2]*data[8]) + (o.data[6]*data[9]) + (o.data[10]*data[10]);
 
-            result.data[3] = (o.data[3]*data[0]) + (o.data[7]*data[1]) + (o.data[11]*data[2]) + data[3];
-            result.data[7] = (o.data[3]*data[4]) + (o.data[7]*data[5]) + (o.data[11]*data[6]) + data[7];
-            result.data[11] = (o.data[3]*data[8]) + (o.data[7]*data[9]) + (o.data[11]*data[10]) + data[11];
+			result.data[3]	= (o.data[3]*data[0]) + (o.data[7]*data[1]) + (o.data[11]*data[2]) + data[3];
+			result.data[7]	= (o.data[3]*data[4]) + (o.data[7]*data[5]) + (o.data[11]*data[6]) + data[7];
+			result.data[11]	= (o.data[3]*data[8]) + (o.data[7]*data[9]) + (o.data[11]*data[10]) + data[11];
 
-            return result;
-        }
+			return result;
+		}
 
         // Transform the given vector by this matrix.
-        Vector3 operator*(const Vector3 &vector) const
-        {
-            return 
-			{   vector.x * data[0] +
-				vector.y * data[1] +
-				vector.z * data[2] + data[3]
-			,	vector.x * data[4] +
-				vector.y * data[5] +
-				vector.z * data[6] + data[7]
-			,	vector.x * data[8] +
-				vector.y * data[9] +
-				vector.z * data[10] + data[11]
-			};
-        }
+		Vector3 operator*(const Vector3 &vector) const {
+			return 
+				{	vector.x * data[0] + vector.y * data[1] + vector.z * data[2] + data[3]
+				,	vector.x * data[4] + vector.y * data[5] + vector.z * data[6] + data[7]
+				,	vector.x * data[8] + vector.y * data[9] + vector.z * data[10] + data[11]
+				};
+		}
 
         
         void			setInverse			(const Matrix4 &matrixToInvert);		// Sets the matrix to be the inverse of the given matrix. matrixToInvert: The matrix to invert and use to set this.
@@ -292,15 +280,9 @@ namespace cyclone {
 		// Transform the given direction vector by this matrix. When a direction is converted between frames of reference, there is no translation required.
 		Vector3			transformDirection		(const Vector3 &vector)							const	{
 			return 
-				{	vector.x * data[0] +
-					vector.y * data[1] +
-					vector.z * data[2]
-				,	vector.x * data[4] +
-					vector.y * data[5] +
-					vector.z * data[6]
-				,	vector.x * data[8] +
-					vector.y * data[9] +
-					vector.z * data[10]
+				{	vector.x * data[0] + vector.y * data[1] + vector.z * data[2]
+				,	vector.x * data[4] + vector.y * data[5] + vector.z * data[6]
+				,	vector.x * data[8] + vector.y * data[9] + vector.z * data[10]
 				};
         }
 
@@ -309,15 +291,9 @@ namespace cyclone {
 		// When a direction is converted between frames of reference, there is no translation required.
         Vector3		transformInverseDirection	(const Vector3 &vector)							const	{
             return 
-				{	vector.x * data[0] +
-					vector.y * data[4] +
-					vector.z * data[8]
-				,	vector.x * data[1] +
-					vector.y * data[5] +
-					vector.z * data[9]
-				,	vector.x * data[2] +
-					vector.y * data[6] +
-					vector.z * data[10]
+				{	vector.x * data[0] + vector.y * data[4] + vector.z * data[8]
+				,	vector.x * data[1] + vector.y * data[5] + vector.z * data[9]
+				,	vector.x * data[2] + vector.y * data[6] + vector.z * data[10]
 				};
         }
 
@@ -330,16 +306,10 @@ namespace cyclone {
 			tmp.y					-= data[7];
 			tmp.z					-= data[11];
 			return 
-				{	tmp.x * data[0] +
-					tmp.y * data[4] +
-					tmp.z * data[8]
-				,	tmp.x * data[1] +
-					tmp.y * data[5] +
-					tmp.z * data[9]
-				,	tmp.x * data[2] +
-					tmp.y * data[6] +
-					tmp.z * data[10]
-			};
+				{	tmp.x * data[0] + tmp.y * data[4] + tmp.z * data[8]
+				,	tmp.x * data[1] + tmp.y * data[5] + tmp.z * data[9]
+				,	tmp.x * data[2] + tmp.y * data[6] + tmp.z * data[10]
+				};
 		}
 
         Vector3		getAxisVector				(int i)											const	{ return {data[i], data[i+4], data[i+8]}; }		// Gets a vector representing one axis (i.e. one column) in the matrix. i: The row to return. Row 3 corresponds to the position of the transform matrix.

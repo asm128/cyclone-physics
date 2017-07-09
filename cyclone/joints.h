@@ -1,25 +1,10 @@
-/*
- * Interface file for joints between rigid bodies.
- *
- * Part of the Cyclone physics system.
- *
- * Copyright (c) Icosagon 2003. All Rights Reserved.
- *
- * This software is distributed under licence. Use of this software
- * implies agreement with all terms and conditions of the accompanying
- * software licence.
- */
+// This file contains the definitions for joints that link together different rigid bodies.
+// Copyright (c) Icosagon 2003. Published by Ian Millington under the MIT License for his book "Game Physics Engine Development" or something like that (a really good book that I actually bought in paperback after reading it).
+// Heavily modified by asm128 in order to make this code readable and free of potential bugs and inconsistencies and a large set of sources of problems and improductivity originally introduced thanks to poor advice, bad practices and OOP vices.
+#include "contacts.h"
 
-/**
- * @file
- *
- * This file contains the definitions for joints that link together
- * different rigid bodies.
- */
 #ifndef CYCLONE_JOINTS_H
 #define CYCLONE_JOINTS_H
-
-#include "contacts.h"
 
 namespace cyclone {
 
@@ -33,13 +18,13 @@ namespace cyclone {
 
         // Holds the maximum displacement at the joint before the joint is considered to be violated. This is normally a small, epsilon value. 
 		// It can be larger, however, in which case the joint will behave as if an inelastic cable joined the bodies at their joint locations.
-        real		Error;
+        double		Error;
 
         // Configures the joint in one go.
         void		set
 			( RigidBody *a, const Vector3& a_pos
             , RigidBody *b, const Vector3& b_pos
-            , real error
+            , double error
             );
 
         

@@ -1,14 +1,5 @@
-/*
- * Implementation file for random number generation.
- *
- * Part of the Cyclone physics system.
- *
- * Copyright (c) Icosagon 2003. All Rights Reserved.
- *
- * This software is distributed under licence. Use of this software
- * implies agreement with all terms and conditions of the accompanying
- * software licence.
- */
+// Copyright (c) Icosagon 2003. Published by Ian Millington under the MIT License for his book "Game Physics Engine Development" or something like that (a really good book that I actually bought in paperback after reading it).
+// Heavily modified by asm128 in order to make this code readable and free of potential bugs and inconsistencies and a large set of sources of problems and improductivity originally introduced thanks to poor advice, bad practices and OOP vices.
 #include "random.h"
 
 #include <cstdlib>
@@ -21,22 +12,18 @@ Random::Random()
     seed(0);
 }
 
-Random::Random(unsigned seed)
+Random::Random(uint32_t seed)
 {
     Random::seed(seed);
 }
 
-void Random::seed(unsigned s)
+void Random::seed(uint32_t s)
 {
-    if (s == 0) {
-        s = (unsigned)clock();
-    }
+    if (s == 0) 
+        s = (uint32_t)clock();
 
-    // Fill the buffer with some basic random numbers
-    for (unsigned i = 0; i < 17; i++)
-    {
-        // Simple linear congruential generator
-        s = s * 2891336453 + 1;
+    for (uint32_t i = 0; i < 17; i++) {	// Fill the buffer with some basic random numbers
+        s = s * 2891336453 + 1;	// Simple linear congruential generator
         buffer[i] = s;
     }
 
@@ -44,17 +31,8 @@ void Random::seed(unsigned s)
     p1 = 0;  p2 = 10;
 }
 
-unsigned Random::rotl(unsigned n, unsigned r)
-{
-	  return	(n << r) |
-			  (n >> (32 - r));
-}
-
-unsigned Random::rotr(unsigned n, unsigned r)
-{
-	  return	(n >> r) |
-				(n << (32 - r));
-}
+unsigned Random::rotl(uint32_t n, uint32_t r) { return (n << r) | (n >> (32 - r)); }
+unsigned Random::rotr(uint32_t n, uint32_t r) { return (n >> r) | (n << (32 - r)); }
 
 unsigned Random::randomBits()
 {

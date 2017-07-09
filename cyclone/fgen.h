@@ -3,6 +3,7 @@
 // Heavily modified by asm128 in order to make this code readable and free of potential bugs and inconsistencies and a large set of sources of problems and improductivity originally introduced thanks to poor advice, bad practices and OOP vices.
 #include "body.h"
 #include "pfgen.h"
+
 #include <vector>
 
 #ifndef CYCLONE_FGEN_H

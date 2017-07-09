@@ -1,14 +1,5 @@
-/*
- * Implementation file for random number generation.
- *
- * Part of the Cyclone physics system.
- *
- * Copyright (c) Icosagon 2003. All Rights Reserved.
- *
- * This software is distributed under licence. Use of this software
- * implies agreement with all terms and conditions of the accompanying
- * software licence.
- */
+// Copyright (c) Icosagon 2003. Published by Ian Millington under the MIT License for his book "Game Physics Engine Development" or something like that (a really good book that I actually bought in paperback after reading it).
+// Heavily modified by asm128 in order to make this code readable and free of potential bugs and inconsistencies and a large set of sources of problems and improductivity originally introduced thanks to poor advice, bad practices and OOP vices.
 #include "world.h"
 
 #include <cstdlib>
@@ -47,19 +38,19 @@ void World::startFrame()
 
 unsigned World::GenerateContacts()
 {
-    unsigned limit = maxContacts;
+    uint32_t limit = maxContacts;
     Contact *nextContact = contacts;
 
     ContactGenRegistration * reg = firstContactGen;
     while (reg)
     {
-        unsigned used = reg->gen->AddContact(nextContact, limit);
+        uint32_t used = reg->gen->AddContact(nextContact, limit);
         limit -= used;
         nextContact += used;
 
-        // We've run out of contacts to fill. This means we're missing
-        // contacts.
-        if (limit <= 0) break;
+        // We've run out of contacts to fill. This means we're missing contacts.
+        if (limit <= 0) 
+			break;
 
         reg = reg->next;
     }
@@ -70,24 +61,20 @@ unsigned World::GenerateContacts()
 
 void World::runPhysics(real duration)
 {
-    // First apply the force generators
-    //registry.UpdateForces(duration);
+    //registry.UpdateForces(duration);	// First apply the force generators
 
     // Then integrate the objects
     BodyRegistration *reg = firstBody;
-    while (reg)
-    {
-        // Remove all forces from the accumulator
-        reg->body->integrate(duration);
-
-        // Get the next registration
-        reg = reg->next;
+    while (reg) {
+        reg->body->integrate(duration);	// Remove all forces from the accumulator
+        reg = reg->next;	// Get the next registration
     }
 
-    // Generate contacts
-    unsigned usedContacts = GenerateContacts();
+    
+    uint32_t usedContacts = GenerateContacts();	// Generate contacts
 
     // And process them
-    if (calculateIterations) resolver.setIterations(usedContacts * 4);
+    if (calculateIterations) 
+		resolver.setIterations(usedContacts * 4);
     resolver.resolveContacts(contacts, usedContacts, duration);
 }

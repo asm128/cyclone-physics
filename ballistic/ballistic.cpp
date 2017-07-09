@@ -190,8 +190,7 @@ void BallisticDemo::Display()
     }
 }
 
-void BallisticDemo::Mouse(int button, int state, int x, int y)
-{
+void BallisticDemo::Mouse(int button, int state, int x, int y) {
     // Fire the current weapon.
     if (state == GLUT_DOWN) 
 		Fire();
