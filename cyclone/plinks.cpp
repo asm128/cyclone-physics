@@ -37,8 +37,7 @@ unsigned ParticleCable::AddContact(ParticleContact *contact, uint32_t limit) con
     return 1;
 }
 
-unsigned ParticleRod::AddContact(ParticleContact *contact,
-                                  unsigned limit) const
+unsigned ParticleRod::AddContact(ParticleContact *contact, uint32_t limit) const
 {
     // Find the length of the rod
     real currentLen = currentLength();
@@ -78,8 +77,7 @@ real ParticleConstraint::currentLength() const
     return relativePos.magnitude();
 }
 
-unsigned ParticleCableConstraint::AddContact(ParticleContact *contact,
-                                   unsigned limit) const
+unsigned ParticleCableConstraint::AddContact(ParticleContact *contact, uint32_t limit) const
 {
     // Find the length of the cable
     real length = currentLength();
@@ -105,8 +103,7 @@ unsigned ParticleCableConstraint::AddContact(ParticleContact *contact,
     return 1;
 }
 
-unsigned ParticleRodConstraint::AddContact(ParticleContact *contact,
-                                 unsigned limit) const
+unsigned ParticleRodConstraint::AddContact(ParticleContact *contact, uint32_t limit) const
 {
     // Find the length of the rod
     real currentLen = currentLength();
