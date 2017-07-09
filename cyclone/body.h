@@ -56,13 +56,10 @@ namespace cyclone {
 		inline	Vector3						getDirectionInWorldSpace		(const Vector3 &direction)											const	{ return TransformMatrix.transformDirection			(direction);	}
 				void						setAwake						(const bool awake = true);
 				void						setCanSleep						(const bool canSleep = true);
-				void						addForce						(const Vector3 &force);
 				void						addForceAtPoint					(const Vector3 &force, const Vector3 &point);
-				void						addForceAtBodyPoint				(const Vector3 &force, const Vector3 &point)								{ addForceAtPoint(force, getPointInWorldSpace(point));				}	// Convert to coordinates relative to center of mass.
-				void						addTorque						(const Vector3 &torque);
-
-				void						addTorque						(const Vector3 &torque)														{ AccumulatedTorque	+= torque	; IsAwake = true;					}
-				void						addForce						(const Vector3 &force)														{ AccumulatedForce	+= force	; IsAwake = true;					}
+		inline	void						addForceAtBodyPoint				(const Vector3 &force, const Vector3 &point)								{ addForceAtPoint(force, getPointInWorldSpace(point));				}	// Convert to coordinates relative to center of mass.
+		inline	void						addTorque						(const Vector3 &torque)														{ AccumulatedTorque	+= torque	; IsAwake = true;					}
+		inline	void						addForce						(const Vector3 &force)														{ AccumulatedForce	+= force	; IsAwake = true;					}
 		inline	void						clearAccumulators				()																			{
 			AccumulatedForce	.clear();
 			AccumulatedTorque	.clear();

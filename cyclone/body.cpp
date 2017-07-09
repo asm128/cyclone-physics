@@ -162,7 +162,7 @@ void									RigidBody::setAwake						(const bool awake)										{
 }
 
 void									RigidBody::setCanSleep					(const bool canSleep)									{
-	RigidBody::CanSleep						= canSleep;
+	CanSleep								= canSleep;
 	if (!canSleep && !IsAwake) 
 		setAwake();
 }
