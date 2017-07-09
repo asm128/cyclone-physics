@@ -9,27 +9,29 @@ namespace cyclone {
 	// Keeps track of one random stream: i.e. a seed and its output. This is used to get random numbers. Rather than a funcion, this allows there to be several streams of repeatable random numbers at the same time. Uses the RandRotB algorithm.
 	class Random {
 		// Internal mechanics
-		int32_t									p1 = 0, p2										= 0;
-		uint32_t								buffer[17]										= {};
+		int32_t									p1												= 0;
+		int32_t									p2												= 0;
+		uint32_t								Buffer[17]										= {};
 	public:
-		uint32_t								rotl											(uint32_t n, uint32_t r);	// left bitwise rotation
-		uint32_t								rotr											(uint32_t n, uint32_t r);	// right bitwise rotation
+		inline									Random											()											{ Seed(0);		}	// Creates a new random number stream with a seed based on timing data.
+		inline									Random											(uint32_t seed)								{ Seed(seed);	}	// Creates a new random stream with the given seed.
 
-												Random											();							// Creates a new random number stream with a seed based on timing data.
-												Random											(uint32_t seed);			// Creates a new random stream with the given seed.
+		static inline	uint32_t				rotl											(uint32_t n, uint32_t r)					{ return (n << r) | (n >> (32 - r)); };	// left bitwise rotation
+		static inline	uint32_t				rotr											(uint32_t n, uint32_t r)					{ return (n >> r) | (n << (32 - r)); };	// right bitwise rotation
 
-		void									seed											(uint32_t seed);			// Sets the seed value for the random stream.
-		uint32_t								randomBits										();							// Returns the next random bitstring from the stream. This is the fastest method.
-		double									randomReal										();							// Returns a random floating point number between 0 and 1.
-		double									randomReal										(double scale);				// Returns a random floating point number between 0 and scale.
-		double									randomReal										(double min, double max);	// Returns a random floating point number between min and max.
-		uint32_t								randomInt										(uint32_t max);				// Returns a random integer less than the given value.
-		double									randomBinomial									(double scale);				// Returns a random binomially distributed number between -scale and +scale.
-		Vector3									randomVector									(double scale);				// Returns a random vector where each component is binomially distributed in the range (-scale to scale) [mean = 0.0f].
-		Vector3									randomVector									(const Vector3 &scale);		// Returns a random vector where each component is binomially distributed in the range (-scale to scale) [mean = 0.0f], where scale is the corresponding component of the given vector.
-		Vector3									randomVector									(const Vector3 &min, const Vector3 &max);	// Returns a random vector in the cube defined by the given minimum and maximum vectors. The probability is uniformly distributed in this region.
-		Vector3									randomXZVector									(double scale);				// Returns a random vector where each component is binomially distributed in the range (-scale to scale) [mean = 0.0f], except the y coordinate which is zero.
-		Quaternion								randomQuaternion								();							// Returns a random orientation (i.e. normalized) quaternion.
+		void									Seed											(uint32_t seed);			// Sets the seed value for the random stream.
+		uint32_t								RandomBits										();							// Returns the next random bitstring from the stream. This is the fastest method.
+		double									RandomReal										();							// Returns a random floating point number between 0 and 1.
+
+		inline uint32_t							RandomInt										(uint32_t max)								{ return RandomBits() % max;					}	// Returns a random integer less than the given value.
+		inline double							RandomReal										(double min, double max)					{ return RandomReal() * (max - min) + min;		}	// Returns a random floating point number between min and max.
+		inline double							RandomReal										(double scale)								{ return RandomReal() * scale;					}	// Returns a random floating point number between 0 and scale.
+		inline double							RandomBinomial									(double scale)								{ return (RandomReal() - RandomReal()) * scale;	}	// Returns a random binomially distributed number between -scale and +scale.
+		Vector3									RandomVector									(double scale);				// Returns a random vector where each component is binomially distributed in the range (-scale to scale) [mean = 0.0f].
+		Vector3									RandomVector									(const Vector3 &scale);		// Returns a random vector where each component is binomially distributed in the range (-scale to scale) [mean = 0.0f], where scale is the corresponding component of the given vector.
+		Vector3									RandomVector									(const Vector3 &min, const Vector3 &max);	// Returns a random vector in the cube defined by the given minimum and maximum vectors. The probability is uniformly distributed in this region.
+		Vector3									RandomXZVector									(double scale);				// Returns a random vector where each component is binomially distributed in the range (-scale to scale) [mean = 0.0f], except the y coordinate which is zero.
+		Quaternion								RandomQuaternion								();							// Returns a random orientation (i.e. normalized) quaternion.
 	};
 } // namespace cyclone
 

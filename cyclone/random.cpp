@@ -7,16 +7,13 @@
 
 using namespace cyclone;
 
-					Random::Random					()											{ seed(0); }
-					Random::Random					(uint32_t seed)								{ Random::seed(seed); }
-
-void				Random::seed					(uint32_t s)								{
+void				Random::Seed					(uint32_t s)								{
 	if (s == 0) 
 		s					= (uint32_t)clock();
 
 	for (uint32_t i = 0; i < 17; i++) {			// Fill the buffer with some basic random numbers
 		s					= s * 2891336453 + 1;	// Simple linear congruential generator
-		buffer[i]			= s;
+		Buffer[i]			= s;
 	}
 
 	// Initialize pointers into the buffer
@@ -24,10 +21,8 @@ void				Random::seed					(uint32_t s)								{
 	p2					= 10;
 }
 
-uint32_t			Random::rotl					(uint32_t n, uint32_t r)					{ return (n << r) | (n >> (32 - r)); }
-uint32_t			Random::rotr					(uint32_t n, uint32_t r)					{ return (n >> r) | (n << (32 - r)); }
-uint32_t			Random::randomBits				()											{
-	uint32_t				result = buffer[p1]				= rotl(buffer[p2], 13) + rotl(buffer[p1], 9);	// Rotate the buffer and store it back to itself
+uint32_t			Random::RandomBits				()											{
+	uint32_t				result = Buffer[p1]				= rotl(Buffer[p2], 13) + rotl(Buffer[p1], 9);	// Rotate the buffer and store it back to itself
 
 	// Rotate pointers
 	if (--p1 < 0) p1		= 16;
@@ -36,8 +31,8 @@ uint32_t			Random::randomBits				()											{
 	return result;	// Return result
 }
 
-double				Random::randomReal				()											{
-	uint32_t				bits				= randomBits();	// Get the random number
+double				Random::RandomReal				()											{
+	uint32_t				bits				= RandomBits();	// Get the random number
 	// Set up a reinterpret structure for manipulation
 	union {
 		double					value;
@@ -51,49 +46,45 @@ double				Random::randomReal				()											{
 	return convert.value - 1.0;	// And return the value
 }
 
-uint32_t			Random::randomInt				(uint32_t max)								{ return randomBits() % max;				}
-double				Random::randomReal				(double min, double max)					{ return randomReal() * (max-min) + min;	}
-double				Random::randomReal				(double scale)								{ return randomReal() * scale;				}
-double				Random::randomBinomial			(double scale)								{ return (randomReal()-randomReal())*scale; }
-Quaternion			Random::randomQuaternion		()											{
+Quaternion			Random::RandomQuaternion		()											{
 	Quaternion				q								=
-		{ randomReal()
-		, randomReal()
-		, randomReal()
-		, randomReal()
+		{ RandomReal()
+		, RandomReal()
+		, RandomReal()
+		, RandomReal()
 		};
 	q.normalise();
 	return q;
 }
 
-Vector3				Random::randomVector			(double scale)								{
+Vector3				Random::RandomVector			(double scale)								{
 	return 
-		{ randomBinomial(scale)
-		, randomBinomial(scale)
-		, randomBinomial(scale)
+		{ RandomBinomial(scale)
+		, RandomBinomial(scale)
+		, RandomBinomial(scale)
 		};
 }
 
-Vector3				Random::randomXZVector			(double scale)								{
+Vector3				Random::RandomXZVector			(double scale)								{
 	return 
-		{ randomBinomial(scale)
+		{ RandomBinomial(scale)
 		, 0
-		, randomBinomial(scale)
+		, RandomBinomial(scale)
 		};
 }
 
-Vector3				Random::randomVector			(const Vector3 &scale)						{
+Vector3				Random::RandomVector			(const Vector3 &scale)						{
 	return 
-		{ randomBinomial(scale.x)
-		, randomBinomial(scale.y)
-		, randomBinomial(scale.z)
+		{ RandomBinomial(scale.x)
+		, RandomBinomial(scale.y)
+		, RandomBinomial(scale.z)
 		};
 }
 
-Vector3				Random::randomVector			(const Vector3 &min, const Vector3 &max)	{
+Vector3				Random::RandomVector			(const Vector3 &min, const Vector3 &max)	{
 	return 
-		{ randomReal(min.x, max.x)
-		, randomReal(min.y, max.y)
-		, randomReal(min.z, max.z)
+		{ RandomReal(min.x, max.x)
+		, RandomReal(min.y, max.y)
+		, RandomReal(min.z, max.z)
 		};
 }

@@ -83,7 +83,7 @@ void									SailboatDemo::Update				()									{
 	Sailboat.clearAccumulators();	// Start with no forces or acceleration.
 	Registry.UpdateForces(duration);	// Add the forces acting on the boat.
 	Sailboat.integrate(duration);	// Update the boat's physics.
-	WindSpeed								= WindSpeed * 0.9f + R.randomXZVector(1.0f);	// Change the wind speed.
+	WindSpeed								= WindSpeed * 0.9f + R.RandomXZVector(1.0f);	// Change the wind speed.
 	Application::Update();
 }
 

@@ -170,13 +170,13 @@ void RagdollDemo::Reset()
 	Bones[10]	.setState({ 0.000, 5.946,  1.066}, {0.267, 0.888, 0.207});
 	Bones[11]	.setState({ 0.000, 4.024,  1.066}, {0.267, 0.888, 0.207});
 
-	double strength = -Random.randomReal(500.0f, 1000.0f);
+	double strength = -Random.RandomReal(500.0f, 1000.0f);
 	for (uint32_t i = 0; i < NUM_BONES; ++i)
 		Bones[i].Body->addForceAtBodyPoint( {strength, 0, 0}, {});
 
 	Bones[6].Body->addForceAtBodyPoint(
-		{ strength, 0, Random.randomBinomial(1000.0f)},
-		{ Random.randomBinomial(4.0f), Random.randomBinomial(3.0f), 0}
+		{ strength, 0, Random.RandomBinomial(1000.0f)},
+		{ Random.RandomBinomial(4.0f), Random.RandomBinomial(3.0f), 0}
 		);
 
 	Collisions.ContactCount = 0;	// Reset the contacts

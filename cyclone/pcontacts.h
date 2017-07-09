@@ -6,7 +6,7 @@
 #define CYCLONE_PCONTACTS_H
 
 namespace cyclone {
-    class ParticleContactResolver;	
+	class ParticleContactResolver;	
 	
 	// A Contact represents two objects in contact (in this case ParticleContact representing two Particles). 
 	// Resolving a contact removes their interpenetration, and applies sufficient impulse to keep them apart. Colliding bodies may also rebound.
@@ -52,11 +52,10 @@ namespace cyclone {
 		//
 		// duration			: The duration oF the previous integration step. This is used to compensate for forces applied.
 				void						ResolveContacts						(ParticleContact *contactArray, uint32_t numContacts, double duration);
-    };
+	};
 
-    // This is the basic polymorphic interface for contact generators applying to particles.
-	class ParticleContactGenerator {
-	public:
+	// This is the basic polymorphic interface for contact generators applying to particles.
+	struct ParticleContactGenerator {
 		virtual	uint32_t					AddContact							(ParticleContact *contact, uint32_t limit)								const	= 0;
 	};
 } // namespace cyclone

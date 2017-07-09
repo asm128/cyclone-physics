@@ -310,8 +310,8 @@ void FractureDemo::Reset()
 	Ball.Body->Position = {0,5.0f,20.0f};
     Ball.Body->setOrientation(1,0,0,0);
     Ball.Body->Velocity = {
-        Random.randomBinomial(4.0f),
-        Random.randomReal(1.0f, 6.0f),
+        Random.RandomBinomial(4.0f),
+        Random.RandomReal(1.0f, 6.0f),
         -20.0f
 	};
 	Ball.Body->Rotation = {};

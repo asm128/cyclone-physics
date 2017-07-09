@@ -68,7 +68,7 @@ struct FireworkRule {
 	// Creates a new firework of this type and writes it into the gi	ven instance. The optional parent firework is used to base position and velocity on.
 	void								create								(Firework *firework, const Firework *parent = NULL)																							const	{
 		firework->Type						= Type;
-		firework->Age						= crandom.randomReal(MinAge, MaxAge);
+		firework->Age						= crandom.RandomReal(MinAge, MaxAge);
 
 		::cyclone::Vector3						vel									= {};
 		if (parent) {	// The position and velocity are based on the parent.
@@ -77,12 +77,12 @@ struct FireworkRule {
 		}
 		else {
 			cyclone::Vector3						start;
-			int										x									= (int)crandom.randomInt(3) - 1;
+			int										x									= (int)crandom.RandomInt(3) - 1;
 			start.x								= 5.0f * (double)x;
 			firework->Position					= (start);
 		}
 
-		vel									+= crandom.randomVector(MinVelocity, MaxVelocity);
+		vel									+= crandom.RandomVector(MinVelocity, MaxVelocity);
 		firework->Velocity					= (vel);
 
 		// We use a mass of one in all cases (no point having fireworks with different masses, since they are only under the influence of gravity).

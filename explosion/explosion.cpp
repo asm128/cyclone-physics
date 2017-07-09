@@ -91,9 +91,9 @@ public:
         const static cyclone::Vector3	maxPos		= {5, 10, 5};
         cyclone::Random					r;
         setState
-            ( random->randomVector		(minPos, maxPos)
-            , random->randomQuaternion	()
-            , random->randomReal		(0.5f, 1.5f)
+            ( random->RandomVector		(minPos, maxPos)
+            , random->RandomQuaternion	()
+            , random->RandomReal		(0.5f, 1.5f)
             , cyclone::Vector3			()
             );
     }
@@ -172,9 +172,9 @@ public:
 		const static cyclone::Vector3	maxSize			= {4.5f, 1.5f, 1.5f};
 		
 		setState
-			( random->randomVector		(minPos, maxPos)
-			, random->randomQuaternion	()
-			, random->randomVector		(minSize, maxSize)
+			( random->RandomVector		(minPos, maxPos)
+			, random->RandomQuaternion	()
+			, random->RandomVector		(minSize, maxSize)
 			, cyclone::Vector3			()
 			);
 	}

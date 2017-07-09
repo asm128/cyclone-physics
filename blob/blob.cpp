@@ -8,19 +8,19 @@
 #include <stdio.h>
 #include <cassert>
 
-#define BLOB_COUNT 5
-#define PLATFORM_COUNT 10
-#define BLOB_RADIUS 0.4f
+#define BLOB_COUNT		5
+#define PLATFORM_COUNT	10
+#define BLOB_RADIUS		0.4f
 
 
 // Platforms are two dimensional: lines on which the particles can rest. Platforms are also contact generators for the physics.
 class Platform : public cyclone::ParticleContactGenerator {
 public:
-	::cyclone::Vector3					Start							= {};
-	::cyclone::Vector3					End								= {};
-	::cyclone::Particle					* Particles						= 0;	// Holds a pointer to the particles we're checking for collisions with.
+			::cyclone::Vector3			Start							= {};
+			::cyclone::Vector3			End								= {};
+			::cyclone::Particle			* Particles						= 0;	// Holds a pointer to the particles we're checking for collisions with.
 
-	virtual uint32_t					AddContact						(cyclone::ParticleContact *contact, uint32_t limit) const;
+	virtual	uint32_t					AddContact						(cyclone::ParticleContact *contact, uint32_t limit) const;
 };
 
 uint32_t								Platform::AddContact			(cyclone::ParticleContact *contact, uint32_t limit) const {
@@ -130,25 +130,33 @@ public:
 
 // The main demo class definition.
 class BlobDemo : public Application {
-	cyclone::Particle				* Blobs				= 0;
-	Platform						* Platforms			= 0;
-	cyclone::ParticleWorld			World				;
-	BlobForceGenerator				BlobForceGenerator	;
-	float							AxisX				= 0;						// The control for the x-axis.
-	float							AxisY				= 0;						// The control for the y-axis.
-	
-	void							Reset				();
+			cyclone::Particle			* Blobs				= 0;
+			Platform					* Platforms			= 0;
+			cyclone::ParticleWorld		World				;
+			BlobForceGenerator			BlobForceGenerator	;
+			float						AxisX				= 0;						// The control for the x-axis.
+			float						AxisY				= 0;						// The control for the y-axis.
+			
+			void						Reset				();
 public:
-	virtual							~BlobDemo			()										{ if(Blobs)	delete Blobs;		}		
-									BlobDemo			();
+	virtual								~BlobDemo			()										{ if(Blobs)	delete Blobs;		}		
+										BlobDemo			();
 
-	virtual const char*				GetTitle			()										{ return "Cyclone > Blob Demo";	}
-	virtual void					Display				();						// Display the particles. 
-	virtual void					Update				();						// Update the particle positions. 
-	virtual void					Key					(unsigned char key);	// Handle a key press. 
+	virtual	void						Display				();						// Display the particles. 
+	virtual	void						Update				();						// Update the particle positions. 
 
-	virtual void					Mouse				(int button, int state, int x, int y)	{};	// Called when GLUT detects a mouse button press.
-	virtual void					MouseDrag			(int x, int y)							{};	// Called when GLUT detects a mouse drag.
+	virtual	const char*					GetTitle			()										{ return "Cyclone > Blob Demo";	}
+	virtual	void						Mouse				(int button, int state, int x, int y)	{}	// Called when GLUT detects a mouse button press.
+	virtual	void						MouseDrag			(int x, int y)							{}	// Called when GLUT detects a mouse drag.
+	virtual	void						Key					(unsigned char key)						{
+		switch(key) {
+		case 'w': case 'W': AxisY				=  1.0;	break;
+		case 's': case 'S': AxisY				= -1.0;	break;
+		case 'a': case 'A': AxisX				= -1.0;	break;
+		case 'd': case 'D': AxisX				=  1.0;	break;
+		case 'r': case 'R': Reset();					break;
+		}
+	}
 };
 
 // Method definitions
@@ -176,16 +184,16 @@ BlobDemo::BlobDemo()
 			, i * 4.0f + ((i % 2) ? 0.0f : 2.0f)
 			, 0
 			};
-		Platforms[i].Start.x					+= r.randomBinomial(2.0f);
-		Platforms[i].Start.y					+= r.randomBinomial(2.0f);
+		Platforms[i].Start.x					+= r.RandomBinomial(2.0f);
+		Platforms[i].Start.y					+= r.RandomBinomial(2.0f);
 
 		Platforms[i].End						= 
 			{ (i % 2) * 10.0 + 5.0
 			, i * 4.0 + ((i % 2) ? 2.0 : 0.0)
 			, 0
 			};
-		Platforms[i].End.x						+= r.randomBinomial(2.0f);
-		Platforms[i].End.y						+= r.randomBinomial(2.0f);
+		Platforms[i].End.x						+= r.RandomBinomial(2.0f);
+		Platforms[i].End.y						+= r.RandomBinomial(2.0f);
 
 		// Make sure the platform knows which particles it should collide with.
 		Platforms[i].Particles					= Blobs;
@@ -198,7 +206,7 @@ BlobDemo::BlobDemo()
 	cyclone::Vector3			delta		= p->End - p->Start;
 	for (uint32_t i = 0; i < BLOB_COUNT; i++) {
 		uint32_t me = (i + BLOB_COUNT / 2) % BLOB_COUNT;
-		Blobs[i].Position = (p->Start + delta * (me * 0.8 * fraction + 0.1) + cyclone::Vector3{0, 1.0 + r.randomReal(), 0});
+		Blobs[i].Position = (p->Start + delta * (me * 0.8 * fraction + 0.1) + cyclone::Vector3{0, 1.0 + r.RandomReal(), 0});
 
 		Blobs[i].Velocity			= {};
 		Blobs[i].Damping			= 0.2f;
@@ -218,7 +226,7 @@ void BlobDemo::Reset() {
 	cyclone::Vector3	delta			= p->End - p->Start;
 	for (uint32_t i = 0; i < BLOB_COUNT; i++) {
 		uint32_t			me				= (i + BLOB_COUNT / 2) % BLOB_COUNT;
-		Blobs[i].Position					= (p->Start + delta * (me * 0.8 * fraction + 0.1) + cyclone::Vector3{0, 1.0 + r.randomReal(), 0});
+		Blobs[i].Position					= (p->Start + delta * (me * 0.8 * fraction + 0.1) + cyclone::Vector3{0, 1.0 + r.RandomReal(), 0});
 		Blobs[i].Velocity					= {};
 		Blobs[i].AccumulatedForce			= {};
 	}
@@ -302,16 +310,6 @@ void BlobDemo::Update()
 	Application::Update();
 }
 
-
-void BlobDemo::Key(unsigned char key) {
-	switch(key) {
-	case 'w': case 'W': AxisY =  1.0;	break;
-	case 's': case 'S': AxisY = -1.0;	break;
-	case 'a': case 'A': AxisX = -1.0;	break;
-	case 'd': case 'D': AxisX =  1.0;	break;
-	case 'r': case 'R': Reset();		break;
-	}
-}
 
 	
 Application* getApplication() { return new BlobDemo(); }	// Called by the common demo framework to create an application object (with new) and return a pointer.
