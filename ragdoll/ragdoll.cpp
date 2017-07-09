@@ -89,38 +89,32 @@ class RagdollDemo : public RigidBodyApplication {
 public:
 						RagdollDemo					();	// Creates a new demo object.
 
+	virtual const char*	GetTitle					()											{ return "Cyclone > Ragdoll Demo"; }
 	virtual void		InitGraphics				();	// Sets up the rendering.
-	virtual const char*	GetTitle					();	// Returns the window title for the demo.
 	virtual void		Display						();	// Display the particle positions.
 };
 
 // Method definitions
 RagdollDemo::RagdollDemo()
-    :
-    RigidBodyApplication()
+	: RigidBodyApplication()
 {
 	// -- Set up the bone hierarchy. --
-	joints[0]	.set(bones[0].Body, {0,  1.07f, 0}, bones[1].Body	, {0, -1.07f, 0}, 0.15f);	// Right Knee
-	joints[1]	.set(bones[2].Body, {0,  1.07f, 0}, bones[3].Body	, {0, -1.07f, 0}, 0.15f);	// Left Knee
-	joints[2]	.set(bones[9].Body, {0,  0.96f, 0}, bones[8].Body	, {0, -0.96f, 0}, 0.15f);	// Right elboW
-	joints[3]	.set(bones[11].Body, {0, 0.96f, 0}, bones[10].Body	, {0, -0.96f, 0}, 0.15f);	// Left elbow
+	joints[0]	.Set(bones[0]	.Body, {0, 1.07f, 0}		, bones[1]	.Body, {0, -1.07f, 0}, 0.15f);	// Right Knee
+	joints[1]	.Set(bones[2]	.Body, {0, 1.07f, 0}		, bones[3]	.Body, {0, -1.07f, 0}, 0.15f);	// Left Knee
+	joints[2]	.Set(bones[9]	.Body, {0, 0.96f, 0}		, bones[8]	.Body, {0, -0.96f, 0}, 0.15f);	// Right elboW
+	joints[3]	.Set(bones[11]	.Body, {0, 0.96f, 0}		, bones[10]	.Body, {0, -0.96f, 0}, 0.15f);	// Left elbow
 	
-	joints[7]	.set(bones[1].Body, {0, 1.066f, 0}		, bones[4].Body	, {0, -0.458f, -0.5f}	, 0.15f);	// Right hip
-	joints[8]	.set(bones[3].Body, {0, 1.066f, 0}		, bones[4].Body	, {0, -0.458f, 0.5f}	, 0.105f);	// Left Hip
-	joints[9]	.set(bones[6].Body, {0, 0.367f, -0.8f}	, bones[8].Body	, {0, 0.888f, 0.32f}	, 0.15f);	// Right shouLder  
-	joints[10]	.set(bones[6].Body, {0, 0.367f, 0.8f}	, bones[10].Body, {0, 0.888f, -0.32f}	, 0.15f);	// Left shoulDEr
+	joints[7]	.Set(bones[1]	.Body, {0, 1.066f, 0}		, bones[4]	.Body, {0, -0.458f, -0.5f}	, 0.15f);	// Right hip
+	joints[8]	.Set(bones[3]	.Body, {0, 1.066f, 0}		, bones[4]	.Body, {0, -0.458f, 0.5f}	, 0.105f);	// Left Hip
+	joints[9]	.Set(bones[6]	.Body, {0, 0.367f, -0.8f}	, bones[8]	.Body, {0, 0.888f, 0.32f}	, 0.15f);	// Right shouLder  
+	joints[10]	.Set(bones[6]	.Body, {0, 0.367f, 0.8f}	, bones[10]	.Body, {0, 0.888f, -0.32f}	, 0.15f);	// Left shoulDEr
 	
 	// Stomach to Waist
-	joints[4].set(bones[4].Body, { 0.054f,  0.50f, 0}	, bones[5].Body, {-0.043f, -0.45f, 0}	, 0.15f);	
-	joints[5].set(bones[5].Body, {-0.043f, 0.411f, 0}	, bones[6].Body, {0, -0.411f, 0}		, 0.15f);
-	joints[6].set(bones[6].Body, {0, 0.521f, 0}			, bones[7].Body, {0, -0.752f, 0}		, 0.15f);
+	joints[4]	.Set(bones[4]	.Body, { 0.054f,  0.50f, 0}	, bones[5]	.Body, {-0.043f, -0.45f, 0}	, 0.15f);	
+	joints[5]	.Set(bones[5]	.Body, {-0.043f, 0.411f, 0}	, bones[6]	.Body, {0, -0.411f, 0}		, 0.15f);
+	joints[6]	.Set(bones[6]	.Body, {0, 0.521f, 0}		, bones[7]	.Body, {0, -0.752f, 0}		, 0.15f);
 
 	Reset();	// Set up the initial positions
-}
-
-const char* RagdollDemo::GetTitle()
-{
-    return "Cyclone > Ragdoll Demo";
 }
 
 void RagdollDemo::GenerateContacts()
@@ -250,8 +244,8 @@ void RagdollDemo::Display()
     for (unsigned i = 0; i < NUM_JOINTS; i++)
     {
         cyclone::Joint *joint = joints + i;
-        cyclone::Vector3 a_pos = joint->body[0]->getPointInWorldSpace(joint->position[0]);
-        cyclone::Vector3 b_pos = joint->body[1]->getPointInWorldSpace(joint->position[1]);
+        cyclone::Vector3 a_pos = joint->Body[0]->getPointInWorldSpace(joint->Position[0]);
+        cyclone::Vector3 b_pos = joint->Body[1]->getPointInWorldSpace(joint->Position[1]);
         cyclone::real length = (b_pos - a_pos).magnitude();
 
         if (length > joint->Error) 

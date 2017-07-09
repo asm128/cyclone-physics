@@ -4,7 +4,7 @@
 
 using namespace cyclone;
 
-unsigned Joint::AddContact(Contact *contact, unsigned limit) const
+unsigned Joint::AddContact(Contact *contact, uint32_t limit) const
 {
     // Calculate the position of each connection point in world coordinates
     Vector3 a_pos_world = Body[0]->getPointInWorldSpace(Position[0]);
@@ -32,7 +32,7 @@ unsigned Joint::AddContact(Contact *contact, unsigned limit) const
     return 0;
 }
 
-void Joint::set(RigidBody *a, const Vector3& a_pos,
+void Joint::Set(RigidBody *a, const Vector3& a_pos,
                 RigidBody *b, const Vector3& b_pos,
                 double error)
 {
