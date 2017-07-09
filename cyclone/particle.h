@@ -17,24 +17,25 @@ namespace cyclone {
 		Vector3					AccumulatedForce				= {};
 		Vector3					Acceleration					= {};
 
-		void					setMass							(const double mass)					{ InverseMass = ((double)1.0) / mass;									}
-		double					getMass							()							const	{ return (InverseMass == 0) ? REAL_MAX : ((double)1.0) / InverseMass;	}
-		bool					hasFiniteMass					()							const	{ return InverseMass >= 0.0f;											}
-		void					clearAccumulator				()									{ AccumulatedForce.clear();												}
-		void					addForce						(const Vector3 &force)				{ AccumulatedForce += force;											}
-		void					integrate						(double duration)					{
+		void					SetMass							(const double mass)					{ InverseMass = ((double)1.0) / mass;									}
+		double					GetMass							()							const	{ return (InverseMass == 0) ? REAL_MAX : ((double)1.0) / InverseMass;	}
+		bool					HasFiniteMass					()							const	{ return InverseMass >= 0.0f;											}
+		void					ClearAccumulator				()									{ AccumulatedForce.clear();												}
+		void					AddForce						(const Vector3 &force)				{ AccumulatedForce += force;											}
+		void					Integrate						(double duration)					{
 			if (InverseMass <= 0.0f)	// We don't integrate things with infinite mass.
 				return;
 		
 			Position.addScaledVector(Velocity, duration);	// Update linear position.
 			
 			// Work out the acceleration from the force
-			Vector3						resultingAcc				= Acceleration;
+			Vector3						resultingAcc					= Acceleration;
 			resultingAcc	.addScaledVector(AccumulatedForce, InverseMass);
+
 			Velocity		.addScaledVector(resultingAcc, duration);	// Update linear velocity from the acceleration.
 			Velocity				*= real_pow(Damping, duration);		// Impose drag.
 			
-			clearAccumulator();	// Clear the forces.
+			ClearAccumulator();	// Clear the forces.
 		}
 	};
 }
