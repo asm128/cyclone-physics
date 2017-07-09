@@ -14,13 +14,13 @@ namespace cyclone {
 	class ParticleContact {
 		friend	class						ParticleContactResolver;	// The contact resolver object needs access into the contacts to set and effect the contact.
 	public:
-				Particle*					particle			[2]				= {};	// Holds the particles that are involved in the contact. The second of these can be NULL, for contacts with the scenery.
-				double						restitution							= {};	// Holds the normal restitution coefficient at the contact.
-				Vector3						contactNormal						= {};	// Holds the direction of the contact in world coordinates.
-				double						penetration							= {};	// Holds the depth of penetration at the contact.
+				Particle*					Particle			[2]				= {};	// Holds the particles that are involved in the contact. The second of these can be NULL, for contacts with the scenery.
+				double						Restitution							= {};	// Holds the normal restitution coefficient at the contact.
+				Vector3						ContactNormal						= {};	// Holds the direction of the contact in world coordinates.
+				double						Penetration							= {};	// Holds the depth of penetration at the contact.
 
 				
-				Vector3						particleMovement	[2]				= {};	// Holds the amount each particle is moved by during interpenetration resolution.
+				Vector3						ParticleMovement	[2]				= {};	// Holds the amount each particle is moved by during interpenetration resolution.
 
 	protected:
 				void						resolve								(double duration);																// Resolves this contact, for both velocity and interpenetration.
@@ -36,8 +36,7 @@ namespace cyclone {
 	protected:
 				uint32_t					Iterations							= 0;	// Holds the number of iterations allowed.
 				uint32_t					IterationsUsed						= 0;	// This is a performance tracking value - we keep a record of the actual number of iterations used.
-
-    public:
+	public:
 		inline	constexpr					ParticleContactResolver				(uint32_t iterations)															: Iterations(iterations)	{}
 											
 				void						setIterations						(uint32_t iterations)															{ Iterations = iterations;	}
@@ -50,7 +49,7 @@ namespace cyclone {
 		//					Think about the number of iterations as a bound: if you specify a large number, sometimes the algorithm WILL use it, and you may drop frames.
 		//
 		// duration			: The duration of the previous integration step. This is used to compensate for forces applied.
-			void							resolveContacts						(ParticleContact *contactArray, uint32_t numContacts, double duration);
+				void						resolveContacts						(ParticleContact *contactArray, uint32_t numContacts, double duration);
     };
 
     // This is the basic polymorphic interface for contact generators applying to particles.

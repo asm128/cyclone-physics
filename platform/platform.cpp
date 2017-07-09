@@ -90,11 +90,11 @@ void PlatformDemo::UpdateAdditionalMass() {
 		ParticleArray[i].SetMass(BASE_MASS);
 
     // Find the coordinates of the mass as an index and proportion
-    cyclone::real xp = MassPos.x;
+    double xp = MassPos.x;
     if (xp < 0) xp = 0;
     if (xp > 1) xp = 1;
 
-    cyclone::real zp = MassPos.z;
+    double zp = MassPos.z;
     if (zp < 0) zp = 0;
     if (zp > 1) zp = 1;
 

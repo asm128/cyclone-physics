@@ -51,18 +51,6 @@ void Buoyancy::UpdateForce(RigidBody *body, double duration)
     body->addForceAtBodyPoint(force, centreOfBuoyancy);
 }
 
-Gravity::Gravity(const Vector3& gravity)
-: gravity(gravity)
-{}
-
-void Gravity::UpdateForce(RigidBody* body, double duration)
-{
-	if (!body->hasFiniteMass()) // Check that we do not have infinite mass
-		return;
-
-	body->addForce(gravity * body->getMass());	// Apply the mass-scaled force to the body
-}
-
 Spring::Spring(const Vector3 &localConnectionPt,
                RigidBody *other,
                const Vector3 &otherConnectionPt,
@@ -113,30 +101,19 @@ void Aero::UpdateForceFromTensor	(RigidBody *body, double duration, const Matrix
 
 AeroControl::AeroControl(const Matrix3 &base, const Matrix3 &min, const Matrix3 &max,
                               const Vector3 &position, const Vector3 *windspeed)
-:
-Aero(base, position, windspeed)
+: Aero(base, position, windspeed)
 {
-    AeroControl::minTensor = min;
-    AeroControl::maxTensor = max;
-    controlSetting = 0.0f;
+    MinTensor		= min;
+    MaxTensor		= max;
+    ControlSetting	= 0.0f;
 }
 
 Matrix3 AeroControl::getTensor() {
-		 if (controlSetting <= -1.0f)	return minTensor;
-    else if (controlSetting >= 1.0f)	return maxTensor;
-    else if (controlSetting < 0)		return Matrix3::linearInterpolate(minTensor, Tensor, controlSetting + 1.0f);
-    else if (controlSetting > 0)		return Matrix3::linearInterpolate(Tensor, maxTensor, controlSetting);
+		 if (ControlSetting <= -1.0f)	return MinTensor;
+    else if (ControlSetting >= 1.0f)	return MaxTensor;
+    else if (ControlSetting < 0)		return Matrix3::linearInterpolate(MinTensor, Tensor, ControlSetting + 1.0f);
+    else if (ControlSetting > 0)		return Matrix3::linearInterpolate(Tensor, MaxTensor, ControlSetting);
     else 
 		return Tensor;
 }
 
-void AeroControl::setControl(double value)
-{
-    controlSetting = value;
-}
-
-void AeroControl::UpdateForce(RigidBody *body, double duration)
-{
-    Matrix3 tensor = getTensor();
-    Aero::UpdateForceFromTensor(body, duration, tensor);
-}

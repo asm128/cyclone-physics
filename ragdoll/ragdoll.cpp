@@ -56,7 +56,7 @@ public:
         Body->Rotation		= {};
         HalfSize			= extents;
 
-        cyclone::real mass = HalfSize.x * HalfSize.y * HalfSize.z * 8.0f;
+        double mass = HalfSize.x * HalfSize.y * HalfSize.z * 8.0f;
         Body->setMass(mass);
 
         cyclone::Matrix3 tensor;
@@ -84,7 +84,7 @@ class RagdollDemo : public RigidBodyApplication {
 	cyclone::Joint		joints	[NUM_JOINTS];	// Holds the joints.		
 
 	virtual void		GenerateContacts			();	// Processes the contact generation code. 
-	virtual void		UpdateObjects				(cyclone::real duration);	// Processes the objects in the simulation forward in time.
+	virtual void		UpdateObjects				(double duration);	// Processes the objects in the simulation forward in time.
 	virtual void		Reset						();	// Resets the position of all the bones. 
 public:
 						RagdollDemo					();	// Creates a new demo object.
@@ -126,9 +126,9 @@ void RagdollDemo::GenerateContacts()
 
     // Set up the collision data structure
     CData.reset(MaxContacts);
-    CData.friction					= (cyclone::real)0.9;
-    CData.restitution				= (cyclone::real)0.6;
-    CData.tolerance					= (cyclone::real)0.1;
+    CData.friction					= (double)0.9;
+    CData.restitution				= (double)0.6;
+    CData.tolerance					= (double)0.1;
 
     // Perform exhaustive collision detection on the ground plane
     cyclone::Matrix4					transform	, otherTransform;
@@ -178,7 +178,7 @@ void RagdollDemo::Reset()
 	bones[10]	.setState({ 0.000, 5.946,  1.066}, {0.267, 0.888, 0.207});
 	bones[11]	.setState({ 0.000, 4.024,  1.066}, {0.267, 0.888, 0.207});
 
-	cyclone::real strength = -random.randomReal(500.0f, 1000.0f);
+	double strength = -random.randomReal(500.0f, 1000.0f);
 	for (unsigned i = 0; i < NUM_BONES; i++)
 		bones[i].Body->addForceAtBodyPoint( {strength, 0, 0}, {});
 
@@ -190,7 +190,7 @@ void RagdollDemo::Reset()
 	CData.contactCount = 0;	// Reset the contacts
 }
 
-void RagdollDemo::UpdateObjects(cyclone::real duration)
+void RagdollDemo::UpdateObjects(double duration)
 {
     for (Bone *bone = bones; bone < bones+NUM_BONES; bone++)
     {
@@ -246,7 +246,7 @@ void RagdollDemo::Display()
         cyclone::Joint *joint = joints + i;
         cyclone::Vector3 a_pos = joint->Body[0]->getPointInWorldSpace(joint->Position[0]);
         cyclone::Vector3 b_pos = joint->Body[1]->getPointInWorldSpace(joint->Position[1]);
-        cyclone::real length = (b_pos - a_pos).magnitude();
+        double length = (b_pos - a_pos).magnitude();
 
         if (length > joint->Error) 
 			glColor3f(1,0,0);

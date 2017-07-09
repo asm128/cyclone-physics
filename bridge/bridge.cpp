@@ -45,9 +45,9 @@ BridgeDemo::BridgeDemo() : MassAggregateApplication(12) {
     {
         //unsigned x = (i%12)/2;
         ParticleArray[i].Position = {
-            cyclone::real(i/2)*2.0f-5.0f,
+            double(i/2)*2.0f-5.0f,
             4,
-            cyclone::real(i%2)*2.0f-1.0f
+            double(i%2)*2.0f-1.0f
 		};
 		ParticleArray[i].Velocity			= {};
         ParticleArray[i].Damping			= 0.9f;
@@ -70,13 +70,13 @@ BridgeDemo::BridgeDemo() : MassAggregateApplication(12) {
     {
         supports[i].particle = ParticleArray + i;
         supports[i].anchor = 
-            {	cyclone::real(i/2)*2.2f-5.5f
+            {	double(i/2)*2.2f-5.5f
             ,	6
-            ,	cyclone::real(i%2)*1.6f-0.8f
+            ,	double(i%2)*1.6f-0.8f
             };
         
-		if (i < 6)	supports[i].maxLength = cyclone::real(i/2)*0.5f + 3.0f;
-        else		supports[i].maxLength = 5.5f - cyclone::real(i/2)*0.5f;
+		if (i < 6)	supports[i].maxLength = double(i/2)*0.5f + 3.0f;
+        else		supports[i].maxLength = 5.5f - double(i/2)*0.5f;
         
 		supports[i].restitution = 0.5f;
         World.getContactGenerators().push_back(&supports[i]);
@@ -107,7 +107,7 @@ void BridgeDemo::UpdateAdditionalMass()
 
     // Find the coordinates of the mass as an index and proportion
     int x = int(MassPos.x);
-    cyclone::real xp = real_fmod(MassPos.x, cyclone::real(1.0f));
+    double xp = real_fmod(MassPos.x, double(1.0f));
     if (x < 0)
     {
         x = 0;
@@ -120,7 +120,7 @@ void BridgeDemo::UpdateAdditionalMass()
     }
 
     int z = int(MassPos.z);
-    cyclone::real zp = real_fmod(MassPos.z, cyclone::real(1.0f));
+    double zp = real_fmod(MassPos.z, double(1.0f));
     if (z < 0)
     {
         z = 0;

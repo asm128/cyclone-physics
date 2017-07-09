@@ -47,7 +47,7 @@ public:
 		Body->Rotation				= {};
         HalfSize					= extents;
 
-        cyclone::real					mass					= HalfSize.x * HalfSize.y * HalfSize.z * 8.0f;
+        double					mass					= HalfSize.x * HalfSize.y * HalfSize.z * 8.0f;
         Body->setMass(mass);
 
         cyclone::Matrix3				tensor;
@@ -66,15 +66,15 @@ public:
     }
 
 	// Calculates and sets the mass and inertia tensor of this block, assuming it has the given constant density.
-	void calculateMassProperties(cyclone::real invDensity) {
+	void calculateMassProperties(double invDensity) {
         // Check for infinite mass
         if (invDensity <= 0) {		// Just set zeros for both mass and inertia tensor
             Body->InverseMass = 0;
             Body->setInverseInertiaTensor(cyclone::Matrix3());
         }
         else {	// Otherwise we need to calculate the mass
-            cyclone::real volume = HalfSize.magnitude() * 2.0;
-            cyclone::real mass = volume / invDensity;
+            double volume = HalfSize.magnitude() * 2.0;
+            double mass = volume / invDensity;
 
             Body->setMass(mass);
 
@@ -126,7 +126,7 @@ public:
         tempBody.calculateDerivedData();
 
 		target->exists							= false;	// Remove the old block
-        cyclone::real								invDensity								= HalfSize.magnitude()*8 * body->InverseMass;	// Work out the inverse density of the old block
+        double								invDensity								= HalfSize.magnitude()*8 * body->InverseMass;	// Work out the inverse density of the old block
 
         // Now split the block into eight.
         for (unsigned i = 0; i < 8; i++)
@@ -195,7 +195,7 @@ class FractureDemo : public RigidBodyApplication {
 	cyclone::CollisionSphere	ball;				// Holds the projectile. 
 
 	virtual void				GenerateContacts	();							// Processes the contact generation code. */
-	virtual void				UpdateObjects		(cyclone::real duration);	// Processes the objects in the simulation forward in time. */
+	virtual void				UpdateObjects		(double duration);	// Processes the objects in the simulation forward in time. */
 	virtual void				Reset				();	// Resets the position of all the blocks. */
 	virtual void				Update				();	// Processes the physics. */
 
@@ -242,9 +242,9 @@ void FractureDemo::GenerateContacts()
 
     // Set up the collision data structure
     CData.reset(MaxContacts);
-    CData.friction									= (cyclone::real)0.9;
-    CData.restitution								= (cyclone::real)0.2;
-    CData.tolerance									= (cyclone::real)0.1;
+    CData.friction									= (double)0.9;
+    CData.restitution								= (double)0.2;
+    CData.tolerance									= (double)0.1;
 
     // Perform collision detection
     cyclone::Matrix4									transform, otherTransform;
@@ -350,7 +350,7 @@ void FractureDemo::Update()
     }
 }
 
-void FractureDemo::UpdateObjects(cyclone::real duration)
+void FractureDemo::UpdateObjects(double duration)
 {
     for (Block *block = blocks; block < blocks+MAX_BLOCKS; block++)
         if (block->exists) {

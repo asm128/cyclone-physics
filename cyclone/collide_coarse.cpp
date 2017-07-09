@@ -4,7 +4,7 @@
 
 using namespace cyclone;
 
-BoundingSphere::BoundingSphere(const Vector3 &centre, real radius)
+BoundingSphere::BoundingSphere(const Vector3 &centre, double radius)
 {
     BoundingSphere::centre = centre;
     BoundingSphere::radius = radius;
@@ -14,8 +14,8 @@ BoundingSphere::BoundingSphere(const BoundingSphere &one,
                                const BoundingSphere &two)
 {
     Vector3 centreOffset = two.centre - one.centre;
-    real distance = centreOffset.squareMagnitude();
-    real radiusDiff = two.radius - one.radius;
+    double distance = centreOffset.squareMagnitude();
+    double radiusDiff = two.radius - one.radius;
 
     // Check if the larger sphere encloses the small one
     if (radiusDiff*radiusDiff >= distance)
@@ -37,7 +37,7 @@ BoundingSphere::BoundingSphere(const BoundingSphere &one,
     else
     {
         distance = real_sqrt(distance);
-        radius = (distance + one.radius + two.radius) * ((real)0.5);
+        radius = (distance + one.radius + two.radius) * 0.5;
 
         // The new centre is based on one's centre, moved towards
         // two's centre by an ammount proportional to the spheres'
@@ -53,11 +53,11 @@ BoundingSphere::BoundingSphere(const BoundingSphere &one,
 
 bool BoundingSphere::overlaps(const BoundingSphere *other) const
 {
-    real distanceSquared = (centre - other->centre).squareMagnitude();
+    double distanceSquared = (centre - other->centre).squareMagnitude();
     return distanceSquared < (radius+other->radius)*(radius+other->radius);
 }
 
-real BoundingSphere::getGrowth(const BoundingSphere &other) const
+double BoundingSphere::getGrowth(const BoundingSphere &other) const
 {
     BoundingSphere newSphere(*this, other);
 

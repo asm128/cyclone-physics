@@ -36,20 +36,6 @@ uint32_t			Random::randomBits				()											{
 	return result;	// Return result
 }
 
-#ifdef SINGLE_PRECISION
-double				Random::randomReal				()											{
-	uint32_t				bits							= randomBits();	// Get the random number
-
-	// Set up a reinterpret structure for manipulation
-	union {
-		real					value;
-		uint32_t				word;
-	}						convert;
-
-	convert.word		= (bits >> 9) | 0x3f800000;	// Now assign the bits to the word. This works by fixing the ieee sign and exponent bits (so that the size of the result is 1-2) and using the bits to create the fraction part of the float.
-	return convert.value - 1.0f;	// And return the value
-}
-#else
 double				Random::randomReal				()											{
 	uint32_t				bits				= randomBits();	// Get the random number
 	// Set up a reinterpret structure for manipulation
@@ -64,7 +50,6 @@ double				Random::randomReal				()											{
 	convert.words[1]	= (bits >> 12) | 0x3FF00000; // And the bottom 20
 	return convert.value - 1.0;	// And return the value
 }
-#endif
 
 uint32_t			Random::randomInt				(uint32_t max)								{ return randomBits() % max;				}
 double				Random::randomReal				(double min, double max)					{ return randomReal() * (max-min) + min;	}

@@ -66,7 +66,7 @@ public:
 		Body->Rotation					= {};
         Radius							= radius;
 
-        ::cyclone::real						mass					= 4.0f*0.3333f*3.1415f * radius*radius*radius;
+        double								mass					= 4.0f*0.3333f*3.1415f * radius*radius*radius;
         Body->setMass(mass);
 
         ::cyclone::Matrix3					tensor;
@@ -150,7 +150,7 @@ public:
 		Body->Rotation					= {};
 		HalfSize						= extents;
 		
-		cyclone::real						mass					= HalfSize.x * HalfSize.y * HalfSize.z * 8.0f;
+		double						mass					= HalfSize.x * HalfSize.y * HalfSize.z * 8.0f;
 		Body->setMass(mass);
 		
 		cyclone::Matrix3					tensor;
@@ -194,7 +194,7 @@ class ExplosionDemo : public RigidBodyApplication
 	void					Fire				();	// Detonates the explosion. 
 	virtual void			Reset				();	// Resets the position of all the boxes and primes the explosion. 
 	virtual void			GenerateContacts	();	// Processes the contact generation code. 
-	virtual void			UpdateObjects		(cyclone::real duration);	// Processes the objects in the simulation forward in time. 
+	virtual void			UpdateObjects		(double duration);	// Processes the objects in the simulation forward in time. 
 public:
 							ExplosionDemo		()												: RigidBodyApplication()				{ Reset(); }	// Reset the position of the boxes
 
@@ -300,7 +300,7 @@ void ExplosionDemo::GenerateContacts() {
     }
 }
 
-void ExplosionDemo::UpdateObjects(cyclone::real duration) {
+void ExplosionDemo::UpdateObjects(double duration) {
 	for (Box *box = BoxData; box < BoxData + Boxes; box++) {	// Update the physics of each box in turn
 		box->Body->integrate(duration);	// Run the physics
 		box->CalculateInternals();

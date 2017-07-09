@@ -4,129 +4,100 @@
 
 using namespace cyclone;
 
-double ParticleLink::currentLength() const
-{
-    Vector3 relativePos = particle[0]->Position -
-                          particle[1]->Position;
-    return relativePos.magnitude();
+double								ParticleLink::currentLength				()																const	{
+	Vector3									relativePos								= particle[0]->Position - particle[1]->Position;
+	return relativePos.magnitude();
 }
 
-unsigned ParticleCable::AddContact(ParticleContact *contact, uint32_t limit) const
-{
-    // Find the length of the cable
-    double length = currentLength();
+uint32_t							ParticleCable::AddContact				(ParticleContact *contact, uint32_t limit)						const	{
+	double									length									= currentLength();	// Find the length of the cable
+	if (length < maxLength)	// Check if we're over-extended
+		return 0;
 
-    // Check if we're over-extended
-    if (length < maxLength)
-    {
-        return 0;
-    }
+	// Otherwise return the contact
+	contact->Particle[0]				= particle[0];
+	contact->Particle[1]				= particle[1];
 
-    // Otherwise return the contact
-    contact->particle[0] = particle[0];
-    contact->particle[1] = particle[1];
+	// Calculate the normal
+	Vector3									normal									= particle[1]->Position - particle[0]->Position;
+	normal.normalise();
+	contact->ContactNormal				= normal;
+	contact->Penetration				= length - maxLength;
+	contact->Restitution				= restitution;
 
-    // Calculate the normal
-    Vector3 normal = particle[1]->Position - particle[0]->Position;
-    normal.normalise();
-    contact->contactNormal = normal;
-
-    contact->penetration = length-maxLength;
-    contact->restitution = restitution;
-
-    return 1;
+	return 1;
 }
 
-unsigned ParticleRod::AddContact(ParticleContact *contact, uint32_t limit) const
-{
-    // Find the length of the rod
-    double currentLen = currentLength();
+uint32_t							ParticleRod::AddContact					(ParticleContact *contact, uint32_t limit)						const	{
+	double									currentLen								= currentLength();	// Find the length of the rod
+	if (currentLen == length)	// Check if we're over-extended
+	    return 0;
 
-    // Check if we're over-extended
-    if (currentLen == length)
-    {
-        return 0;
-    }
+	// Otherwise return the contact
+	contact->Particle[0]				= particle[0];
+	contact->Particle[1]				= particle[1];
 
-    // Otherwise return the contact
-    contact->particle[0] = particle[0];
-    contact->particle[1] = particle[1];
+	// Calculate the normal
+	Vector3									normal									= particle[1]->Position - particle[0]->Position;
+	normal.normalise();
 
-    // Calculate the normal
-    Vector3 normal = particle[1]->Position - particle[0]->Position;
-    normal.normalise();
+	if (currentLen > length) {	// The contact normal depends on whether we're extending or compressing
+		contact->ContactNormal				= normal;
+		contact->Penetration				= currentLen - length;
+	} else {
+		contact->ContactNormal				= normal * -1;
+		contact->Penetration				= length - currentLen;
+	}
 
-    // The contact normal depends on whether we're extending or compressing
-    if (currentLen > length) {
-        contact->contactNormal = normal;
-        contact->penetration = currentLen - length;
-    } else {
-        contact->contactNormal = normal * -1;
-        contact->penetration = length - currentLen;
-    }
-
-    // Always use zero restitution (no bounciness)
-    contact->restitution = 0;
-
-    return 1;
+	contact->Restitution				= 0;	// Always use zero restitution (no bounciness)
+	return 1;
 }
 
-double ParticleConstraint::currentLength() const
-{
-    Vector3 relativePos = particle->Position - anchor;
-    return relativePos.magnitude();
+double								ParticleConstraint::currentLength		()																const	{
+	Vector3									relativePos								= particle->Position - anchor;
+	return relativePos.magnitude();
 }
 
-unsigned ParticleCableConstraint::AddContact(ParticleContact *contact, uint32_t limit) const {
-	double length = currentLength(); // Find the length of the cable
-    if (length < maxLength)	// Check if we're over-extended
-        return 0;
+uint32_t							ParticleCableConstraint::AddContact		(ParticleContact *contact, uint32_t limit)						const	{
+	double									length									= currentLength(); // Find the length of the cable
+	if (length < maxLength)	// Check if we're over-extended
+		return 0;
 
-    // Otherwise return the contact
-    contact->particle[0] = particle;
-    contact->particle[1] = 0;
+	// Otherwise return the contact
+	contact->Particle[0]				= particle;
+	contact->Particle[1]				= 0;
 
-    // Calculate the normal
-    Vector3 normal = anchor - particle->Position;
-    normal.normalise();
-    contact->contactNormal = normal;
+	// Calculate the normal
+	Vector3									normal									= anchor - particle->Position;
+	normal.normalise();
+	contact->ContactNormal				= normal;
 
-    contact->penetration = length-maxLength;
-    contact->restitution = restitution;
+	contact->Penetration				= length-maxLength;
+	contact->Restitution				= restitution;
 
-    return 1;
+	return 1;
 }
 
-unsigned ParticleRodConstraint::AddContact(ParticleContact *contact, uint32_t limit) const
-{
-    // Find the length of the rod
-    double currentLen = currentLength();
+uint32_t							ParticleRodConstraint::AddContact		(ParticleContact *contact, uint32_t limit)						const	{
+	double									currentLen								= currentLength();	// Find the length of the rod
+	if (currentLen == length)	// Check if we're over-extended
+		return 0;
 
-    // Check if we're over-extended
-    if (currentLen == length)
-    {
-        return 0;
-    }
+	// Otherwise return the contact
+	contact->Particle[0]				= particle;
+	contact->Particle[1]				= 0;
 
-    // Otherwise return the contact
-    contact->particle[0] = particle;
-    contact->particle[1] = 0;
+	// Calculate the normal
+	Vector3									normal									= anchor - particle->Position;
+	normal.normalise();
 
-    // Calculate the normal
-    Vector3 normal = anchor - particle->Position;
-    normal.normalise();
-
-    // The contact normal depends on whether we're extending or compressing
-    if (currentLen > length) {
-        contact->contactNormal = normal;
-        contact->penetration = currentLen - length;
-    } else {
-        contact->contactNormal = normal * -1;
-        contact->penetration = length - currentLen;
-    }
-
-    // Always use zero restitution (no bounciness)
-    contact->restitution = 0;
-
-    return 1;
+	if (currentLen > length) {	// The contact normal depends on whether we're extending or compressing
+		contact->ContactNormal				= normal;
+		contact->Penetration				= currentLen - length;
+	} else {
+		contact->ContactNormal				= normal * -1;
+		contact->Penetration				= length - currentLen;
+	}
+	contact->Restitution				= 0;	// Always use zero restitution (no bounciness)
+	return 1;
 }

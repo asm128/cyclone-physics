@@ -6,7 +6,7 @@
 
 using namespace cyclone;
 
-ParticleWorld::ParticleWorld(unsigned maxContacts, unsigned iterations)
+									ParticleWorld::ParticleWorld(uint32_t maxContacts, uint32_t iterations)
 	: Resolver		(iterations	)
 	, MaxContacts	(maxContacts)
 {
@@ -14,72 +14,66 @@ ParticleWorld::ParticleWorld(unsigned maxContacts, unsigned iterations)
 	CalculateIterations		= (iterations == 0);
 }
 
-ParticleWorld::~ParticleWorld()
-{
+									ParticleWorld::~ParticleWorld		()																		{
 	if(Contacts)
 		delete[] Contacts;
 }
 
-void ParticleWorld::startFrame() {
-    for (TParticles::iterator p = Particles.begin(); p != Particles.end(); ++p)
-        (*p)->AccumulatedForce	= {};	// Remove all forces from the accumulator
+void								ParticleWorld::startFrame			()																		{
+	for (TParticles::iterator p = Particles.begin(); p != Particles.end(); ++p)
+		(*p)->AccumulatedForce				= {};	// Remove all forces from the accumulator
 }
 
-unsigned ParticleWorld::GenerateContacts()
-{
-    uint32_t			limit			= MaxContacts;
-    ParticleContact		* nextContact	= Contacts;
+uint32_t							ParticleWorld::GenerateContacts		()																		{
+	uint32_t								limit								= MaxContacts;
+	ParticleContact							* nextContact						= Contacts;
 
-    for (TContactGenerators::iterator g = ContactGenerators.begin(); g != ContactGenerators.end(); ++g) {
-        uint32_t used =(*g)->AddContact(nextContact, limit);
-        limit -= used;
-        nextContact += used;
+	for (TContactGenerators::iterator g = ContactGenerators.begin(); g != ContactGenerators.end(); ++g) {
+		uint32_t used =(*g)->AddContact(nextContact, limit);
+		limit -= used;
+		nextContact += used;
 
-        // We've run out of contacts to fill. This means we're missing
-        // contacts.
-        if (limit <= 0) 
+		if (limit <= 0)		// We've run out of contacts to fill. This means we're missing contacts.
 			break;
-    }
+	}
 
-    // Return the number of contacts used.
-    return MaxContacts - limit;
+	return MaxContacts - limit;	// Return the number of contacts used.
 }
 
-void ParticleWorld::integrate(double duration) {
+void								ParticleWorld::integrate			(double duration)														{
 	for (TParticles::iterator p = Particles.begin(); p != Particles.end(); ++p)
 		(*p)->Integrate(duration);		// Remove all forces from the accumulator
 }
 
-void ParticleWorld::runPhysics(double duration)
-{
-    Registry.UpdateForces	(duration);		// First apply the force generators
-    integrate				(duration);		// Then integrate the objects
-    uint32_t usedContacts = GenerateContacts();	// Generate contacts
-    
-    if (usedContacts) {// And process them
-        if (CalculateIterations) 
+void								ParticleWorld::runPhysics			(double duration)														{
+	Registry.UpdateForces	(duration);		// First apply the force generators
+	integrate				(duration);		// Then integrate the objects
+	uint32_t								usedContacts						= GenerateContacts();	// Generate contacts
+	
+	if (usedContacts) {// And process them
+	    if (CalculateIterations) 
 			Resolver.setIterations(usedContacts * 2);
-        Resolver.resolveContacts(Contacts, usedContacts, duration);
-    }
+	    Resolver.resolveContacts(Contacts, usedContacts, duration);
+	}
 }
 
-void		GroundContacts::Init		(cyclone::ParticleWorld::TParticles *particles)							{ Particles = particles; }
-unsigned	GroundContacts::AddContact	(cyclone::ParticleContact *contact, uint32_t limit)				const	{
-    unsigned count = 0;
-    for (cyclone::ParticleWorld::TParticles::iterator p = Particles->begin(); p != Particles->end(); ++p) {
-        double y = (*p)->Position.y;
-        if (y < 0.0f)
-        {
-            contact->contactNormal = cyclone::Vector3::UP;
-            contact->particle[0] = *p;
-            contact->particle[1] = NULL;
-            contact->penetration = -y;
-            contact->restitution = 0.2f;
-            contact++;
-            count++;
-        }
+void								GroundContacts::Init				(cyclone::ParticleWorld::TParticles *particles)							{ Particles = particles; }
+unsigned							GroundContacts::AddContact			(cyclone::ParticleContact *contact, uint32_t limit)				const	{
+	uint32_t								count								= 0;
+	for (cyclone::ParticleWorld::TParticles::iterator p = Particles->begin(); p != Particles->end(); ++p) {
+		double									y									= (*p)->Position.y;
+		if (y < 0.0f) {
+			contact->ContactNormal				= cyclone::Vector3::UP;
+			contact->Particle[0]				= *p;
+			contact->Particle[1]				= NULL;
+			contact->Penetration				= -y;
+			contact->Restitution				= 0.2f;
+			++contact;
+			++count;
+		}
 
-        if (count >= limit) return count;
-    }
-    return count;
+		if (count >= limit) 
+			return count;
+	}
+	return count;
 }

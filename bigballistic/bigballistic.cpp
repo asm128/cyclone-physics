@@ -79,7 +79,7 @@ public:
         Body->setAwake();
 
         cyclone::Matrix3 tensor;
-        cyclone::real coeff = 0.4f * Body->getMass() * Radius * Radius;
+        double coeff = 0.4 * Body->getMass() * Radius * Radius;
         tensor.setInertiaTensorCoeffs(coeff,coeff,coeff);
         Body->setInertiaTensor(tensor);
 
@@ -112,14 +112,14 @@ public:
 	}
 
 	// Sets the box to a specific location.
-	void									setState			(::cyclone::real z)					{
+	void									setState			(double z)					{
 		Body->Position							= {0, 3, z};
 		Body->setOrientation(1,0,0,0);
 		Body->Velocity							= {};
 		Body->Rotation							= {};
 		HalfSize								= {1, 1, 1};
 
-		::cyclone::real								mass				= HalfSize.x * HalfSize.y * HalfSize.z * 8.0f;
+		double										mass				= HalfSize.x * HalfSize.y * HalfSize.z * 8.0f;
 		Body->setMass(mass);
 
 		::cyclone::Matrix3							tensor;
@@ -151,7 +151,7 @@ class BigBallisticDemo : public RigidBodyApplication {
 
 	virtual void			Reset							();								// Resets the position of all the boxes and primes the explosion. 
 	virtual void			GenerateContacts				();								// Build the contacts for the current situation. 
-	virtual void			UpdateObjects					(cyclone::real duration);		// Processes the objects in the simulation forward in time. 
+	virtual void			UpdateObjects					(double duration);		// Processes the objects in the simulation forward in time. 
 	void					Fire							();								// Dispatches a round. 
 
 public:
@@ -191,7 +191,7 @@ void BigBallisticDemo::Reset(){
 	for (AmmoRound *shot = Ammo; shot < Ammo + AmmoRounds; ++shot)	// Make all shots unused
 		shot->type = UNUSED;
 
-	cyclone::real z = 20.0f;	// Initialise the box
+	double z = 20.0f;	// Initialise the box
 	for (Box *box = BoxData; box < BoxData + Boxes; ++box) {
 		box->setState(z);
 		z += 90.0f;
@@ -211,7 +211,7 @@ void BigBallisticDemo::Fire()
 	shot->setState(CurrentShotType);	// Set the shot
 }
 
-void BigBallisticDemo::UpdateObjects(cyclone::real duration) {
+void BigBallisticDemo::UpdateObjects(double duration) {
 	for(AmmoRound *shot = Ammo; shot < Ammo + AmmoRounds; shot++) {	// Update the physics of each particle in turn
 		if (shot->type != UNUSED) {
 			shot->Body->integrate(duration);	// Run the physics
