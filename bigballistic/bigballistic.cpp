@@ -142,8 +142,8 @@ public:
 
 // The main demo class definition.
 class BigBallisticDemo : public RigidBodyApplication {
-	const static unsigned	AmmoRounds						= 256;							// Holds the maximum number of  rounds that can be fired.
-	const static unsigned	Boxes							= 2;							// Holds the number of boxes in the simulation.
+	const static uint32_t	AmmoRounds						= 256;							// Holds the maximum number of  rounds that can be fired.
+	const static uint32_t	Boxes							= 2;							// Holds the number of boxes in the simulation.
 
 	AmmoRound				Ammo			[AmmoRounds]	= {};							// Holds the particle data.
 	Box						BoxData			[Boxes]			= {};							// Holds the box data. 
@@ -257,7 +257,7 @@ void BigBallisticDemo::Display()
 	// Draw some scale lines
 	glColor3f(0.75f, 0.75f, 0.75f);
 	glBegin(GL_LINES);
-	for (unsigned i = 0; i < 200; i += 10) {
+	for (uint32_t i = 0; i < 200; i += 10) {
 		glVertex3f(-5.0f, 0.0f, i);
 		glVertex3f(5.0f, 0.0f, i);
 	}

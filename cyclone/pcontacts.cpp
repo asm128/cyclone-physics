@@ -6,13 +6,8 @@ using namespace cyclone;
 
 // Contact implementation
 
-void ParticleContact::resolve(double duration)
-{
-    resolveVelocity			(duration);
-    resolveInterpenetration	(duration);
-}
 
-double ParticleContact::calculateSeparatingVelocity() const
+double ParticleContact::CalculateSeparatingVelocity() const
 {
     Vector3 relativeVelocity = Particle[0]->Velocity;
     if (Particle[1]) 
@@ -20,9 +15,9 @@ double ParticleContact::calculateSeparatingVelocity() const
     return relativeVelocity * ContactNormal;
 }
 
-void ParticleContact::resolveVelocity(double duration) {
+void ParticleContact::ResolveVelocity(double duration) {
 		
-	double separatingVelocity = calculateSeparatingVelocity();	// Find the velocity in the direction of the contact
+	double separatingVelocity = CalculateSeparatingVelocity();	// Find the velocity in the direction of the contact
 
 	if (separatingVelocity > 0)	// Check if it needs to be resolved
 		return;	// The contact is either separating, or stationary - there's no impulse required.
@@ -61,7 +56,7 @@ void ParticleContact::resolveVelocity(double duration) {
 		Particle[1]->Velocity						= Particle[1]->Velocity + impulsePerIMass * -Particle[1]->InverseMass;	// Particle 1 goes in the opposite direction
 }
 
-void ParticleContact::resolveInterpenetration(double duration)
+void ParticleContact::ResolveInterpenetration(double duration)
 {
 	if (Penetration <= 0)	// If we don't have any penetration, skip this step.
 		return;
@@ -89,14 +84,14 @@ void ParticleContact::resolveInterpenetration(double duration)
 	    Particle[1]->Position = Particle[1]->Position + ParticleMovement[1];
 }
 
-void ParticleContactResolver::resolveContacts(ParticleContact *contactArray, uint32_t numContacts, double duration)
+void ParticleContactResolver::ResolveContacts(ParticleContact *contactArray, uint32_t numContacts, double duration)
 {
 	IterationsUsed			= 0;
 	while(IterationsUsed < Iterations) {	// Find the contact with the largest closing velocity;
 		double					max						= REAL_MAX;
-		unsigned				maxIndex				= numContacts;
+		uint32_t				maxIndex				= numContacts;
 		for (uint32_t i = 0; i < numContacts; ++i) {
-			double					sepVel					= contactArray[i].calculateSeparatingVelocity();
+			double					sepVel					= contactArray[i].CalculateSeparatingVelocity();
 			if (sepVel < max &&
 				(sepVel < 0 || contactArray[i].Penetration > 0))
 			{
@@ -108,7 +103,7 @@ void ParticleContactResolver::resolveContacts(ParticleContact *contactArray, uin
 		if (maxIndex == numContacts)	// Do we have anything worth resolving?
 			break;
 		
-		contactArray[maxIndex].resolve(duration);	// Resolve this contact
+		contactArray[maxIndex].Resolve(duration);	// Resolve this contact
 		
 		// Update the interpenetrations for all particles
 		Vector3					* move					= contactArray[maxIndex].ParticleMovement;

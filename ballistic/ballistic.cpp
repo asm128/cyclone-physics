@@ -21,7 +21,7 @@ class BallisticDemo : public Application {
 	struct AmmoRound {
 		cyclone::Particle			Particle;
 		ShotType					Type;
-		unsigned					StartTime;
+		uint32_t					StartTime;
 
 		// Draws the round.			
 		void						Render							()										{
@@ -146,7 +146,7 @@ void								BallisticDemo::Display			()										{
 	// Draw some scale lines
 	glColor3f		(0.75f, 0.75f, 0.75f);
 	glBegin			(GL_LINES);
-	for (unsigned i = 0; i < 200; i += 10) {
+	for (uint32_t i = 0; i < 200; i += 10) {
 		glVertex3f		(-5.0f, 0.0f, i);
 		glVertex3f		(5.0f, 0.0f, i);
 	}

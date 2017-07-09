@@ -49,8 +49,8 @@ void								ParticleWorld::RunPhysics			(double duration)														{
 	uint32_t								usedContacts						= GenerateContacts();	// Generate contacts
 	if (usedContacts) {// And process them
 		if (CalculateIterations) 
-			Resolver.setIterations(usedContacts * 2);
-		Resolver.resolveContacts(Contacts, usedContacts, duration);
+			Resolver.SetIterations(usedContacts * 2);
+		Resolver.ResolveContacts(Contacts, usedContacts, duration);
 	}
 }
 

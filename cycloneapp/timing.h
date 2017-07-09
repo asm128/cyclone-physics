@@ -22,7 +22,7 @@ struct TimingData {
 	static void					update									();			// Updates the timing system, should be called once per frame.
 	static void					init									();			// Initialises the frame information system. Use the overall init function to set up all modules. */
 	static void					deinit									();			// Deinitialises the frame information system.
-	static unsigned				getTime									();			// Gets the global system time, in the best resolution possible. Timing is in milliseconds.
+	static uint32_t				getTime									();			// Gets the global system time, in the best resolution possible. Timing is in milliseconds.
 	static unsigned long		getClock								();			// Gets the clock ticks since process start.
 
 private:

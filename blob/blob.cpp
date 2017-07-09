@@ -20,7 +20,7 @@ public:
 	::cyclone::Vector3					End								= {};
 	::cyclone::Particle					* Particles						= 0;	// Holds a pointer to the particles we're checking for collisions with.
 
-	virtual unsigned					AddContact						(cyclone::ParticleContact *contact, uint32_t limit) const;
+	virtual uint32_t					AddContact						(cyclone::ParticleContact *contact, uint32_t limit) const;
 };
 
 uint32_t								Platform::AddContact			(cyclone::ParticleContact *contact, uint32_t limit) const {
@@ -139,12 +139,10 @@ class BlobDemo : public Application {
 	
 	void							Reset				();
 public:
+	virtual							~BlobDemo			()										{ if(Blobs)	delete Blobs;		}		
 									BlobDemo			();
-	virtual							~BlobDemo			()										{
-		if(Blobs)	
-			delete Blobs;
-	}			
-	virtual const char*				GetTitle			()										{ return "Cyclone > Blob Demo"; }
+
+	virtual const char*				GetTitle			()										{ return "Cyclone > Blob Demo";	}
 	virtual void					Display				();						// Display the particles. 
 	virtual void					Update				();						// Update the particle positions. 
 	virtual void					Key					(unsigned char key);	// Handle a key press. 

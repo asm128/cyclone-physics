@@ -29,11 +29,11 @@ public:
 	virtual					~FlightSimDemo			()						{}
 							FlightSimDemo			();
 
-	virtual const char*		GetTitle				()						{ return "Cyclone > Flight Sim Demo"; }
-	virtual void			Display					();		// Display the particles.
-	virtual void			Update					();		// Update the particle positions. 
+	virtual void			Display					();						// Display the particles.
+	virtual void			Update					();						// Update the particle positions. 
 	virtual void			Key						(unsigned char key);	// Handle a key press. 
 
+	virtual const char*		GetTitle				()						{ return "Cyclone > Flight Sim Demo"; }
 	virtual void			Mouse					(int, int, int, int)	{}	// Called when GLUT detects a mouse button press.
 	virtual void			MouseDrag				(int, int)				{}	// Called when GLUT detects a mouse drag.
 };
@@ -92,46 +92,44 @@ void FlightSimDemo::ResetPlane()
 	Aircraft.Rotation		= {};
 }
 
-static void drawAircraft()
-{
+static void drawAircraft() {
     // Fuselage
-    glPushMatrix();
-    glTranslatef(-0.5f, 0, 0);
-    glScalef(2.0f, 0.8f, 1.0f);
-    glutSolidCube(1.0f);
-    glPopMatrix();
+    glPushMatrix	();
+    glTranslatef	(-0.5f, 0, 0);
+    glScalef		(2.0f, 0.8f, 1.0f);
+    glutSolidCube	(1.0f);
+    glPopMatrix		();
 
     // Rear Fuselage
-    glPushMatrix();
-    glTranslatef(1.0f, 0.15f, 0);
-    glScalef(2.75f, 0.5f, 0.5f);
-    glutSolidCube(1.0f);
-    glPopMatrix();
+    glPushMatrix	();
+    glTranslatef	(1.0f, 0.15f, 0);
+    glScalef		(2.75f, 0.5f, 0.5f);
+    glutSolidCube	(1.0f);
+    glPopMatrix		();
 
     // Wings
-    glPushMatrix();
-    glTranslatef(0, 0.3f, 0);
-    glScalef(0.8f, 0.1f, 6.0f);
-    glutSolidCube(1.0f);
-    glPopMatrix();
+    glPushMatrix	();
+    glTranslatef	(0, 0.3f, 0);
+    glScalef		(0.8f, 0.1f, 6.0f);
+    glutSolidCube	(1.0f);
+    glPopMatrix		();
 
     // Rudder
-    glPushMatrix();
-    glTranslatef(2.0f, 0.775f, 0);
-    glScalef(0.75f, 1.15f, 0.1f);
-    glutSolidCube(1.0f);
-    glPopMatrix();
+    glPushMatrix	();
+    glTranslatef	(2.0f, 0.775f, 0);
+    glScalef		(0.75f, 1.15f, 0.1f);
+    glutSolidCube	(1.0f);
+    glPopMatrix		();
 
     // Tail-plane
-    glPushMatrix();
-    glTranslatef(1.9f, 0, 0);
-    glScalef(0.85f, 0.1f, 2.0f);
-    glutSolidCube(1.0f);
-    glPopMatrix();
+    glPushMatrix	();
+    glTranslatef	(1.9f, 0, 0);
+    glScalef		(0.85f, 0.1f, 2.0f);
+    glutSolidCube	(1.0f);
+    glPopMatrix		();
 }
 
-void FlightSimDemo::Display()
-{
+void FlightSimDemo::Display() {
     // Clear the view port and set the camera direction
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
@@ -193,8 +191,7 @@ void FlightSimDemo::Display()
     RenderText(10.0f, 10.0f, buffer);
 }
 
-void FlightSimDemo::Update()
-{
+void FlightSimDemo::Update() {
     // Find the duration of the last frame in seconds
     float						duration						= (float)TimingData::get().LastFrameDuration * 0.001f;
     if (duration <= 0.0f) 
@@ -251,8 +248,4 @@ void FlightSimDemo::Key(unsigned char key) {
     Rudder		.SetControl(Rudder_control		);
 }
 
-// Called by the common demo framework to create an application object (with new) and return a pointer.
-Application* getApplication()
-{
-    return new FlightSimDemo();
-}
+Application* getApplication() { return new FlightSimDemo(); }	// Called by the common demo framework to create an application object (with new) and return a pointer.

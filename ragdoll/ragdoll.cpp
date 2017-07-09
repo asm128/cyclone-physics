@@ -87,9 +87,10 @@ class RagdollDemo : public RigidBodyApplication {
 public:
 									RagdollDemo							();	// Creates a new demo object.
 
-	virtual const char*				GetTitle							()																					{ return "Cyclone > Ragdoll Demo"; }
 	virtual void					InitGraphics						();	// Sets up the rendering.
 	virtual void					Display								();	// Display the particle positions.
+
+	virtual const char*				GetTitle							()																					{ return "Cyclone > Ragdoll Demo"; }
 };
 
 // Method definitions
@@ -170,7 +171,7 @@ void RagdollDemo::Reset()
 	Bones[11]	.setState({ 0.000, 4.024,  1.066}, {0.267, 0.888, 0.207});
 
 	double strength = -Random.randomReal(500.0f, 1000.0f);
-	for (unsigned i = 0; i < NUM_BONES; ++i)
+	for (uint32_t i = 0; i < NUM_BONES; ++i)
 		Bones[i].Body->addForceAtBodyPoint( {strength, 0, 0}, {});
 
 	Bones[6].Body->addForceAtBodyPoint(
@@ -219,7 +220,7 @@ void RagdollDemo::Display()
 
     glEnable(GL_NORMALIZE);
     glColor3f(1,0,0);
-    for (unsigned i = 0; i < NUM_BONES; i++)
+    for (uint32_t i = 0; i < NUM_BONES; i++)
 		Bones[i].Render();
 
 	glDisable(GL_NORMALIZE);
@@ -229,7 +230,7 @@ void RagdollDemo::Display()
 
     glDisable(GL_DEPTH_TEST);
     glBegin(GL_LINES);
-    for (unsigned i = 0; i < NUM_JOINTS; i++) {
+    for (uint32_t i = 0; i < NUM_JOINTS; i++) {
         cyclone::Joint *joint = Joints + i;
         cyclone::Vector3 a_pos = joint->Body[0]->getPointInWorldSpace(joint->Position[0]);
         cyclone::Vector3 b_pos = joint->Body[1]->getPointInWorldSpace(joint->Position[1]);
@@ -248,9 +249,9 @@ void RagdollDemo::Display()
 
     // Draw some scale circles
     glColor3f(0.75, 0.75, 0.75);
-    for (unsigned i = 1; i < 20; i++) {
+    for (uint32_t i = 1; i < 20; i++) {
         glBegin(GL_LINE_LOOP);
-        for (unsigned j = 0; j < 32; j++) {
+        for (uint32_t j = 0; j < 32; j++) {
             float theta = 3.1415926f * j / 16.0f;
             glVertex3f(i*cosf(theta),0.0f,i*sinf(theta));
         }

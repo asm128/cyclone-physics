@@ -18,17 +18,18 @@ class PlatformDemo : public MassAggregateApplication {
 	cyclone::ParticleRod				* Rods					= 0;
 	
 	cyclone::Vector3					MassPos					= {0,0,0.5f};
-	cyclone::Vector3					MassDisplayPos			;
+	cyclone::Vector3					MassDisplayPos			= {};
 	
 	void								UpdateAdditionalMass	();	// Updates particle masses to take into account the mass that's on the platform.
 public:
-	virtual								~PlatformDemo			();
+	virtual								~PlatformDemo			()						{ if (Rods) delete[] Rods; }
 										PlatformDemo			();
 	
-	virtual const char*					GetTitle				();	// Returns the window title for the demo.
 	virtual void						Display					();						// Display the particles.
 	virtual void						Update					();						// Update the particle positions.
 	virtual void						Key						(unsigned char key);	// Handle a key press.
+
+	virtual const char*					GetTitle				()						{ return "Cyclone > Platform Demo"; }
 	virtual void						Mouse					(int, int, int, int)	{}	// Called when GLUT detects a mouse button press.
 	virtual void						MouseDrag				(int, int)				{}	// Called when GLUT detects a mouse drag.
 };	
@@ -43,7 +44,7 @@ PlatformDemo::PlatformDemo() : MassAggregateApplication(6)
     ParticleArray[3].Position			= {-3,2,-1};
     ParticleArray[4].Position			= {4,2,1	};
     ParticleArray[5].Position			= {4,2,-1	};
-    for (unsigned i = 0; i < 6; i++)
+    for (uint32_t i = 0; i < 6; i++)
     {
         ParticleArray[i].SetMass(BASE_MASS);
 		ParticleArray[i].Velocity			= {};
@@ -74,53 +75,45 @@ PlatformDemo::PlatformDemo() : MassAggregateApplication(6)
     Rods[13].Particle[0] = &ParticleArray[3];	Rods[13].Particle[1] = &ParticleArray[4];	Rods[13].Length = 7.28;
     Rods[14].Particle[0] = &ParticleArray[5];	Rods[14].Particle[1] = &ParticleArray[0];	Rods[14].Length = 4.899;
 
-    for (unsigned i = 0; i < ROD_COUNT; i++)
+    for (uint32_t i = 0; i < ROD_COUNT; i++)
         World.ContactGenerators.push_back(&Rods[i]);
 
     UpdateAdditionalMass();
 }
 
-PlatformDemo::~PlatformDemo() {
-	if (Rods) 
-		delete[] Rods;
-}
-
 void PlatformDemo::UpdateAdditionalMass() {
-	for (unsigned i = 2; i < 6; i++)
+	for (uint32_t i = 2; i < 6; i++)
 		ParticleArray[i].SetMass(BASE_MASS);
 
-    // Find the coordinates of the mass as an index and proportion
-    double xp = MassPos.x;
-    if (xp < 0) xp = 0;
-    if (xp > 1) xp = 1;
+	// Find the coordinates of the mass as an index and proportion
+	double xp = MassPos.x;
+	if (xp < 0) xp = 0;
+	if (xp > 1) xp = 1;
 
-    double zp = MassPos.z;
-    if (zp < 0) zp = 0;
-    if (zp > 1) zp = 1;
+	double zp = MassPos.z;
+	if (zp < 0) zp = 0;
+	if (zp > 1) zp = 1;
 
-    // Calculate where to draw the mass
-    MassDisplayPos.clear();
+	// Calculate where to draw the mass
+	MassDisplayPos.clear();	
 
-    // Add the proportion to the correct masses
-    ParticleArray[2].SetMass(BASE_MASS + EXTRA_MASS*(1-xp)*(1-zp));
-    MassDisplayPos.addScaledVector(ParticleArray[2].Position, (1-xp)*(1-zp));
+	// Add the proportion to the correct masses
+	ParticleArray[2].SetMass(BASE_MASS + EXTRA_MASS*(1-xp)*(1-zp));
+	MassDisplayPos.addScaledVector(ParticleArray[2].Position, (1-xp)*(1-zp));
 
-    if (xp > 0)
-    {
-        ParticleArray[4].SetMass(BASE_MASS + EXTRA_MASS*xp*(1-zp));
-        MassDisplayPos.addScaledVector(ParticleArray[4].Position, xp*(1-zp));
+	if (xp > 0) {
+	    ParticleArray[4].SetMass(BASE_MASS + EXTRA_MASS*xp*(1-zp));
+	    MassDisplayPos.addScaledVector(ParticleArray[4].Position, xp*(1-zp));
 
-        if (zp > 0)
-        {
-            ParticleArray[5].SetMass(BASE_MASS + EXTRA_MASS*xp*zp);
-            MassDisplayPos.addScaledVector(ParticleArray[5].Position, xp*zp);
-        }
-    }
-    if (zp > 0)
-    {
-        ParticleArray[3].SetMass(BASE_MASS + EXTRA_MASS*(1-xp)*zp);
-        MassDisplayPos.addScaledVector(ParticleArray[3].Position, (1-xp)*zp);
-    }
+	    if (zp > 0) {
+	        ParticleArray[5].SetMass(BASE_MASS + EXTRA_MASS*xp*zp);
+	        MassDisplayPos.addScaledVector(ParticleArray[5].Position, xp*zp);
+	    }
+	}
+	if (zp > 0) {
+	    ParticleArray[3].SetMass(BASE_MASS + EXTRA_MASS*(1-xp)*zp);
+	    MassDisplayPos.addScaledVector(ParticleArray[3].Position, (1-xp)*zp);
+	}
 }
 
 void PlatformDemo::Display()
@@ -129,7 +122,7 @@ void PlatformDemo::Display()
 
     glBegin(GL_LINES);
     glColor3f(0,0,1);
-    for (unsigned i = 0; i < ROD_COUNT; i++)
+    for (uint32_t i = 0; i < ROD_COUNT; i++)
     {
         cyclone::Particle **particles = Rods[i].Particle;
         const cyclone::Vector3 &p0 = particles[0]->Position;
@@ -146,14 +139,10 @@ void PlatformDemo::Display()
     glPopMatrix();
 }
 
-void PlatformDemo::Update()
-{
+void PlatformDemo::Update() {
     MassAggregateApplication::Update();
-
     UpdateAdditionalMass();
 }
-
-const char* PlatformDemo::GetTitle() { return "Cyclone > Platform Demo"; }
 
 void PlatformDemo::Key(unsigned char key) {
     switch(key) {

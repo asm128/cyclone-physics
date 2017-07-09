@@ -309,7 +309,7 @@ static inline Vector3 contactPoint(
 // in the boxAndBox contact generation method.
 #define CHECK_OVERLAP(axis, index)			if (!tryAxis(one, two, (axis), toCentre, (index), pen, best)) return 0;
 
-unsigned CollisionDetector::boxAndBox(
+uint32_t CollisionDetector::boxAndBox(
     const CollisionBox &one,
     const CollisionBox &two,
     CollisionData *data
@@ -408,56 +408,53 @@ unsigned CollisionDetector::boxAndBox(
 }
 #undef CHECK_OVERLAP
 
-
-
-
-unsigned CollisionDetector::boxAndPoint(
-    const CollisionBox &box,
-    const Vector3 &point,
-    CollisionData *data
-    )
+uint32_t CollisionDetector::boxAndPoint(
+	const CollisionBox &box,
+	const Vector3 &point,
+	CollisionData *data
+	)
 {
-    Vector3 relPt	= box.Transform.transformInverse(point);	// Transform the point into box coordinates
-    Vector3 normal;
+	Vector3 relPt	= box.Transform.transformInverse(point);	// Transform the point into box coordinates
+	Vector3 normal;
 
-    // Check each axis, looking for the axis on which the penetration is least deep.
-    double min_depth = box.HalfSize.x - real_abs(relPt.x);
-    if (min_depth < 0) 
+	// Check each axis, looking for the axis on which the penetration is least deep.
+	double min_depth = box.HalfSize.x - real_abs(relPt.x);
+	if (min_depth < 0) 
 		return 0;
-    normal = box.GetAxis(0) * ((relPt.x < 0)?-1:1);
+	normal = box.GetAxis(0) * ((relPt.x < 0)?-1:1);
 
-    double depth = box.HalfSize.y - real_abs(relPt.y);
-    if (depth < 0) 
-		return 0;
-    else if (depth < min_depth) {
-        min_depth = depth;
-        normal = box.GetAxis(1) * ((relPt.y < 0)?-1:1);
-    }
-
-    depth = box.HalfSize.z - real_abs(relPt.z);
+	double depth = box.HalfSize.y - real_abs(relPt.y);
 	if (depth < 0) 
 		return 0;
-    else if (depth < min_depth) {
-        min_depth	= depth;
-        normal		= box.GetAxis(2) * ((relPt.z < 0)?-1:1);
-    }
+	else if (depth < min_depth) {
+	    min_depth = depth;
+	    normal = box.GetAxis(1) * ((relPt.y < 0)?-1:1);
+	}
 
-    // Compile the contact
-    Contact* contact = data->Contacts;
-    contact->ContactNormal = normal;
-    contact->ContactPoint = point;
-    contact->Penetration = min_depth;
+	depth = box.HalfSize.z - real_abs(relPt.z);
+	if (depth < 0) 
+		return 0;
+	else if (depth < min_depth) {
+	    min_depth	= depth;
+	    normal		= box.GetAxis(2) * ((relPt.z < 0)?-1:1);
+	}
 
-    // Note that we don't know what rigid body the point
-    // belongs to, so we just use NULL. Where this is called
-    // this value can be left, or filled in.
-    contact->setBodyData(box.Body, NULL, data->Friction, data->Restitution);
+	// Compile the contact
+	Contact* contact = data->Contacts;
+	contact->ContactNormal = normal;
+	contact->ContactPoint = point;
+	contact->Penetration = min_depth;
 
-    data->AddContacts(1);
-    return 1;
+	// Note that we don't know what rigid body the point
+	// belongs to, so we just use NULL. Where this is called
+	// this value can be left, or filled in.
+	contact->setBodyData(box.Body, NULL, data->Friction, data->Restitution);
+
+	data->AddContacts(1);
+	return 1;
 }
 
-unsigned CollisionDetector::boxAndSphere(
+uint32_t CollisionDetector::boxAndSphere(
     const CollisionBox &box,
     const CollisionSphere &sphere,
     CollisionData *data

@@ -41,9 +41,8 @@ public:
 // Method definitions
 BridgeDemo::BridgeDemo() : MassAggregateApplication(12) {
     // Create the masses and connections.
-    for (unsigned i = 0; i < 12; i++)
-    {
-        //unsigned x = (i%12)/2;
+    for (uint32_t i = 0; i < 12; i++) {
+        //uint32_t x = (i%12)/2;
         ParticleArray[i].Position = {
             double(i/2)*2.0f-5.0f,
             4,
@@ -57,7 +56,7 @@ BridgeDemo::BridgeDemo() : MassAggregateApplication(12) {
 
     // Add the links
     cables = new cyclone::ParticleCable[CABLE_COUNT];
-    for (unsigned i = 0; i < 10; i++) {
+    for (uint32_t i = 0; i < 10; i++) {
         cables[i].Particle[0]				= &ParticleArray[i];
         cables[i].Particle[1]				= &ParticleArray[i+2];
         cables[i].MaxLength					= 1.9f;
@@ -66,7 +65,7 @@ BridgeDemo::BridgeDemo() : MassAggregateApplication(12) {
     }
 
     supports = new cyclone::ParticleCableConstraint[SUPPORT_COUNT];
-    for (unsigned i = 0; i < SUPPORT_COUNT; i++)
+    for (uint32_t i = 0; i < SUPPORT_COUNT; i++)
     {
         supports[i].Particle = ParticleArray + i;
         supports[i].Anchor = 
@@ -83,7 +82,7 @@ BridgeDemo::BridgeDemo() : MassAggregateApplication(12) {
     }
 
     rods = new cyclone::ParticleRod[ROD_COUNT];
-    for (unsigned i = 0; i < 6; i++)
+    for (uint32_t i = 0; i < 6; i++)
     {
         rods[i].Particle[0] = &ParticleArray[i*2];
         rods[i].Particle[1] = &ParticleArray[i*2+1];
@@ -102,7 +101,7 @@ BridgeDemo::~BridgeDemo() {
 
 void BridgeDemo::UpdateAdditionalMass()
 {
-    for (unsigned i = 0; i < 12; i++)
+    for (uint32_t i = 0; i < 12; i++)
         ParticleArray[i].SetMass(BASE_MASS);
 
     // Find the coordinates of the mass as an index and proportion
@@ -160,7 +159,7 @@ void BridgeDemo::Display()
 
     glBegin(GL_LINES);
     glColor3f(0,0,1);
-    for (unsigned i = 0; i < ROD_COUNT; i++)
+    for (uint32_t i = 0; i < ROD_COUNT; i++)
     {
         cyclone::Particle **particles = rods[i].Particle;
         const cyclone::Vector3 &p0 = particles[0]->Position;
@@ -170,7 +169,7 @@ void BridgeDemo::Display()
     }
 
     glColor3f(0,1,0);
-    for (unsigned i = 0; i < CABLE_COUNT; i++)
+    for (uint32_t i = 0; i < CABLE_COUNT; i++)
     {
         cyclone::Particle **particles = cables[i].Particle;
         const cyclone::Vector3 &p0 = particles[0]->Position;
@@ -180,7 +179,7 @@ void BridgeDemo::Display()
     }
 
     glColor3f(0.7f, 0.7f, 0.7f);
-    for (unsigned i = 0; i < SUPPORT_COUNT; i++)
+    for (uint32_t i = 0; i < SUPPORT_COUNT; i++)
     {
         const cyclone::Vector3 &p0 = supports[i].Particle->Position;
         const cyclone::Vector3 &p1 = supports[i].Anchor;

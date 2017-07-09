@@ -126,7 +126,7 @@ public:
         double								invDensity								= HalfSize.magnitude()*8 * body->InverseMass;	// Work out the inverse density of the old block
 
         // Now split the block into eight.
-        for (unsigned i = 0; i < 8; i++) {
+        for (uint32_t i = 0; i < 8; i++) {
             // Find the minimum and maximum extents of the new block in old-block coordinates
             cyclone::Vector3 min, max;
             if ((i & 1) == 0) {
@@ -198,8 +198,8 @@ class FractureDemo : public RigidBodyApplication {
 public:
 								FractureDemo		();					// Creates a new demo object. 
 
-	virtual const char*			GetTitle			()					{ return "Cyclone > Fracture Demo"; }	// Returns the window title for the demo. 
 	virtual void				Display				();					// Display the particle positions. 
+	virtual const char*			GetTitle			()					{ return "Cyclone > Fracture Demo"; }	// Returns the window title for the demo. 
 };
 
 // Method definitions
@@ -384,9 +384,9 @@ void FractureDemo::Display() {
 
 	// Draw some scale circles
 	glColor3f(0.75, 0.75, 0.75);
-	for (unsigned i = 1; i < 20; ++i) {
+	for (uint32_t i = 1; i < 20; ++i) {
 		glBegin(GL_LINE_LOOP);
-		for (unsigned j = 0; j < 32; ++j) {
+		for (uint32_t j = 0; j < 32; ++j) {
 			float theta = 3.1415926f * j / 16.0f;
 			glVertex3f(i*cosf(theta),0.0f,i*sinf(theta));
 		}

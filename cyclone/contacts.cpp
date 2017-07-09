@@ -213,11 +213,8 @@ inline Vector3 Contact::calculateFrictionImpulse(Matrix3 * inverseInertiaTensor)
     deltaVelWorld *= impulseToTorque;
     deltaVelWorld *= -1;
 
-    // Check if we need to add body two's data
-    if (Body[1])
-    {
-        // Set the cross product matrix
-        impulseToTorque.setSkewSymmetric(RelativeContactPosition[1]);
+    if (Body[1]){		// Check if we need to add body two's data
+        impulseToTorque.setSkewSymmetric(RelativeContactPosition[1]);	// Set the cross product matrix
 
         // Calculate the velocity change matrix
         Matrix3					deltaVelWorld2				= impulseToTorque;
@@ -376,37 +373,28 @@ void ContactResolver::resolveContacts(Contact *contacts,
     adjustVelocities(contacts, numContacts, duration);	// Resolve the velocity problems with the contacts.
 }
 
-void ContactResolver::prepareContacts(Contact* contacts,
-                                      uint32_t numContacts,
-                                      double duration)
-{
-    // Generate contact velocity and axis information.
-    Contact* lastContact = contacts + numContacts;
-    for (Contact* contact=contacts; contact < lastContact; contact++)
-        contact->calculateInternals(duration);	// Calculate the internal contact data (inertia, basis, etc).
+void ContactResolver::prepareContacts(Contact* contacts, uint32_t numContacts, double duration) {
+	// Generate contact velocity and axis information.
+	Contact* lastContact = contacts + numContacts;
+	for (Contact* contact=contacts; contact < lastContact; ++contact)
+		contact->calculateInternals(duration);	// Calculate the internal contact data (inertia, basis, etc).
 }
 
-void ContactResolver::adjustVelocities(Contact *c,
-                                       uint32_t numContacts,
-                                       double duration)
-{
-    Vector3 velocityChange[2], rotationChange[2];
-    Vector3 deltaVel;
+void ContactResolver::adjustVelocities(Contact *c, uint32_t numContacts, double duration) {
+	Vector3							velocityChange[2], rotationChange[2];
+	Vector3							deltaVel;
 
 	// iteratively handle impacts in order of severity.
-	VelocityIterationsUsed = 0;
+	VelocityIterationsUsed		= 0;
 	while (VelocityIterationsUsed < VelocityIterations) {
 		// Find contact with maximum magnitude of probable velocity change.
-		double max = VelocityEpsilon;
-		uint32_t index = numContacts;
+		double							max											= VelocityEpsilon;
+		uint32_t						index										= numContacts;
 		for (uint32_t i = 0; i < numContacts; i++)
-		{
-		    if (c[i].DesiredDeltaVelocity > max)
-		    {
-		        max = c[i].DesiredDeltaVelocity;
-		        index = i;
-		    }
-		}
+			if (c[i].DesiredDeltaVelocity > max) {
+				max							= c[i].DesiredDeltaVelocity;
+				index						= i;
+			}
 		if (index == numContacts) 
 			break;
 
@@ -426,65 +414,36 @@ void ContactResolver::adjustVelocities(Contact *c,
 	}
 }
 
-void ContactResolver::adjustPositions(Contact *c,
-                                      uint32_t numContacts,
-                                      double duration)
-{
-    uint32_t	i, index;
-    Vector3		linearChange[2], angularChange[2];
-    double		max;
-    Vector3		deltaPosition;
+void ContactResolver::adjustPositions(Contact *c, uint32_t numContacts, double duration) {
+	uint32_t	i, index;
+	Vector3		linearChange[2], angularChange[2];
+	double		max;
+	Vector3		deltaPosition;
 
-    // iteratively resolve interpenetrations in order of severity.
-    PositionIterationsUsed = 0;
-    while (PositionIterationsUsed < PositionIterations)
-    {
-        // Find biggest penetration
-        max = PositionEpsilon;
-        index = numContacts;
-        for (i=0; i<numContacts; i++)
-        {
-            if (c[i].Penetration > max)
-            {
-                max = c[i].Penetration;
-                index = i;
-            }
-        }
-        if (index == numContacts) 
+	// iteratively resolve interpenetrations in order of severity.
+	PositionIterationsUsed = 0;
+	while (PositionIterationsUsed < PositionIterations) {
+		// Find biggest penetration
+		max = PositionEpsilon;
+		index = numContacts;
+		for (i=0; i<numContacts; i++)
+			if (c[i].Penetration > max) {
+				max		= c[i].Penetration;
+				index	= i;
+			}
+		if (index == numContacts) 
 			break;
 
-        // Match the awake state at the contact
-        c[index].matchAwakeState();
+		c[index].matchAwakeState();										// Match the awake state at the contact
+		c[index].applyPositionChange(linearChange, angularChange, max);	// Resolve the penetration.
 
-        // Resolve the penetration.
-        c[index].applyPositionChange(
-            linearChange,
-            angularChange,
-            max);
-
-        // Again this action may have changed the penetration of other bodies, so we update contacts.
-        for (i = 0; i < numContacts; i++)
-        {
-            // Check each body in the contact
-            for (unsigned b = 0; b < 2; b++) if (c[i].Body[b])
-            {
-                // Check for a match with each body in the newly resolved contact
-                for (unsigned d = 0; d < 2; d++)
-                {
-                    if (c[i].Body[b] == c[index].Body[d])
-                    {
-                        deltaPosition = linearChange[d] +
-                            angularChange[d].vectorProduct(
-                                c[i].RelativeContactPosition[b]);
-
-                        // The sign of the change is positive if we're dealing with the second body in a contact and negative otherwise (because we're subtracting the resolution).
-                        c[i].Penetration +=
-                            deltaPosition.scalarProduct(c[i].ContactNormal)
-                            * (b?1:-1);
-                    }
-                }
-            }
-        }
-        PositionIterationsUsed++;
-    }
+		for (i = 0; i < numContacts; i++)	// Again this action may have changed the penetration of other bodies, so we update contacts.
+			for (uint32_t b = 0; b < 2; b++) if (c[i].Body[b])	// Check each body in the contact
+				for (uint32_t d = 0; d < 2; d++)	// Check for a match with each body in the newly resolved contact
+					if (c[i].Body[b] == c[index].Body[d]) {
+						deltaPosition = linearChange[d] + angularChange[d].vectorProduct(c[i].RelativeContactPosition[b]);
+						c[i].Penetration += deltaPosition.scalarProduct(c[i].ContactNormal) * (b ? 1 : -1);	// The sign of the change is positive if we're dealing with the second body in a contact and negative otherwise (because we're subtracting the resolution).
+					}
+		++PositionIterationsUsed;
+	}
 }

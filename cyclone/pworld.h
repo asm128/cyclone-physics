@@ -7,7 +7,6 @@
 #define CYCLONE_PWORLD_H
 
 namespace cyclone {
-
 	// Keeps track of a set of particles, and provides the means to update them all.
 	struct ParticleWorld {
 		typedef	::std::vector<Particle*>					TParticles;

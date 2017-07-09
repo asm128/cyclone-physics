@@ -23,12 +23,14 @@ namespace cyclone {
 				Vector3						ParticleMovement	[2]				= {};	// Holds the amount each particle is moved by during interpenetration resolution.
 
 	protected:
-				void						resolve								(double duration);																// Resolves this contact, for both velocity and interpenetration.
-				double						calculateSeparatingVelocity			()																		const;	// Calculates the separating velocity at this contact.
-
+		inline	void						Resolve								(double duration)																{
+			ResolveVelocity			(duration);
+			ResolveInterpenetration	(duration);
+		}															// Resolves this contact, for both velocity and interpenetration.
+				double						CalculateSeparatingVelocity			()																		const;	// Calculates the separating velocity at this contact.
 	private:
-				void						resolveVelocity						(double duration);			// Handles the impulse calculations for this collision.
-				void						resolveInterpenetration				(double duration);			// Handles the interpenetration resolution for this contact.
+				void						ResolveVelocity						(double duration);			// Handles the impulse calculations for this collision.
+				void						ResolveInterpenetration				(double duration);			// Handles the interpenetration resolution for this contact.
 	};
 
 	// The contact resolution routine for particle contacts. One resolver instance can be shared for the whole simulation.
@@ -39,17 +41,17 @@ namespace cyclone {
 	public:
 		inline	constexpr					ParticleContactResolver				(uint32_t iterations)															: Iterations(iterations)	{}
 											
-				void						setIterations						(uint32_t iterations)															{ Iterations = iterations;	}
-		// Resolves a set of particle contacts for both penetration and velocity.
-		// Contacts that cannot interact with each other should be passed to separate calls to resolveContacts, as the resolution algorithm takes much longer for lots of contacts than it does for the same number of contacts in small sets.
-		// contactArray		: Pointer to an array of particle contact objects.
-		// numContacts		: The number of contacts in the array to resolve.
-		// numIterations	: The number of iterations through the resolution algorithm. This should be at least the number of contacts (otherwise some constraints will not be resolved - although sometimes this is not noticable). 
-		//					If the iterations are not needed they will not be used, so adding more iterations may not make any difference. But in some cases you would need millions of iterations. 
-		//					Think about the number of iterations as a bound: if you specify a large number, sometimes the algorithm WILL use it, and you may drop frames.
+				void						SetIterations						(uint32_t iterations)															{ Iterations = iterations;	}
+		// Resolves a set of particle contacTs for both penetration and velocity.
+		// Contacts that cannot interact witH each other should be passed to separate calls to resolveContacts, as the resolution algorithm takes much longer for lots of contacts than it does for the same number of contacts in small sets.
+		// contactArray		: Pointer to an Array of particle contact objects.
+		// numContacts		: The number of Contacts in the array to resolve.
+		// numIterations	: The number of Iterations through the resolution algorithm. This should be at least the number of contacts (otherwise some constraints will not be resolved - although sometimes this is not noticable). 
+		//					If the iterationS are not needed they will not be used, so adding more iterations may not make any difference. But in some cases you would need millions of iterations. 
+		//					Think about the Number of iterations as a bound: if you specify a large number, sometimes the algorithm WILL use it, and you may drop frames.
 		//
-		// duration			: The duration of the previous integration step. This is used to compensate for forces applied.
-				void						resolveContacts						(ParticleContact *contactArray, uint32_t numContacts, double duration);
+		// duration			: The duration oF the previous integration step. This is used to compensate for forces applied.
+				void						ResolveContacts						(ParticleContact *contactArray, uint32_t numContacts, double duration);
     };
 
     // This is the basic polymorphic interface for contact generators applying to particles.

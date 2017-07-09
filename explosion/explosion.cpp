@@ -137,7 +137,7 @@ public:
 	}
 	
 	// Sets the box to a specific location.
-	void setState
+	void						setState
 		( const cyclone::Vector3	& position
 		, const cyclone::Quaternion & orientation
 		, const cyclone::Vector3	& extents
@@ -165,11 +165,11 @@ public:
 	}
 	
 	// Positions the box at a random location.
-	void random(cyclone::Random *random){
-		const static cyclone::Vector3 minPos	= {-5,  5,-5};
-		const static cyclone::Vector3 maxPos	= { 5, 10, 5};
-		const static cyclone::Vector3 minSize	= {0.5f, 0.5f, 0.5f};
-		const static cyclone::Vector3 maxSize	= {4.5f, 1.5f, 1.5f};
+	void						random			(cyclone::Random *random)		{
+		const static cyclone::Vector3	minPos			= {-5,  5,-5};
+		const static cyclone::Vector3	maxPos			= { 5, 10, 5};
+		const static cyclone::Vector3	minSize			= {0.5f, 0.5f, 0.5f};
+		const static cyclone::Vector3	maxSize			= {4.5f, 1.5f, 1.5f};
 		
 		setState
 			( random->randomVector		(minPos, maxPos)
@@ -363,10 +363,10 @@ void ExplosionDemo::Display()
 
     // Draw some scale circles
     glColor3f(0.75, 0.75, 0.75);
-    for (unsigned i = 1; i < 20; i++)
+    for (uint32_t i = 1; i < 20; i++)
     {
         glBegin(GL_LINE_LOOP);
-        for (unsigned j = 0; j < 32; j++)
+        for (uint32_t j = 0; j < 32; j++)
         {
             float theta = 3.1415926f * j / 16.0f;
             glVertex3f(i*cosf(theta),0.0f,i*sinf(theta));
