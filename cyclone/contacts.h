@@ -12,7 +12,7 @@ namespace cyclone {
 	 // It can be a good idea to create a contact object even when the contact isn't violated. Because resolving one contact can violate another, contacts that are close to being violated should be sent to the resolver; 
 	 // that way if one resolution moves the body, the contact may be violated, and can be resolved. If the contact is not violated, it will not be resolved, so you only loose a small amount of execution time.
 	struct Contact {
-		friend				class ContactResolver;	// The contact resolver object needs access into the contacts to set and effect the contact.
+	//	friend				class ContactResolver;	// The contact resolver object needs access into the contacts to set and effect the contact.
 	//public:
 		RigidBody			* Body[2]							= {};	// Holds the bodies that are involved in the contact. The second of these can be NULL, for contacts with the scenery.
 		double				Friction							= 0;	// Holds the lateral friction coefficient at the contact.
@@ -71,8 +71,8 @@ namespace cyclone {
 	protected:
 		uint32_t			VelocityIterations					= 0;	// Holds the number of iterations to perform when resolving velocity.
 		uint32_t			PositionIterations					= 0;	// Holds the number of iterations to perform when resolving position.
-		double				VelocityEpsilon						= 0;	// To avoid instability velocities smaller than this value are considered to be zero. Too small and the simulation may be unstable, too large and the bodies may interpenetrate visually. A good starting point is the default of 0.01.
-		double				PositionEpsilon						= 0;	// To avoid instability penetrations smaller than this value are considered to be not interpenetrating. Too small and the simulation may be unstable, too large and the bodies may interpenetrate visually. A good starting point is the default of0.01.
+		double				VelocityEpsilon						= 0.01;	// To avoid instability velocities smaller than this value are considered to be zero. Too small and the simulation may be unstable, too large and the bodies may interpenetrate visually. A good starting point is the default of 0.01.
+		double				PositionEpsilon						= 0.01;	// To avoid instability penetrations smaller than this value are considered to be not interpenetrating. Too small and the simulation may be unstable, too large and the bodies may interpenetrate visually. A good starting point is the default of0.01.
 
 	public:
 		uint32_t			VelocityIterationsUsed				= 0;	// Stores the number of velocity iterations used in the last call to resolve contacts.

@@ -108,12 +108,12 @@ void							MassAggregateApplication::Display							()																{
 }
 
 void							MassAggregateApplication::Update							()																{
-	World.startFrame();	// Clear accumulators
+	World.StartFrame();	// Clear accumulators
 	float								duration													= (float)TimingData::get().LastFrameDuration * 0.001f;	// Find the duration of the last frame in seconds
 	if (duration <= 0.0f) 
 		return;
 
-	World.runPhysics(duration);	// Run the simulation
+	World.RunPhysics(duration);	// Run the simulation
 	Application::Update();
 }
 

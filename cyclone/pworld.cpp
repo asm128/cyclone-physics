@@ -6,12 +6,12 @@
 
 using namespace cyclone;
 
-									ParticleWorld::ParticleWorld(uint32_t maxContacts, uint32_t iterations)
+									ParticleWorld::ParticleWorld		(uint32_t maxContacts, uint32_t iterations)
 	: Resolver		(iterations	)
 	, MaxContacts	(maxContacts)
 {
-	Contacts				= new ParticleContact[maxContacts];
-	CalculateIterations		= (iterations == 0);
+	Contacts							= new ParticleContact[maxContacts];
+	CalculateIterations					= (iterations == 0);
 }
 
 									ParticleWorld::~ParticleWorld		()																		{
@@ -19,7 +19,7 @@ using namespace cyclone;
 		delete[] Contacts;
 }
 
-void								ParticleWorld::startFrame			()																		{
+void								ParticleWorld::StartFrame			()																		{
 	for (TParticles::iterator p = Particles.begin(); p != Particles.end(); ++p)
 		(*p)->AccumulatedForce				= {};	// Remove all forces from the accumulator
 }
@@ -27,33 +27,30 @@ void								ParticleWorld::startFrame			()																		{
 uint32_t							ParticleWorld::GenerateContacts		()																		{
 	uint32_t								limit								= MaxContacts;
 	ParticleContact							* nextContact						= Contacts;
-
 	for (TContactGenerators::iterator g = ContactGenerators.begin(); g != ContactGenerators.end(); ++g) {
-		uint32_t used =(*g)->AddContact(nextContact, limit);
-		limit -= used;
-		nextContact += used;
+		uint32_t								used								= (*g)->AddContact(nextContact, limit);
+		limit								-= used;
+		nextContact							+= used;
 
 		if (limit <= 0)		// We've run out of contacts to fill. This means we're missing contacts.
 			break;
 	}
-
 	return MaxContacts - limit;	// Return the number of contacts used.
 }
 
-void								ParticleWorld::integrate			(double duration)														{
+void								ParticleWorld::Integrate			(double duration)														{
 	for (TParticles::iterator p = Particles.begin(); p != Particles.end(); ++p)
 		(*p)->Integrate(duration);		// Remove all forces from the accumulator
 }
 
-void								ParticleWorld::runPhysics			(double duration)														{
+void								ParticleWorld::RunPhysics			(double duration)														{
 	ForceRegistry.UpdateForces	(duration);		// First apply the force generators
-	integrate					(duration);		// Then integrate the objects
+	Integrate					(duration);		// Then integrate the objects
 	uint32_t								usedContacts						= GenerateContacts();	// Generate contacts
-	
 	if (usedContacts) {// And process them
-	    if (CalculateIterations) 
+		if (CalculateIterations) 
 			Resolver.setIterations(usedContacts * 2);
-	    Resolver.resolveContacts(Contacts, usedContacts, duration);
+		Resolver.resolveContacts(Contacts, usedContacts, duration);
 	}
 }
 
@@ -71,7 +68,6 @@ unsigned							GroundContacts::AddContact			(cyclone::ParticleContact *contact, 
 			++contact;
 			++count;
 		}
-
 		if (count >= limit) 
 			return count;
 	}
