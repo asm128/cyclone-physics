@@ -18,7 +18,7 @@
 static bool qpcFlag;		// Hold internal timing data for the performance counter.
 
 // Internal time and clock access functions
-uint32_t									systemTime									()						{
+uint64_t									systemTime									()						{
 #if TIMING_UNIX
 	struct timeval									tv;
 	gettimeofday(&tv, 0);
@@ -26,20 +26,20 @@ uint32_t									systemTime									()						{
 	return tv.tv_sec * 1000 + tv.tv_usec/1000;
 #else
 	if(!qpcFlag)
-		return (uint32_t)timeGetTime();
+		return (uint64_t)timeGetTime();
 	static LONGLONG qpcMillisPerTick;
 	QueryPerformanceCounter((LARGE_INTEGER*)&qpcMillisPerTick);
 	return (uint32_t)(qpcMillisPerTick * qpcFrequency);
 #endif
 }
 
-uint32_t									TimingData::getTime							()						{ return systemTime(); }
+uint64_t									TimingData::getTime							()						{ return systemTime(); }
 
 #if TIMING_WINDOWS
 uint64_t									systemClock									()						{ return __rdtsc(); }
 #endif
 
-unsigned long								TimingData::getClock						()						{
+uint64_t									TimingData::getClock						()						{
 #if TIMING_UNIX
 	struct timeval									tv;
 	gettimeofday(&tv, 0);
@@ -62,7 +62,7 @@ void										initTime									()						{
 #endif
 }
 
-static TimingData *timingData = NULL;	// Holds the global frame time that is passed around
+static TimingData							*timingData									= NULL;	// Holds the global frame time that is passed around
 
 // Retrieves the global frame info instance
 TimingData&									TimingData::get								()						{ return (TimingData&)*timingData; }
@@ -75,7 +75,7 @@ void										TimingData::update							()						{
 	if (!timingData->IsPaused)	// Advance the frame number.
 		++timingData->FrameNumber;
 
-	uint32_t										thisTime									= systemTime();	// Update the timing information.
+	uint64_t										thisTime									= systemTime();	// Update the timing information.
 	timingData->LastFrameDuration				= thisTime - timingData->LastFrameTimestamp;
 	timingData->LastFrameTimestamp				= thisTime;
 

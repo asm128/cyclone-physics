@@ -8,9 +8,9 @@
 
 // Represents all the information that the demo might need about the timing of the game: current time, fps, frame number, and so on. */
 struct TimingData {
-	uint32_t					FrameNumber								= 0;		// The current render frame. This simply increments. 
-	uint32_t					LastFrameTimestamp						= 0;		// The timestamp when the last frame ended. Times are given in milliseconds since some undefined time. 
-	uint32_t					LastFrameDuration						= 0;		// The duration of the last frame in milliseconds. 
+	uint64_t					FrameNumber								= 0;		// The current render frame. This simply increments. 
+	uint64_t					LastFrameTimestamp						= 0;		// The timestamp when the last frame ended. Times are given in milliseconds since some undefined time. 
+	uint64_t					LastFrameDuration						= 0;		// The duration of the last frame in milliseconds. 
 	uint64_t					LastFrameClockstamp						= 0;		// The clockstamp of the end of the last frame.
 	uint64_t					LastFrameClockTicks						= 0;		// The duration of the last frame in clock ticks. 
 	bool						IsPaused								= false;	// Keeps track of whether the rendering is paused. 
@@ -22,8 +22,8 @@ struct TimingData {
 	static void					update									();			// Updates the timing system, should be called once per frame.
 	static void					init									();			// Initialises the frame information system. Use the overall init function to set up all modules. */
 	static void					deinit									();			// Deinitialises the frame information system.
-	static uint32_t				getTime									();			// Gets the global system time, in the best resolution possible. Timing is in milliseconds.
-	static unsigned long		getClock								();			// Gets the clock ticks since process start.
+	static uint64_t				getTime									();			// Gets the global system time, in the best resolution possible. Timing is in milliseconds.
+	static uint64_t				getClock								();			// Gets the clock ticks since process start.
 
 private:
 	// These are private to stop instances being created: use get().
