@@ -27,10 +27,10 @@ namespace cyclone {
 			
 			// Work out the acceleration from the force
 			Vector3								resultingAcceleration			= Acceleration;
-			resultingAcceleration	.addScaledVector(AccumulatedForce, InverseMass);
+			resultingAcceleration			+= AccumulatedForce * InverseMass;
 
-			Velocity				.addScaledVector(resultingAcceleration, duration);	// Update linear velocity from the acceleration.
-			Velocity						*= real_pow(Damping, duration);		// Impose drag.
+			Velocity						+= resultingAcceleration * duration;	// Update linear velocity from the acceleration.
+			Velocity						*= real_pow(Damping, duration);			// Impose drag.
 			
 			AccumulatedForce				= {};	// Clear the forces.
 		}

@@ -72,8 +72,7 @@ void Matrix4::setInverse(const Matrix4 &m)
 
 Matrix3 Matrix3::linearInterpolate(const Matrix3& a, const Matrix3& b, double prop) {
 	Matrix3 result;
-	for (uint32_t i = 0; i < 9; i++) {
-		result.data[i] = a.data[i] * (1-prop) + b.data[i] * prop;
-	}
+	for (uint32_t i = 0; i < 9; i++) 
+		result.data[i] = a.data[i] * (1 - prop) + b.data[i] * prop;
 	return result;
 }

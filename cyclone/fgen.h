@@ -1,6 +1,6 @@
 // This file contains the interface and sample force generators.
 // Copyright (c) Icosagon 2003. Published by Ian Millington under the MIT License for his book "Game Physics Engine Development" or something like that (a really good book that I actually bought in paperback after reading it).
-// Heavily modified by asm128 in order to make this code readable and free of potential bugs and inconsistencies and a large set of sources of problems and improductivity originally introduced thanks to poor advice, bad practices and OOP vices.
+// Heavily modified by asm128 in order to make this code readable and free of potential bugs and inconsistencies and a large set of sources of problems, improductivity and underperformance originally introduced thanks to poor advice, bad practices and OOP vices.
 #include "body.h"
 #include "pfgen.h"
 
@@ -10,12 +10,11 @@
 #define CYCLONE_FGEN_H
 
 namespace cyclone {
-
 	// A force generator can be asked to add a force to one or more bodies.
 	class ForceGenerator {
 	public:
 		// Overload this in implementations of the interface to calculate and update the force applied to the given rigid body.
-		virtual				void								UpdateForce						(RigidBody *body, double duration)			= 0;
+		virtual				void								UpdateForce						(RigidBody *body, double duration)													= 0;
 	};
 
 	// Holds all the force generators and the bodies they apply to.
@@ -29,7 +28,10 @@ namespace cyclone {
 							TRegistry							Registrations;	// Holds the list of registrations.
 		
 		// Calls all the force generators to update the forces of their corresponding bodies.
-							void								UpdateForces					(double duration);	
+							void								UpdateForces					(double duration)																	{
+			for (TRegistry::iterator i = Registrations.begin(); i != Registrations.end(); i++)
+				i->ForceGenerator->UpdateForce(i->Body, duration);
+		}
 	};
 
 	// A force generator that applies a Spring force.
@@ -61,7 +63,7 @@ namespace cyclone {
 							const Vector3						* Windspeed						= 0;	// Holds a pointer to a vector containing the windspeed of the environment. This is easier than managing a separate windspeed vector per generator and having to update it manually as the wind changes.
 	public:
 		inline constexpr										Aero							(const Matrix3 &tensor, const Vector3 &position, const Vector3 *windspeed)			: Tensor(tensor), Position(position), Windspeed(windspeed)		{}
-		virtual				void								UpdateForce						(RigidBody *body, double duration);	// Applies the force to the given rigid body.
+		virtual				void								UpdateForce						(RigidBody *body, double duration)													{ Aero::UpdateForceFromTensor(body, duration, Tensor);			}
 	protected:
 							void								UpdateForceFromTensor			(RigidBody *body, double duration, const Matrix3 &tensor);	// Uses an explicit tensor matrix to update the force on the given rigid body. This is exactly the same as for UpdateForce only it takes an explicit tensor.
 	};
@@ -81,7 +83,12 @@ namespace cyclone {
 			, const Matrix3 &max
 			, const Vector3 &position
 			, const Vector3 *windspeed
-			);
+			)																														
+			: Aero				(base, position, windspeed)
+			, MinTensor			(min)
+			, MaxTensor			(max)
+			, ControlSetting	(0.0f)	
+		{}
 		inline				void								SetControl						(double value)						{ ControlSetting = value; }	// Sets the control position of this control. This should range between -1 (in which case the minTensor value is used), through 0 (where the base-class tensor value is used) to +1 (where the maxTensor value is used). Values outside that range give undefined results.
 		virtual				void								UpdateForce						(RigidBody *body, double duration)	{ Aero::UpdateForceFromTensor(body, duration, GetTensor()); }
 	};
@@ -104,8 +111,6 @@ namespace cyclone {
 
 		virtual				void								UpdateForce						(RigidBody *body, double duration);	// Applies the force to the given rigid body.
 	};
-
-
 	//// A force generator that applies a gravitational force. One instance can be used for multiple rigid bodies.
 	//class ForceGravity : public ForceGenerator {
 	//						Vector3								Gravity							= {};		// Holds the acceleration due to gravity.
