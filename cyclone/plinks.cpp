@@ -4,7 +4,7 @@
 
 using namespace cyclone;
 
-real ParticleLink::currentLength() const
+double ParticleLink::currentLength() const
 {
     Vector3 relativePos = particle[0]->Position -
                           particle[1]->Position;
@@ -14,7 +14,7 @@ real ParticleLink::currentLength() const
 unsigned ParticleCable::AddContact(ParticleContact *contact, uint32_t limit) const
 {
     // Find the length of the cable
-    real length = currentLength();
+    double length = currentLength();
 
     // Check if we're over-extended
     if (length < maxLength)
@@ -40,7 +40,7 @@ unsigned ParticleCable::AddContact(ParticleContact *contact, uint32_t limit) con
 unsigned ParticleRod::AddContact(ParticleContact *contact, uint32_t limit) const
 {
     // Find the length of the rod
-    real currentLen = currentLength();
+    double currentLen = currentLength();
 
     // Check if we're over-extended
     if (currentLen == length)
@@ -71,22 +71,16 @@ unsigned ParticleRod::AddContact(ParticleContact *contact, uint32_t limit) const
     return 1;
 }
 
-real ParticleConstraint::currentLength() const
+double ParticleConstraint::currentLength() const
 {
     Vector3 relativePos = particle->Position - anchor;
     return relativePos.magnitude();
 }
 
-unsigned ParticleCableConstraint::AddContact(ParticleContact *contact, uint32_t limit) const
-{
-    // Find the length of the cable
-    real length = currentLength();
-
-    // Check if we're over-extended
-    if (length < maxLength)
-    {
+unsigned ParticleCableConstraint::AddContact(ParticleContact *contact, uint32_t limit) const {
+	double length = currentLength(); // Find the length of the cable
+    if (length < maxLength)	// Check if we're over-extended
         return 0;
-    }
 
     // Otherwise return the contact
     contact->particle[0] = particle;
@@ -106,7 +100,7 @@ unsigned ParticleCableConstraint::AddContact(ParticleContact *contact, uint32_t 
 unsigned ParticleRodConstraint::AddContact(ParticleContact *contact, uint32_t limit) const
 {
     // Find the length of the rod
-    real currentLen = currentLength();
+    double currentLen = currentLength();
 
     // Check if we're over-extended
     if (currentLen == length)

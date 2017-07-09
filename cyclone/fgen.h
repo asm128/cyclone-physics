@@ -65,7 +65,7 @@ namespace cyclone {
     protected:
         Matrix3									maxTensor					= {};	// The aerodynamic tensor for the surface, when the control is at its maximum value.
         Matrix3									minTensor					= {};	// The aerodynamic tensor for the surface, when the control is at its minimum value.
-        real									controlSetting				= 0;	// The current position of the control for this surface. This should range between -1 (in which case the minTensor value is used), through 0 (where the base-class tensor value is used) to +1 (where the maxTensor value is used).
+        double									controlSetting				= 0;	// The current position of the control for this surface. This should range between -1 (in which case the minTensor value is used), through 0 (where the base-class tensor value is used) to +1 (where the maxTensor value is used).
 
     private:
         Matrix3									getTensor					();	// Calculates the final aerodynamic tensor for the current control setting.

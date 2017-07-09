@@ -15,20 +15,20 @@ namespace cyclone {
 		friend	class						ParticleContactResolver;	// The contact resolver object needs access into the contacts to set and effect the contact.
 	public:
 				Particle*					particle			[2]				= {};	// Holds the particles that are involved in the contact. The second of these can be NULL, for contacts with the scenery.
-				real						restitution							= {};	// Holds the normal restitution coefficient at the contact.
+				double						restitution							= {};	// Holds the normal restitution coefficient at the contact.
 				Vector3						contactNormal						= {};	// Holds the direction of the contact in world coordinates.
-				real						penetration							= {};	// Holds the depth of penetration at the contact.
+				double						penetration							= {};	// Holds the depth of penetration at the contact.
 
 				
 				Vector3						particleMovement	[2]				= {};	// Holds the amount each particle is moved by during interpenetration resolution.
 
 	protected:
-				void						resolve								(real duration);																// Resolves this contact, for both velocity and interpenetration.
-				real						calculateSeparatingVelocity			()																		const;	// Calculates the separating velocity at this contact.
+				void						resolve								(double duration);																// Resolves this contact, for both velocity and interpenetration.
+				double						calculateSeparatingVelocity			()																		const;	// Calculates the separating velocity at this contact.
 
 	private:
-				void						resolveVelocity						(real duration);			// Handles the impulse calculations for this collision.
-				void						resolveInterpenetration				(real duration);			// Handles the interpenetration resolution for this contact.
+				void						resolveVelocity						(double duration);			// Handles the impulse calculations for this collision.
+				void						resolveInterpenetration				(double duration);			// Handles the interpenetration resolution for this contact.
 	};
 
 	// The contact resolution routine for particle contacts. One resolver instance can be shared for the whole simulation.
@@ -50,7 +50,7 @@ namespace cyclone {
 		//					Think about the number of iterations as a bound: if you specify a large number, sometimes the algorithm WILL use it, and you may drop frames.
 		//
 		// duration			: The duration of the previous integration step. This is used to compensate for forces applied.
-			void							resolveContacts						(ParticleContact *contactArray, unsigned numContacts, real duration);
+			void							resolveContacts						(ParticleContact *contactArray, uint32_t numContacts, double duration);
     };
 
     // This is the basic polymorphic interface for contact generators applying to particles.
@@ -58,9 +58,6 @@ namespace cyclone {
 	public:
 		virtual	uint32_t					AddContact							(ParticleContact *contact, uint32_t limit)								const	= 0;
 	};
-
-
-
 } // namespace cyclone
 
 #endif // CYCLONE_CONTACTS_H

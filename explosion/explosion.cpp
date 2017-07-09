@@ -183,9 +183,11 @@ public:
 // The main demo class definition.
 class ExplosionDemo : public RigidBodyApplication
 {
-	bool					EditMode, UpMode;
-	const static uint32_t	Boxes				= OBJECTS;	// Holds the number of boxes in the simulation.
-	const static uint32_t	Balls				= OBJECTS;	// Holds the number of balls in the simulation.
+	bool					EditMode			= false
+		,					UpMode				= false
+		;
+	static	const uint32_t	Boxes				= OBJECTS;	// Holds the number of boxes in the simulation.
+	static	const uint32_t	Balls				= OBJECTS;	// Holds the number of balls in the simulation.
 	Box						BoxData		[Boxes]	= {};		// Holds the box data.
 	Ball					BallData	[Balls]	= {};		// Holds the ball data. 
 	
@@ -194,22 +196,18 @@ class ExplosionDemo : public RigidBodyApplication
 	virtual void			GenerateContacts	();	// Processes the contact generation code. 
 	virtual void			UpdateObjects		(cyclone::real duration);	// Processes the objects in the simulation forward in time. 
 public:
-							ExplosionDemo		();	// Creates a new demo object. 
-	virtual void			InitGraphics		();	// Sets up the rendering. 
-	virtual const char*		GetTitle			()												{ return "Cyclone > Explosion Demo"; }
-	virtual void			Display				();	// Display the particle positions. 
+							ExplosionDemo		()												: RigidBodyApplication()				{ Reset(); }	// Reset the position of the boxes
+
+	virtual const char*		GetTitle			()												{ return "Cyclone > Explosion Demo";	}
+	virtual void			InitGraphics		();						// Sets up the rendering. 
+	virtual void			Display				();						// Display the particle positions. 
 	virtual void			Key					(unsigned char key);	// Handles a key press.
 	virtual void			MouseDrag			(int x, int y);			// Handle a mouse drag.
+
 };
 
 // Method definitions
-ExplosionDemo::ExplosionDemo()
-	: RigidBodyApplication	()
-	, EditMode				(false)
-	, UpMode				(false)
-{
-	Reset();	// Reset the position of the boxes
-}
+
 
 void ExplosionDemo::Fire()
 {
@@ -242,8 +240,7 @@ void ExplosionDemo::Reset()
     for (Ball *ball = BallData; ball < BallData + Balls; ball++)
         ball->random(&random);
 
-    // Reset the contacts
-    CData.contactCount = 0;
+    CData.contactCount = 0;	// Reset the contacts
 }
 
 // Note that this method makes a lot of use of early returns to avoid processing lots of potential contacts that it hasn't got room to store.
@@ -451,7 +448,4 @@ void ExplosionDemo::Key(unsigned char key) {
 }
 
 // Called by the common demo framework to create an application object (with new) and return a pointer.
-Application* getApplication()
-{
-    return new ExplosionDemo();
-}
+Application* getApplication() { return new ExplosionDemo(); }

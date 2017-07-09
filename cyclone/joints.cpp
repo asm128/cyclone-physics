@@ -7,20 +7,20 @@ using namespace cyclone;
 unsigned Joint::AddContact(Contact *contact, unsigned limit) const
 {
     // Calculate the position of each connection point in world coordinates
-    Vector3 a_pos_world = body[0]->getPointInWorldSpace(position[0]);
-    Vector3 b_pos_world = body[1]->getPointInWorldSpace(position[1]);
+    Vector3 a_pos_world = Body[0]->getPointInWorldSpace(Position[0]);
+    Vector3 b_pos_world = Body[1]->getPointInWorldSpace(Position[1]);
 
     // Calculate the length of the joint
     Vector3 a_to_b = b_pos_world - a_pos_world;
     Vector3 normal = a_to_b;
     normal.normalise();
-    real length = a_to_b.magnitude();
+    double length = a_to_b.magnitude();
 
     // Check if it is violated
     if (real_abs(length) > Error)
     {
-        contact->Body[0]		= body[0];
-        contact->Body[1]		= body[1];
+        contact->Body[0]		= Body[0];
+        contact->Body[1]		= Body[1];
         contact->ContactNormal	= normal;
         contact->ContactPoint	= (a_pos_world + b_pos_world) * 0.5f;
         contact->Penetration	= length - Error;
@@ -34,13 +34,13 @@ unsigned Joint::AddContact(Contact *contact, unsigned limit) const
 
 void Joint::set(RigidBody *a, const Vector3& a_pos,
                 RigidBody *b, const Vector3& b_pos,
-                real error)
+                double error)
 {
-    body[0] = a;
-    body[1] = b;
+    Body[0] = a;
+    Body[1] = b;
 
-    position[0] = a_pos;
-    position[1] = b_pos;
+    Position[0] = a_pos;
+    Position[1] = b_pos;
 
     Joint::Error = error;
 }

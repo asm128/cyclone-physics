@@ -7,139 +7,108 @@
 
 using namespace cyclone;
 
-Random::Random()
-{
-    seed(0);
+					Random::Random					()											{ seed(0); }
+					Random::Random					(uint32_t seed)								{ Random::seed(seed); }
+
+void				Random::seed					(uint32_t s)								{
+	if (s == 0) 
+		s					= (uint32_t)clock();
+
+	for (uint32_t i = 0; i < 17; i++) {			// Fill the buffer with some basic random numbers
+		s					= s * 2891336453 + 1;	// Simple linear congruential generator
+		buffer[i]			= s;
+	}
+
+	// Initialize pointers into the buffer
+	p1					= 0;  
+	p2					= 10;
 }
 
-Random::Random(uint32_t seed)
-{
-    Random::seed(seed);
-}
+uint32_t			Random::rotl					(uint32_t n, uint32_t r)					{ return (n << r) | (n >> (32 - r)); }
+uint32_t			Random::rotr					(uint32_t n, uint32_t r)					{ return (n >> r) | (n << (32 - r)); }
+uint32_t			Random::randomBits				()											{
+	uint32_t				result = buffer[p1]				= rotl(buffer[p2], 13) + rotl(buffer[p1], 9);	// Rotate the buffer and store it back to itself
 
-void Random::seed(uint32_t s)
-{
-    if (s == 0) 
-        s = (uint32_t)clock();
+	// Rotate pointers
+	if (--p1 < 0) p1		= 16;
+	if (--p2 < 0) p2		= 16;
 
-    for (uint32_t i = 0; i < 17; i++) {	// Fill the buffer with some basic random numbers
-        s = s * 2891336453 + 1;	// Simple linear congruential generator
-        buffer[i] = s;
-    }
-
-    // Initialize pointers into the buffer
-    p1 = 0;  p2 = 10;
-}
-
-unsigned Random::rotl(uint32_t n, uint32_t r) { return (n << r) | (n >> (32 - r)); }
-unsigned Random::rotr(uint32_t n, uint32_t r) { return (n >> r) | (n << (32 - r)); }
-
-unsigned Random::randomBits()
-{
-    unsigned result;
-
-    // Rotate the buffer and store it back to itself
-    result = buffer[p1] = rotl(buffer[p2], 13) + rotl(buffer[p1], 9);
-
-    // Rotate pointers
-    if (--p1 < 0) p1 = 16;
-    if (--p2 < 0) p2 = 16;
-
-    // Return result
-    return result;
+	return result;	// Return result
 }
 
 #ifdef SINGLE_PRECISION
-real Random::randomReal()
-{
-    // Get the random number
-    unsigned bits = randomBits();
+double				Random::randomReal				()											{
+	uint32_t				bits							= randomBits();	// Get the random number
 
-    // Set up a reinterpret structure for manipulation
-    union {
-        real value;
-        unsigned word;
-    } convert;
+	// Set up a reinterpret structure for manipulation
+	union {
+		real					value;
+		uint32_t				word;
+	}						convert;
 
-    // Now assign the bits to the word. This works by fixing the ieee
-    // sign and exponent bits (so that the size of the result is 1-2)
-    // and using the bits to create the fraction part of the float.
-    convert.word = (bits >> 9) | 0x3f800000;
-
-    // And return the value
-    return convert.value - 1.0f;
+	convert.word		= (bits >> 9) | 0x3f800000;	// Now assign the bits to the word. This works by fixing the ieee sign and exponent bits (so that the size of the result is 1-2) and using the bits to create the fraction part of the float.
+	return convert.value - 1.0f;	// And return the value
 }
 #else
-real Random::randomReal()
-{
-    // Get the random number
-    unsigned bits = randomBits();
+double				Random::randomReal				()											{
+	uint32_t				bits				= randomBits();	// Get the random number
+	// Set up a reinterpret structure for manipulation
+	union {
+		double					value;
+		uint32_t				words[2];
+	}						convert;
 
-    // Set up a reinterpret structure for manipulation
-    union {
-        real value;
-        unsigned words[2];
-    } convert;
-
-    // Now assign the bits to the words. This works by fixing the ieee
-    // sign and exponent bits (so that the size of the result is 1-2)
-    // and using the bits to create the fraction part of the float. Note
-    // that bits are used more than once in this process.
-    convert.words[0] =  bits << 20; // Fill in the top 16 bits
-    convert.words[1] = (bits >> 12) | 0x3FF00000; // And the bottom 20
-
-    // And return the value
-    return convert.value - 1.0;
+	// Now assign the bits to the words. This works by fixing the ieee sign and exponent bits (so that the size of the result is 1-2)
+	// and using the bits to create the fraction part of the float. Note that bits are used more than once in this process.
+	convert.words[0]	=  bits << 20; // Fill in the top 16 bits
+	convert.words[1]	= (bits >> 12) | 0x3FF00000; // And the bottom 20
+	return convert.value - 1.0;	// And return the value
 }
 #endif
 
-uint32_t	Random::randomInt				(uint32_t max)				{ return randomBits() % max; }
-double		Random::randomReal				(double min, double max)	{ return randomReal() * (max-min) + min; }
-double		Random::randomReal				(double scale)				{ return randomReal() * scale; }
-double		Random::randomBinomial			(double scale)				{ return (randomReal()-randomReal())*scale; }
-Quaternion	Random::randomQuaternion		()							{
-    Quaternion q =
-        { randomReal()
-        , randomReal()
-        , randomReal()
-        , randomReal()
-        };
-    q.normalise();
-    return q;
+uint32_t			Random::randomInt				(uint32_t max)								{ return randomBits() % max;				}
+double				Random::randomReal				(double min, double max)					{ return randomReal() * (max-min) + min;	}
+double				Random::randomReal				(double scale)								{ return randomReal() * scale;				}
+double				Random::randomBinomial			(double scale)								{ return (randomReal()-randomReal())*scale; }
+Quaternion			Random::randomQuaternion		()											{
+	Quaternion				q								=
+		{ randomReal()
+		, randomReal()
+		, randomReal()
+		, randomReal()
+		};
+	q.normalise();
+	return q;
 }
 
-Vector3 Random::randomVector(real scale)
-{
-    return 
+Vector3				Random::randomVector			(double scale)								{
+	return 
 		{ randomBinomial(scale)
 		, randomBinomial(scale)
 		, randomBinomial(scale)
 		};
 }
 
-Vector3 Random::randomXZVector(real scale)
-{
-    return 
-        { randomBinomial(scale)
-        , 0
-        , randomBinomial(scale)
-        };
+Vector3				Random::randomXZVector			(double scale)								{
+	return 
+		{ randomBinomial(scale)
+		, 0
+		, randomBinomial(scale)
+		};
 }
 
-Vector3 Random::randomVector(const Vector3 &scale)
-{
-    return 
-        { randomBinomial(scale.x)
-        , randomBinomial(scale.y)
-        , randomBinomial(scale.z)
-        };
+Vector3				Random::randomVector			(const Vector3 &scale)						{
+	return 
+		{ randomBinomial(scale.x)
+		, randomBinomial(scale.y)
+		, randomBinomial(scale.z)
+		};
 }
 
-Vector3 Random::randomVector(const Vector3 &min, const Vector3 &max)
-{
-    return 
-        { randomReal(min.x, max.x)
-        , randomReal(min.y, max.y)
-        , randomReal(min.z, max.z)
-        };
+Vector3				Random::randomVector			(const Vector3 &min, const Vector3 &max)	{
+	return 
+		{ randomReal(min.x, max.x)
+		, randomReal(min.y, max.y)
+		, randomReal(min.z, max.z)
+		};
 }

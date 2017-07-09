@@ -6,13 +6,13 @@ using namespace cyclone;
 
 // Contact implementation
 
-void ParticleContact::resolve(real duration)
+void ParticleContact::resolve(double duration)
 {
     resolveVelocity			(duration);
     resolveInterpenetration	(duration);
 }
 
-real ParticleContact::calculateSeparatingVelocity() const
+double ParticleContact::calculateSeparatingVelocity() const
 {
     Vector3 relativeVelocity = particle[0]->Velocity;
     if (particle[1]) 
@@ -20,20 +20,20 @@ real ParticleContact::calculateSeparatingVelocity() const
     return relativeVelocity * contactNormal;
 }
 
-void ParticleContact::resolveVelocity(real duration) {
+void ParticleContact::resolveVelocity(double duration) {
 		
-	real separatingVelocity = calculateSeparatingVelocity();	// Find the velocity in the direction of the contact
+	double separatingVelocity = calculateSeparatingVelocity();	// Find the velocity in the direction of the contact
 
 	if (separatingVelocity > 0)	// Check if it needs to be resolved
 		return;	// The contact is either separating, or stationary - there's no impulse required.
 	
-	real newSepVelocity = -separatingVelocity * restitution;	// Calculate the new separating velocity
+	double newSepVelocity = -separatingVelocity * restitution;	// Calculate the new separating velocity
 	
 	// Check the velocity build-up due to acceleration only
 	Vector3 accCausedVelocity = particle[0]->Acceleration;
 	if (particle[1]) 
 		accCausedVelocity -= particle[1]->Acceleration;
-	real accCausedSepVelocity = accCausedVelocity * contactNormal * duration;
+	double accCausedSepVelocity = accCausedVelocity * contactNormal * duration;
 	
 	if (accCausedSepVelocity < 0) {	// If we've got a closing velocity due to acceleration build-up, remove it from the new separating velocity
 		newSepVelocity += restitution * accCausedSepVelocity;
@@ -41,10 +41,10 @@ void ParticleContact::resolveVelocity(real duration) {
 			newSepVelocity = 0;
 	}
 
-	real					deltaVelocity		= newSepVelocity - separatingVelocity;
+	double					deltaVelocity		= newSepVelocity - separatingVelocity;
 	
 	// We apply the change in velocity to each object in proportion to their inverse mass (i.e. those with lower inverse mass [higher actual mass] get less change in velocity)..
-	real					totalInverseMass	= particle[0]->InverseMass;
+	double					totalInverseMass	= particle[0]->InverseMass;
 	if (particle[1]) 
 		totalInverseMass	+= particle[1]->InverseMass;
 	
@@ -52,7 +52,7 @@ void ParticleContact::resolveVelocity(real duration) {
 		return;
 	
 	
-	real					impulse				= deltaVelocity / totalInverseMass;	// Calculate the impulse to apply
+	double					impulse				= deltaVelocity / totalInverseMass;	// Calculate the impulse to apply
 	Vector3					impulsePerIMass		= contactNormal * impulse;			// Find the amount of impulse per unit of inverse mass
 	
 	// Apply impulses: they are applied in the direction of the contact, and are proportional to the inverse mass.
@@ -61,48 +61,47 @@ void ParticleContact::resolveVelocity(real duration) {
 		particle[1]->Velocity						= particle[1]->Velocity + impulsePerIMass * -particle[1]->InverseMass;	// Particle 1 goes in the opposite direction
 }
 
-void ParticleContact::resolveInterpenetration(real duration)
+void ParticleContact::resolveInterpenetration(double duration)
 {
 	if (penetration <= 0)	// If we don't have any penetration, skip this step.
 		return;
 
-    // The movement of each object is based on their inverse mass, so total that.
-    real totalInverseMass = particle[0]->InverseMass;
-    if (particle[1]) 
+	// The movement of each object is based on their inverse mass, so total that.
+	double totalInverseMass = particle[0]->InverseMass;
+	if (particle[1]) 
 		totalInverseMass += particle[1]->InverseMass;
 
-    if (totalInverseMass <= 0)	// If all particles have infinite mass, then we do nothing
+	if (totalInverseMass <= 0)	// If all particles have infinite mass, then we do nothing
 		return;
 
-    
-    Vector3 movePerIMass = contactNormal * (penetration / totalInverseMass);	// Find the amount of penetration resolution per unit of inverse mass
+	Vector3 movePerIMass = contactNormal * (penetration / totalInverseMass);	// Find the amount of penetration resolution per unit of inverse mass
 
-    // Calculate the the movement amounts
-    particleMovement[0] = movePerIMass * particle[0]->InverseMass;
-    if (particle[1]) 
-        particleMovement[1] = movePerIMass * -particle[1]->InverseMass;
-    else
-        particleMovement[1].clear();
+	// Calculate the the movement amounts
+	particleMovement[0] = movePerIMass * particle[0]->InverseMass;
+	if (particle[1]) 
+	    particleMovement[1] = movePerIMass * -particle[1]->InverseMass;
+	else
+	    particleMovement[1].clear();
 
-    // Apply the penetration resolution
-    particle[0]->Position = particle[0]->Position + particleMovement[0];
-    if (particle[1]) 
-        particle[1]->Position = particle[1]->Position + particleMovement[1];
+	// Apply the penetration resolution
+	particle[0]->Position = particle[0]->Position + particleMovement[0];
+	if (particle[1]) 
+	    particle[1]->Position = particle[1]->Position + particleMovement[1];
 }
 
 void ParticleContactResolver::resolveContacts(ParticleContact *contactArray, uint32_t numContacts, double duration)
 {
 	IterationsUsed			= 0;
 	while(IterationsUsed < Iterations) {	// Find the contact with the largest closing velocity;
-		real					max = REAL_MAX;
-		unsigned				maxIndex = numContacts;
+		double					max						= REAL_MAX;
+		unsigned				maxIndex				= numContacts;
 		for (uint32_t i = 0; i < numContacts; ++i) {
-			real sepVel = contactArray[i].calculateSeparatingVelocity();
+			double					sepVel					= contactArray[i].calculateSeparatingVelocity();
 			if (sepVel < max &&
 				(sepVel < 0 || contactArray[i].penetration > 0))
 			{
-				max = sepVel;
-				maxIndex = i;
+				max					= sepVel;
+				maxIndex			= i;
 			}
 		}
 		
@@ -112,7 +111,7 @@ void ParticleContactResolver::resolveContacts(ParticleContact *contactArray, uin
 		contactArray[maxIndex].resolve(duration);	// Resolve this contact
 		
 		// Update the interpenetrations for all particles
-		Vector3 *move = contactArray[maxIndex].particleMovement;
+		Vector3					* move					= contactArray[maxIndex].particleMovement;
 		for (uint32_t i = 0; i < numContacts; ++i) {
 			if (contactArray[i].particle[0] == contactArray[maxIndex].particle[0])
 			    contactArray[i].penetration		-= move[0] * contactArray[i].contactNormal;

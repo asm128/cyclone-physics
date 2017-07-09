@@ -13,25 +13,21 @@ const Vector3 Vector3::X				= {0, 1, 0};
 const Vector3 Vector3::Y				= {1, 0, 0};
 const Vector3 Vector3::Z				= {0, 0, 1};
 
-/*
- * Definition of the sleep epsilon extern.
- */
-real cyclone::sleepEpsilon = ((real)0.3);
+// Definition of the sleep epsilon extern.
+double cyclone::sleepEpsilon = 0.3;
 
-/*
- * Functions to change sleepEpsilon.
- */
-void cyclone::setSleepEpsilon(real value)
+// Functions to change sleepEpsilon.
+void cyclone::setSleepEpsilon(double value)
 {
     cyclone::sleepEpsilon = value;
 }
 
-real cyclone::getSleepEpsilon()
+double cyclone::getSleepEpsilon()
 {
     return cyclone::sleepEpsilon;
 }
 
-real Matrix4::getDeterminant() const
+double Matrix4::getDeterminant() const
 {
     return -data[8]*data[5]*data[2]+
         data[4]*data[9]*data[2]+
@@ -44,9 +40,10 @@ real Matrix4::getDeterminant() const
 void Matrix4::setInverse(const Matrix4 &m)
 {
     // Make sure the determinant is non-zero.
-    real det = getDeterminant();
-    if (det == 0) return;
-    det = ((real)1.0)/det;
+    double det = getDeterminant();
+    if (det == 0) 
+		return;
+    det = 1.0 / det;
 
     data[0] = (-m.data[9]*m.data[6]+m.data[5]*m.data[10])*det;
     data[4] = (m.data[8]*m.data[6]-m.data[4]*m.data[10])*det;
@@ -80,7 +77,7 @@ void Matrix4::setInverse(const Matrix4 &m)
                -m.data[0]*m.data[5]*m.data[11])*det;
 }
 
-Matrix3 Matrix3::linearInterpolate(const Matrix3& a, const Matrix3& b, real prop)
+Matrix3 Matrix3::linearInterpolate(const Matrix3& a, const Matrix3& b, double prop)
 {
     Matrix3 result;
     for (unsigned i = 0; i < 9; i++) {

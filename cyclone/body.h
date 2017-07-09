@@ -8,16 +8,16 @@
 namespace cyclone {
 
 	struct RigidBody {
-		real								InverseMass;
+		double								InverseMass;
 		Matrix3								InverseInertiaTensor;
-		real								LinearDamping;
-		real								AngularDamping;
+		double								LinearDamping;
+		double								AngularDamping;
 		Vector3								Position;
 		Quaternion							Orientation;
 		Vector3								Velocity;
 		Vector3								Rotation;
 		Matrix3								InverseInertiaTensorWorld;
-		real								Motion;
+		double								Motion;
 		bool								IsAwake;
 		bool								CanSleep;
 		Matrix4								TransformMatrix;
@@ -27,9 +27,9 @@ namespace cyclone {
 		Vector3								LastFrameAcceleration;
 		
 		void								calculateDerivedData();
-		void								integrate(real duration);
-		void								setMass(const real mass);
-		real								getMass() const;
+		void								integrate(double duration);
+		void								setMass(const double mass);
+		double								getMass() const;
 		bool								hasFiniteMass() const;
 		void								setInertiaTensor(const Matrix3 &inertiaTensor);
 		void								getInertiaTensor(Matrix3 *inertiaTensor) const;
@@ -37,16 +37,16 @@ namespace cyclone {
 		void								getInertiaTensorWorld(Matrix3 *inertiaTensor) const;
 		Matrix3								getInertiaTensorWorld() const;
 		void								setInverseInertiaTensor(const Matrix3 &inverseInertiaTensor);
-		void								setDamping(const real linearDamping, const real angularDamping);
+		void								setDamping(const double linearDamping, const double angularDamping);
 		
 		void								getPosition(Vector3 *position) const;
 		void								setOrientation(const Quaternion &orientation);
-		void								setOrientation(const real r, const real i, const real j, const real k);
+		void								setOrientation(const double r, const double i, const double j, const double k);
 		
 		void								getOrientation(Matrix3 *matrix) const;
-		void								getOrientation(real matrix[9]) const;
+		void								getOrientation(double matrix[9]) const;
 		void								getTransform(Matrix4 *transform) const;
-		void								getTransform(real matrix[16]) const;
+		void								getTransform(double matrix[16]) const;
 		void								getGLTransform(float matrix[16]) const;
 		Matrix4								getTransform() const;
 		Vector3								GetPointInLocalSpace(const Vector3 &point) const;

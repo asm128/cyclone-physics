@@ -26,7 +26,7 @@ namespace cyclone {
 
 		uint32_t											GenerateContacts		();	// Calls each of the registered contact generators to report their contacts. Returns the number of generated contacts.
 		void												integrate				(double duration);	// Integrates all the particles in this world forward in time by the given duration.
-		void												runPhysics				(real duration);	// Processes all the physics for the particle world.
+		void												runPhysics				(double duration);	// Processes all the physics for the particle world.
 		void												startFrame				();	// Initializes the world for a simulation frame. This clears the force accumulators for particles in the world. After calling this, the particles can have their forces for this frame added.
 
 		inline ParticleWorld::TParticles			&		getParticles			() { return Particles;			}

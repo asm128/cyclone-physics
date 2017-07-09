@@ -22,13 +22,13 @@ namespace cyclone {
 	
 	// Represents a rigid body that can be treated as a sphere for collision detection.
 	struct CollisionSphere : public CollisionPrimitive {
-		real						Radius;		// The radius of the sphere.
+		double						Radius;		// The radius of the sphere.
 	};
 
 	// The plane is not a primitive: it doesn't represent another rigid body. It is used for contacts with the immovable world geometry.
 	struct CollisionPlane {
 		Vector3						Direction;	// The plane normal
-		real						Offset;	// The distance of the plane from the origin.
+		double						Offset;	// The distance of the plane from the origin.
 	};
 
 	// Represents a rigid body that can be treated as an aligned bounding box for collision detection.
@@ -51,9 +51,9 @@ namespace cyclone {
 		Contact						* contacts							= 0;	// Holds the contact array to write into. 
 		int							contactsLeft						= 0;	// Holds the maximum number of contacts the array can take.
 		uint32_t					contactCount						= 0;	// Holds the number of contacts found so far. 
-		real						friction							= 0;	// Holds the friction value to write into any collisions.
-		real						restitution							= 0;	// Holds the restitution value to write into any collisions.
-		real						tolerance							= 0;	// Holds the collision tolerance, even uncolliding objects this close should have collisions generated.
+		double						friction							= 0;	// Holds the friction value to write into any collisions.
+		double						restitution							= 0;	// Holds the restitution value to write into any collisions.
+		double						tolerance							= 0;	// Holds the collision tolerance, even uncolliding objects this close should have collisions generated.
 
 		inline constexpr bool		hasMoreContacts						()							const		{ return contactsLeft > 0; }	// Checks if there are more contacts available in the contact data.
 

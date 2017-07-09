@@ -59,7 +59,7 @@ unsigned World::GenerateContacts()
     return maxContacts - limit;
 }
 
-void World::runPhysics(real duration)
+void World::runPhysics(double duration)
 {
     //registry.UpdateForces(duration);	// First apply the force generators
 

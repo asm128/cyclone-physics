@@ -71,7 +71,7 @@ protected:
 	bool							AutoPauseSimulation;						// Pauses the simulation after the next frame automatically.
 	
 	virtual void					GenerateContacts					()										= 0;	// Processes the contact generation code.
-	virtual void					UpdateObjects						(cyclone::real duration)				= 0;	// Processes the objects in the simulation forward in time. */
+	virtual void					UpdateObjects						(double duration)						= 0;	// Processes the objects in the simulation forward in time. */
 	virtual void					Reset								()										= 0;	// Resets the simulation.
 	void							DrawDebug							();												// Finishes drawing the frame, adding debugging information as needed.
 public:
