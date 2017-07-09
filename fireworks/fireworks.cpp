@@ -13,11 +13,11 @@ static cyclone::Random crandom;
 class Firework : public cyclone::Particle {
 public:
 	uint32_t					type;	// Fireworks have an integer type, used for firework rules. 
-	cyclone::real				age;	// The age of a firework determines when it detonates. Age gradually decreases, when it passes zero the firework delivers its payload. Think of age as fuse-left.
+	double						age;	// The age of a firework determines when it detonates. Age gradually decreases, when it passes zero the firework delivers its payload. Think of age as fuse-left.
 	
 	// Updates the firework by the given duration of time. Returns true if the firework has reached the end of its life and needs to be removed.
-	bool						Update							(cyclone::real duration)	{
-		integrate(duration);	// Update our physical state
+	bool						Update							(double duration)	{
+		Integrate(duration);	// Update our physical state
 		age							-= duration;	// We work backwards from our age to zero.
 		return (age < 0) || (Position.y < 0);
 	}
@@ -58,9 +58,7 @@ struct FireworkRule {
 			delete[] Payloads;
     }
 
-    /**
-     * Set all the rule parameters in one go.
-     */
+    // Set all the rule parameters in one go.
     void setParameters(uint32_t type, cyclone::real minAge, cyclone::real maxAge,
         const cyclone::Vector3 &minVelocity, const cyclone::Vector3 &maxVelocity,
         cyclone::real damping)
@@ -97,12 +95,12 @@ struct FireworkRule {
         firework->Velocity = (vel);
 
         // We use a mass of one in all cases (no point having fireworks with different masses, since they are only under the influence of gravity).
-        firework->setMass(1);
+        firework->SetMass(1);
         firework->Damping = Damping;
 
         firework->Acceleration = (cyclone::Vector3::GRAVITY);
 
-        firework->clearAccumulator();
+        firework->ClearAccumulator();
     }
 };
 

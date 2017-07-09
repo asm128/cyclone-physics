@@ -1,15 +1,5 @@
-/*
- * The platform demo.
- *
- * Part of the Cyclone physics system.
- *
- * Copyright (c) Icosagon 2003. All Rights Reserved.
- *
- * This software is distributed under licence. Use of this software
- * implies agreement with all terms and conditions of the accompanying
- * software licence.
- */
-
+// Copyright (c) Icosagon 2003. Published by Ian Millington under the MIT License for his book "Game Physics Engine Development" or something like that (a really good book that I actually bought in paperback after reading it).
+// Heavily modified by asm128 in order to make this code readable and free of potential bugs and inconsistencies and a large set of sources of problems and improductivity originally introduced thanks to poor advice, bad practices and OOP vices.
 #include "cyclone.h"
 #include "ogl_headers.h"
 #include "app.h"
@@ -55,11 +45,11 @@ PlatformDemo::PlatformDemo() : MassAggregateApplication(6)
     ParticleArray[5].Position = {4,2,-1	};
     for (unsigned i = 0; i < 6; i++)
     {
-        ParticleArray[i].setMass(BASE_MASS);
+        ParticleArray[i].SetMass(BASE_MASS);
 		ParticleArray[i].Velocity		= {};
         ParticleArray[i].Damping		= 0.9f;
         ParticleArray[i].Acceleration	= cyclone::Vector3::GRAVITY;
-        ParticleArray[i].clearAccumulator();
+        ParticleArray[i].ClearAccumulator();
     }
 
     Rods = new cyclone::ParticleRod[ROD_COUNT];
@@ -97,7 +87,7 @@ PlatformDemo::~PlatformDemo() {
 
 void PlatformDemo::UpdateAdditionalMass() {
 	for (unsigned i = 2; i < 6; i++)
-		ParticleArray[i].setMass(BASE_MASS);
+		ParticleArray[i].SetMass(BASE_MASS);
 
     // Find the coordinates of the mass as an index and proportion
     cyclone::real xp = MassPos.x;
@@ -112,23 +102,23 @@ void PlatformDemo::UpdateAdditionalMass() {
     MassDisplayPos.clear();
 
     // Add the proportion to the correct masses
-    ParticleArray[2].setMass(BASE_MASS + EXTRA_MASS*(1-xp)*(1-zp));
+    ParticleArray[2].SetMass(BASE_MASS + EXTRA_MASS*(1-xp)*(1-zp));
     MassDisplayPos.addScaledVector(ParticleArray[2].Position, (1-xp)*(1-zp));
 
     if (xp > 0)
     {
-        ParticleArray[4].setMass(BASE_MASS + EXTRA_MASS*xp*(1-zp));
+        ParticleArray[4].SetMass(BASE_MASS + EXTRA_MASS*xp*(1-zp));
         MassDisplayPos.addScaledVector(ParticleArray[4].Position, xp*(1-zp));
 
         if (zp > 0)
         {
-            ParticleArray[5].setMass(BASE_MASS + EXTRA_MASS*xp*zp);
+            ParticleArray[5].SetMass(BASE_MASS + EXTRA_MASS*xp*zp);
             MassDisplayPos.addScaledVector(ParticleArray[5].Position, xp*zp);
         }
     }
     if (zp > 0)
     {
-        ParticleArray[3].setMass(BASE_MASS + EXTRA_MASS*(1-xp)*zp);
+        ParticleArray[3].SetMass(BASE_MASS + EXTRA_MASS*(1-xp)*zp);
         MassDisplayPos.addScaledVector(ParticleArray[3].Position, (1-xp)*zp);
     }
 }

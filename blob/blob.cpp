@@ -132,7 +132,7 @@ void BlobForceGenerator::UpdateForce(cyclone::Particle *particle,
         {
             // Use a repulsion force.
             distance = 1.0f - distance / minNaturalDistance;
-            particle->addForce(separation.unit() * (1.0f - distance) * maxReplusion * -1.0f);
+            particle->AccumulatedForce	+= separation.unit() * (1.0f - distance) * maxReplusion * -1.0f;
             joinCount++;
         }
         else if (distance > maxNaturalDistance && distance < maxDistance) {
@@ -141,7 +141,7 @@ void BlobForceGenerator::UpdateForce(cyclone::Particle *particle,
 				= (distance		- maxNaturalDistance) 
 				/ (maxDistance	- maxNaturalDistance)
 				;
-            particle->addForce(separation.unit() * distance * maxAttraction);
+            particle->AccumulatedForce	+= separation.unit() * distance * maxAttraction;
             joinCount++;
         }
     }
@@ -151,7 +151,7 @@ void BlobForceGenerator::UpdateForce(cyclone::Particle *particle,
         cyclone::real force = cyclone::real(joinCount / maxFloat) * floatHead;
         if (force > floatHead) 
 			force = floatHead;
-		particle->addForce( {0, force, 0} );
+		particle->AccumulatedForce	+= {0, force, 0};
     }
 
 }
@@ -237,8 +237,8 @@ BlobDemo::BlobDemo()
 		blobs[i].Velocity			= {};
         blobs[i].Damping			= 0.2f;
         blobs[i].Acceleration		= cyclone::Vector3::GRAVITY * 0.4f;
-        blobs[i].setMass			(1.0f);
-        blobs[i].clearAccumulator();
+        blobs[i].SetMass			(1.0f);
+        blobs[i].ClearAccumulator();
 
         world.getParticles().push_back(blobs + i);
         world.getForceRegistry().add(blobs + i, &blobForceGenerator);
@@ -256,7 +256,7 @@ void BlobDemo::Reset()
         unsigned me = (i+BLOB_COUNT/2) % BLOB_COUNT;
 		blobs[i].Position			= (p->start + delta * (cyclone::real(me)*0.8f*fraction+0.1f) + cyclone::Vector3{0, 1.0f+r.randomReal(), 0});
 		blobs[i].Velocity			= {};
-        blobs[i].clearAccumulator();
+        blobs[i].ClearAccumulator();
     }
 }
 
@@ -332,7 +332,7 @@ void BlobDemo::Update()
 	xAxis *= pow(0.1f, duration);
 	yAxis *= pow(0.1f, duration);
 	
-	blobs[0].addForce(cyclone::Vector3{xAxis, yAxis, 0} * 10.0f);	// Move the controlled blob
+	blobs[0].AddForce(cyclone::Vector3{xAxis, yAxis, 0} * 10.0f);	// Move the controlled blob
 	world.runPhysics(duration);	// Run the simulation
 	
 	// Bring all the particles back to 2d

@@ -30,11 +30,10 @@ public:
 	virtual								~BridgeDemo					();
 										BridgeDemo					();
 
-	virtual const char*					GetTitle					();	// Returns the window title for the demo.
+	virtual const char*					GetTitle					()									{ return "Cyclone > Bridge Demo"; }
 	virtual void						Display						();	// Display the particles.
 	virtual void						Update						();	// Update the particle positions.
 	virtual void						Key							(unsigned char key);	// Handle a key press.
-
 	virtual void						Mouse						(int, int, int, int)				{}	// Called when GLUT detects a mouse button press.
 	virtual void						MouseDrag					(int, int)							{}	// Called when GLUT detects a mouse drag.
 };
@@ -44,7 +43,7 @@ BridgeDemo::BridgeDemo() : MassAggregateApplication(12) {
     // Create the masses and connections.
     for (unsigned i = 0; i < 12; i++)
     {
-        unsigned x = (i%12)/2;
+        //unsigned x = (i%12)/2;
         ParticleArray[i].Position = {
             cyclone::real(i/2)*2.0f-5.0f,
             4,
@@ -53,7 +52,7 @@ BridgeDemo::BridgeDemo() : MassAggregateApplication(12) {
 		ParticleArray[i].Velocity		= {};
         ParticleArray[i].Damping		= 0.9f;
         ParticleArray[i].Acceleration	= cyclone::Vector3::GRAVITY;
-        ParticleArray[i].clearAccumulator();
+        ParticleArray[i].ClearAccumulator();
     }
 
     // Add the links
@@ -105,7 +104,7 @@ BridgeDemo::~BridgeDemo() {
 void BridgeDemo::UpdateAdditionalMass()
 {
     for (unsigned i = 0; i < 12; i++)
-        ParticleArray[i].setMass(BASE_MASS);
+        ParticleArray[i].SetMass(BASE_MASS);
 
     // Find the coordinates of the mass as an index and proportion
     int x = int(MassPos.x);
@@ -138,20 +137,20 @@ void BridgeDemo::UpdateAdditionalMass()
     MassDisplayPos.clear();
 
     // Add the proportion to the correct masses
-    ParticleArray[x*2+z].setMass(BASE_MASS + EXTRA_MASS*(1-xp)*(1-zp));
+    ParticleArray[x*2+z].SetMass(BASE_MASS + EXTRA_MASS*(1-xp)*(1-zp));
     MassDisplayPos.addScaledVector(ParticleArray[x*2+z].Position, (1-xp)*(1-zp));
 
     if (xp > 0) {
-        ParticleArray[x*2+z+2].setMass(BASE_MASS + EXTRA_MASS*xp*(1-zp));
+        ParticleArray[x*2+z+2].SetMass(BASE_MASS + EXTRA_MASS*xp*(1-zp));
         MassDisplayPos.addScaledVector(ParticleArray[x*2+z+2].Position, xp*(1-zp));
 
         if (zp > 0) {
-            ParticleArray[x*2+z+3].setMass(BASE_MASS + EXTRA_MASS*xp*zp);
+            ParticleArray[x*2+z+3].SetMass(BASE_MASS + EXTRA_MASS*xp*zp);
             MassDisplayPos.addScaledVector(ParticleArray[x*2+z+3].Position, xp*zp);
         }
     }
     if (zp > 0) {
-        ParticleArray[x*2+z+1].setMass(BASE_MASS + EXTRA_MASS*(1-xp)*zp);
+        ParticleArray[x*2+z+1].SetMass(BASE_MASS + EXTRA_MASS*(1-xp)*zp);
         MassDisplayPos.addScaledVector(ParticleArray[x*2+z+1].Position, (1-xp)*zp);
     }
 }
@@ -205,32 +204,14 @@ void BridgeDemo::Update()
     UpdateAdditionalMass();
 }
 
-const char* BridgeDemo::GetTitle()
-{
-    return "Cyclone > Bridge Demo";
-}
 
 void BridgeDemo::Key(unsigned char key)
 {
-    switch(key)
-    {
-    case 's': case 'S':
-        MassPos.z += 0.1f;
-        if (MassPos.z > 1.0f) MassPos.z = 1.0f;
-        break;
-    case 'w': case 'W':
-        MassPos.z -= 0.1f;
-        if (MassPos.z < 0.0f) MassPos.z = 0.0f;
-        break;
-    case 'a': case 'A':
-        MassPos.x -= 0.1f;
-        if (MassPos.x < 0.0f) MassPos.x = 0.0f;
-        break;
-    case 'd': case 'D':
-        MassPos.x += 0.1f;
-        if (MassPos.x > 5.0f) MassPos.x = 5.0f;
-        break;
-
+    switch(key) {
+    case 's': case 'S':	MassPos.z += 0.1f;	if (MassPos.z > 1.0f) MassPos.z = 1.0f;	break;
+    case 'w': case 'W':	MassPos.z -= 0.1f;	if (MassPos.z < 0.0f) MassPos.z = 0.0f;	break;
+    case 'a': case 'A':	MassPos.x -= 0.1f;	if (MassPos.x < 0.0f) MassPos.x = 0.0f;	break;
+    case 'd': case 'D':	MassPos.x += 0.1f;	if (MassPos.x > 5.0f) MassPos.x = 5.0f;	break;
     default:
         MassAggregateApplication::Key(key);
     }

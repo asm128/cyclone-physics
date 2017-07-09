@@ -22,7 +22,7 @@ ParticleWorld::~ParticleWorld()
 
 void ParticleWorld::startFrame() {
     for (TParticles::iterator p = Particles.begin(); p != Particles.end(); ++p)
-        (*p)->clearAccumulator();	// Remove all forces from the accumulator
+        (*p)->ClearAccumulator();	// Remove all forces from the accumulator
 }
 
 unsigned ParticleWorld::GenerateContacts()
@@ -47,7 +47,7 @@ unsigned ParticleWorld::GenerateContacts()
 
 void ParticleWorld::integrate(double duration) {
 	for (TParticles::iterator p = Particles.begin(); p != Particles.end(); ++p)
-		(*p)->integrate(duration);		// Remove all forces from the accumulator
+		(*p)->Integrate(duration);		// Remove all forces from the accumulator
 }
 
 void ParticleWorld::runPhysics(double duration)
