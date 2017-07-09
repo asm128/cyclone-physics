@@ -10,7 +10,7 @@
 // The common code for all demos manages dispatch of requests to the appropriate application object.
 // To provide a correct application object of the right type without the core code needing to know which subclass is being used, each demonstration will supply a getApplication function which creates (with new) and returns a pointer to a new Application instance.
 // Even though subclasses will have to implement most of the methods in this class, I have not made them pure virtual. This saves the annoying need to implement an empty function that isn't needed.
-class Application{
+class Application {
 protected:
 	int								Height;	// Holds the height of the application window.
 	int								Width;	// Holds the current width of the application window.
@@ -43,16 +43,16 @@ public:
 // This application adds additional functionality used in the mass-aggregate demos.
 class MassAggregateApplication : public Application {
 protected:
-	cyclone::ParticleWorld			World;
-	cyclone::Particle				* ParticleArray;
-	cyclone::GroundContacts			GroundContactGenerator;
+	cyclone::ParticleWorld			World								;
+	cyclone::Particle				* ParticleArray						= 0;
+	cyclone::GroundContacts			GroundContactGenerator				= {};
 
 public:
-	virtual							~MassAggregateApplication			();
+	virtual							~MassAggregateApplication			()										{ if(ParticleArray) delete[] ParticleArray; }
 									MassAggregateApplication			(uint32_t particleCount);
 
 	virtual void					Update								();	// Update the particle positions.
-	virtual void					InitGraphics						();	// Sets up the graphic rendering. 
+	virtual void					InitGraphics						()										{ Application::InitGraphics(); }	// Just call the superclass
 	virtual void					Display								();	// Display the particles.
 };
 

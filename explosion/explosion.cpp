@@ -25,7 +25,7 @@ public:
 	inline						Ball					()					{ Body = &_ballBody; }
 
     // Draws the box, excluding its shadow. 
-    void						render					()					{
+    void						Render					()					{
 		GLfloat mat[16];
 		Body->getGLTransform(mat);	// 
 
@@ -41,7 +41,7 @@ public:
     }
 
     // Draws the ground plane shadow for the box. 
-    void						renderShadow			()					{
+    void						RenderShadow			()					{
         // Get the OpenGL transformation
         GLfloat mat[16];
         Body->getGLTransform(mat);
@@ -86,7 +86,7 @@ public:
     }
 
     // Positions the box at a random location.
-	void random(cyclone::Random *random) {
+	void Random(cyclone::Random *random) {
         const static cyclone::Vector3	minPos		= {-5, 5,-5};
         const static cyclone::Vector3	maxPos		= {5, 10, 5};
         cyclone::Random					r;
@@ -103,7 +103,7 @@ class Box : public cyclone::CollisionBox
 {
 	::cyclone::RigidBody		_boxBody				= {};
 public:
-	bool						isOverlapping;
+	bool						IsOverlapping;
 	
 	inline						Box						()			{ Body = &_boxBody; }
 
@@ -112,7 +112,7 @@ public:
 		GLfloat mat[16];
 		Body->getGLTransform(mat);
 	
-			 if (isOverlapping) glColor3f(0.7f,1.0f,0.7f);
+			 if (IsOverlapping) glColor3f(0.7f,1.0f,0.7f);
 		else if (Body->IsAwake) glColor3f(1.0f,0.7f,0.7f);
 		else					glColor3f(0.7f,0.7f,1.0f);
 		
@@ -238,7 +238,7 @@ void ExplosionDemo::Reset()
         box->random(&random);
 
     for (Ball *ball = BallData; ball < BallData + Balls; ball++)
-        ball->random(&random);
+        ball->Random(&random);
 
     CData.ContactCount = 0;	// Reset the contacts
 }
@@ -274,7 +274,7 @@ void ExplosionDemo::GenerateContacts() {
             cyclone::CollisionDetector::boxAndBox(*box, *other, &CData);
 
             if (cyclone::IntersectionTests::BoxAndBox(*box, *other))
-                box->isOverlapping = other->isOverlapping = true;
+                box->IsOverlapping = other->IsOverlapping = true;
         }
 
         // Check for collisions with each ball
@@ -303,7 +303,7 @@ void ExplosionDemo::UpdateObjects(double duration) {
 	for (Box *box = BoxData; box < BoxData + Boxes; box++) {	// Update the physics of each box in turn
 		box->Body->integrate(duration);	// Run the physics
 		box->CalculateInternals();
-		box->isOverlapping = false;
+		box->IsOverlapping = false;
 	}
 	
 	for (Ball *ball = BallData; ball < BallData + Balls; ball++) {	// Update the physics of each ball in turn
@@ -333,7 +333,7 @@ void ExplosionDemo::Display()
 
     for (Box *box = BoxData; box < BoxData + Boxes; box++) {	// Update the transform matrices of each box in turn
         box->CalculateInternals();
-        box->isOverlapping		= false;
+        box->IsOverlapping		= false;
     }
 
     // Update the transform matrices of each ball in turn
@@ -355,7 +355,7 @@ void ExplosionDemo::Display()
         box->render();
 
     for (Ball *ball = BallData; ball < BallData + Balls; ball++)
-        ball->render();
+        ball->Render();
 
     glPopMatrix();
     glDisable(GL_LIGHTING);
@@ -389,7 +389,7 @@ void ExplosionDemo::Display()
 		box->renderShadow();
 
 	for (Ball *ball = BallData; ball < BallData + Balls; ball++)
-		ball->renderShadow();
+		ball->RenderShadow();
 
 	glDisable(GL_BLEND);
 
@@ -403,7 +403,7 @@ void ExplosionDemo::Display()
         box->render();
 
 	for (Ball *ball = BallData; ball < BallData + Balls; ball++)
-        ball->render();
+        ball->Render();
 
 	glDisable(GL_COLOR_MATERIAL);
     glDisable(GL_LIGHTING);

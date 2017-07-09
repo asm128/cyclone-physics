@@ -1,10 +1,12 @@
 // The definition file for the default application object.
 // Copyright (c) Icosagon 2003. Published by Ian Millington under the MIT License for his book "Game Physics Engine Development" or something like that (a really good book that I actually bought in paperback after reading it).
 // Heavily modified by asm128 in order to make this code readable and free of potential bugs and inconsistencies and a large set of sources of problems and improductivity originally introduced thanks to poor advice, bad practices and OOP vices.
-#include <cstring>
-#include "ogl_headers.h"
 #include "app.h"
+
+#include "ogl_headers.h"
 #include "timing.h"
+
+#include <cstring>
 
 void Application::InitGraphics()
 {
@@ -74,10 +76,8 @@ void Application::RenderText(float x, float y, const char *text, void *font)
     glPushMatrix();
     glLoadIdentity();
 
-    // Ensure we have a font
-    if (font == NULL) {
+    if (font == NULL)	// Ensure we have a font
         font = GLUT_BITMAP_HELVETICA_10;
-    }
 
     // Loop through characters displaying them.
     size_t len = strlen(text);
@@ -115,16 +115,6 @@ MassAggregateApplication::MassAggregateApplication(unsigned int particleCount)
     World.ContactGenerators.push_back(&GroundContactGenerator);
 }
 
-MassAggregateApplication::~MassAggregateApplication()
-{
-    delete[] ParticleArray;
-}
-
-void MassAggregateApplication::InitGraphics()
-{
-    // Call the superclass
-    Application::InitGraphics();
-}
 
 void MassAggregateApplication::Display()
 {
@@ -156,7 +146,8 @@ void MassAggregateApplication::Update()
 
     // Find the duration of the last frame in seconds
     float duration = (float)TimingData::get().lastFrameDuration * 0.001f;
-    if (duration <= 0.0f) return;
+    if (duration <= 0.0f) 
+		return;
 
     // Run the simulation
     World.runPhysics(duration);
@@ -175,24 +166,21 @@ RigidBodyApplication::RigidBodyApplication()
     CData.ContactArray = Contacts;
 }
 
-void RigidBodyApplication::Update()
-{
-    // Find the duration of the last frame in seconds
-    float duration = (float)TimingData::get().lastFrameDuration * 0.001f;
-    if (duration <= 0.0f) return;
-    else if (duration > 0.05f) duration = 0.05f;
+void RigidBodyApplication::Update() {
+	float duration = (float)TimingData::get().lastFrameDuration * 0.001f;	// Find the duration of the last frame in seconds
+	if (duration <= 0.0f) 
+		return;	// nothing to update since no time has passed 
+	else if (duration > 0.05f) 
+		duration = 0.05f;
 
-    // Exit immediately if we aren't running the simulation
-    if (PauseSimulation)
-    {
-        Application::Update();
-        return;
-    }
-    else if (AutoPauseSimulation)
-    {
-        PauseSimulation = true;
-        AutoPauseSimulation = false;
-    }
+	if(PauseSimulation) {	// Exit immediately if we aren't running the simulation
+		Application::Update();
+		return;
+	}
+	else if (AutoPauseSimulation) {
+		PauseSimulation			= true;
+		AutoPauseSimulation		= false;
+	}
 
     // Update the objects
     UpdateObjects(duration);

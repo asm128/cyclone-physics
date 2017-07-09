@@ -11,16 +11,18 @@
 // The main demo class definition.
 class SailboatDemo : public Application
 {
-    cyclone::Buoyancy		buoyancy;
+    cyclone::Buoyancy		Buoyancy	;
 
-    cyclone::Aero			sail;
-    cyclone::RigidBody		sailboat;
-    cyclone::ForceRegistry	registry;
+    cyclone::Aero			Sail		;
+	cyclone::RigidBody		Sailboat		= {};
 
-    cyclone::Random			r;
-    cyclone::Vector3		windspeed;
+	cyclone::Random			R				= {};
+	cyclone::Vector3		WindSpeed		= {};
 
-    float					sail_control;
+    float					SailControl		= 0;
+
+	cyclone::ForceRegistry	Registry	;
+
 
 public:
 	virtual					~SailboatDemo	()						{}
@@ -38,33 +40,31 @@ public:
 // Method definitions
 SailboatDemo::SailboatDemo()
 	: Application()
-	, sail			(cyclone::Matrix3(0,0,0, 0,0,0, 0,0,-1.0f), {2.0f, 0, 0}, &windspeed)
-	, buoyancy		({0.0f, 0.5f, 0.0f}, 1.0f, 3.0f, 1.6f)
-	, sail_control	(0)
-	, windspeed		({})
+	, Sail			(cyclone::Matrix3(0,0,0, 0,0,0, 0,0,-1.0f), {2.0f, 0, 0}, &WindSpeed)
+	, Buoyancy		({0.0f, 0.5f, 0.0f}, 1.0f, 3.0f, 1.6f)
 {
     // Set up the boat's rigid body.
-	sailboat.Position = {0, 1.6f, 0};
-    sailboat.setOrientation(1,0,0,0);
+	Sailboat.Position = {0, 1.6f, 0};
+    Sailboat.setOrientation(1,0,0,0);
 
-    sailboat.Velocity = {};
-    sailboat.Rotation = {};
+    Sailboat.Velocity = {};
+    Sailboat.Rotation = {};
 
-    sailboat.setMass(200.0f);
+    Sailboat.setMass(200.0f);
     cyclone::Matrix3 it;
 	it.setBlockInertiaTensor({2, 1, 1}, 100.0f);
-    sailboat.setInertiaTensor(it);
+    Sailboat.setInertiaTensor(it);
 
-    sailboat.setDamping(0.8f, 0.8f);
+    Sailboat.setDamping(0.8f, 0.8f);
 
-    sailboat.Acceleration = cyclone::Vector3::GRAVITY;
-    sailboat.calculateDerivedData();
+    Sailboat.Acceleration = cyclone::Vector3::GRAVITY;
+    Sailboat.calculateDerivedData();
 
-    sailboat.setAwake();
-    sailboat.setCanSleep(false);
+    Sailboat.setAwake();
+    Sailboat.setCanSleep(false);
 
-    registry.Registrations.push_back({&sailboat, &sail		});
-    registry.Registrations.push_back({&sailboat, &buoyancy	});
+    Registry.Registrations.push_back({&Sailboat, &Sail		});
+    Registry.Registrations.push_back({&Sailboat, &Buoyancy	});
 }
 
 static void drawBoat()
@@ -105,9 +105,9 @@ void SailboatDemo::Display()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
-	cyclone::Vector3			pos			= sailboat.Position;
+	cyclone::Vector3			pos			= Sailboat.Position;
 	cyclone::Vector3			offset			= {4.0f, 0, 0};
-	offset = sailboat.TransformMatrix.transformDirection(offset);
+	offset = Sailboat.TransformMatrix.transformDirection(offset);
 	gluLookAt(pos.x+offset.x, pos.y+5.0f, pos.z+offset.z,
 	          pos.x, pos.y, pos.z,
 	          0.0, 1.0, 0.0);
@@ -126,7 +126,7 @@ void SailboatDemo::Display()
 
 	// Set the transform matrix for the aircraft
 	GLfloat gl_transform[16];
-	sailboat.TransformMatrix.fillGLArray(gl_transform);
+	Sailboat.TransformMatrix.fillGLArray(gl_transform);
 	glPushMatrix();
 	glMultMatrixf(gl_transform);
 
@@ -136,11 +136,11 @@ void SailboatDemo::Display()
 	glPopMatrix();
 
 	char buffer[256];
-	sprintf_s(buffer, "Speed %.1f", sailboat.Velocity.magnitude() );
+	sprintf_s(buffer, "Speed %.1f", Sailboat.Velocity.magnitude() );
 	glColor3f(0,0,0);
 	RenderText(10.0f, 24.0f, buffer);
 
-	sprintf_s(buffer, "Sail Control: %.1f", sail_control);
+	sprintf_s(buffer, "Sail Control: %.1f", SailControl);
 	RenderText(10.0f, 10.0f, buffer);
 }
 
@@ -149,10 +149,10 @@ void SailboatDemo::Update() {
 	if (duration <= 0.0f) 
 		return;
 
-	sailboat.clearAccumulators();	// Start with no forces or acceleration.
-	registry.UpdateForces(duration);	// Add the forces acting on the boat.
-	sailboat.integrate(duration);	// Update the boat's physics.
-	windspeed = windspeed * 0.9f + r.randomXZVector(1.0f);	// Change the wind speed.
+	Sailboat.clearAccumulators();	// Start with no forces or acceleration.
+	Registry.UpdateForces(duration);	// Add the forces acting on the boat.
+	Sailboat.integrate(duration);	// Update the boat's physics.
+	WindSpeed = WindSpeed * 0.9f + R.randomXZVector(1.0f);	// Change the wind speed.
 
 	Application::Update();
 }
@@ -161,16 +161,16 @@ const char* SailboatDemo::GetTitle() { return "Cyclone > Sail Boat Demo"; }
 
 void SailboatDemo::Key(unsigned char key) {
 	switch(key) {
-	case 'q': case 'Q': sail_control -= 0.1f; break;
-	case 'e': case 'E': sail_control += 0.1f; break;
-	case 'w': case 'W': sail_control =  0.0f; break;
+	case 'q': case 'Q': SailControl -= 0.1f; break;
+	case 'e': case 'E': SailControl += 0.1f; break;
+	case 'w': case 'W': SailControl =  0.0f; break;
 	default:
 		Application::Key(key);
 	}
 
 	// Make sure the controls are in range
-		 if (sail_control < -1.0f) sail_control = -1.0f;
-	else if (sail_control >  1.0f) sail_control =  1.0f;
+		 if (SailControl < -1.0f) SailControl = -1.0f;
+	else if (SailControl >  1.0f) SailControl =  1.0f;
 
 	//sail.setControl(sail_control);	// Update the control surfaces
 }

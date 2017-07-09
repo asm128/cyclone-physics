@@ -32,17 +32,6 @@ namespace cyclone {
 							void								UpdateForces					(double duration);	
 	};
 
-	// A force generator that applies a gravitational force. One instance can be used for multiple rigid bodies.
-	class ForceGravity : public ForceGenerator {
-							Vector3								Gravity							= {};		// Holds the acceleration due to gravity.
-	public:
-																ForceGravity					(const Vector3 &gravity)					: Gravity(gravity)	{}	// Creates the generator with the given acceleration. 
-		virtual				void								UpdateForce						(RigidBody *body, double duration)			{						// Applies the gravitational force to the given rigid body.
-			if (body->hasFiniteMass()) 	// Apply the mass-scaled force to the body
-				body->addForce(Gravity * body->getMass());
-		}	
-	};
-
 	// A force generator that applies a Spring force.
 	class Spring : public ForceGenerator {
 							Vector3								ConnectionPoint					= {};	// The point of connection of the spring, in local coordinates.
@@ -117,6 +106,16 @@ namespace cyclone {
 	};
 
 
+	//// A force generator that applies a gravitational force. One instance can be used for multiple rigid bodies.
+	//class ForceGravity : public ForceGenerator {
+	//						Vector3								Gravity							= {};		// Holds the acceleration due to gravity.
+	//public:
+	//															ForceGravity					(const Vector3 &gravity)					: Gravity(gravity)	{}	// Creates the generator with the given acceleration. 
+	//	virtual				void								UpdateForce						(RigidBody *body, double duration)			{						// Applies the gravitational force to the given rigid body.
+	//		if (body->hasFiniteMass()) 	// Apply the mass-scaled force to the body
+	//			body->addForce(Gravity * body->getMass());
+	//	}	
+	//};
 	//// A force generator with an aerodynamic surface that can be re-oriented relative to its rigid body. This derives the
 	//class AngledAero : public Aero {
 	//						Quaternion							Orientation						= {};	// Holds the orientation of the aerodynamic surface relative to the rigid body to which it is attached.

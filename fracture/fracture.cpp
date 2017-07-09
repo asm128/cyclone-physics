@@ -11,13 +11,12 @@
 
 cyclone::Random global_random;
 
-class Block : public cyclone::CollisionBox
-{
+class Block : public cyclone::CollisionBox {
 	::cyclone::RigidBody		_blockBody;
 public:
-	bool						exists;
+	bool						Exists;
 
-								Block							()						: exists	(false)				{ Body = &_blockBody; }
+								Block							()						: Exists	(false)				{ Body = &_blockBody; }
 	
 	// Draws the block.
 	void						Render							()						{
@@ -35,38 +34,38 @@ public:
         glPopMatrix();
     }
 
-    /** Sets the block to a specific location. */
-    void setState(const cyclone::Vector3 &position,
-                  const cyclone::Quaternion &orientation,
-                  const cyclone::Vector3 &extents,
-                  const cyclone::Vector3 &velocity)
-    {
-        Body->Position				= position;
-        Body->setOrientation(orientation);
-        Body->Velocity				= velocity;
-		Body->Rotation				= {};
-        HalfSize					= extents;
-
-        double							mass					= HalfSize.x * HalfSize.y * HalfSize.z * 8.0f;
-        Body->setMass(mass);
-
-        cyclone::Matrix3				tensor;
-        tensor.setBlockInertiaTensor(HalfSize, mass);
-        Body->setInertiaTensor(tensor);
-
-        Body->LinearDamping			= 0.95f;
-        Body->AngularDamping		= 0.8f;
-        Body->clearAccumulators();
-		Body->Acceleration			= {0, -10.0f, 0};
-
-        //body->setCanSleep(false);
-        Body->setAwake();
-
-        Body->calculateDerivedData();
-    }
+    //// Sets the block to a specific location. 
+    //void SetState(const cyclone::Vector3 &position,
+    //              const cyclone::Quaternion &orientation,
+    //              const cyclone::Vector3 &extents,
+    //              const cyclone::Vector3 &velocity)
+    //{
+    //    Body->Position				= position;
+    //    Body->setOrientation(orientation);
+    //    Body->Velocity				= velocity;
+	//	Body->Rotation				= {};
+    //    HalfSize					= extents;
+	//
+    //    double							mass					= HalfSize.x * HalfSize.y * HalfSize.z * 8.0f;
+    //    Body->setMass(mass);
+	//
+    //    cyclone::Matrix3				tensor;
+    //    tensor.setBlockInertiaTensor(HalfSize, mass);
+    //    Body->setInertiaTensor(tensor);
+	//
+    //    Body->LinearDamping			= 0.95f;
+    //    Body->AngularDamping		= 0.8f;
+    //    Body->clearAccumulators();
+	//	Body->Acceleration			= {0, -10.0f, 0};
+	//
+    //    //body->setCanSleep(false);
+    //    Body->setAwake();
+	//
+    //    Body->calculateDerivedData();
+    //}
 
 	// Calculates and sets the mass and inertia tensor of this block, assuming it has the given constant density.
-	void calculateMassProperties(double invDensity) {
+	void CalculateMassProperties(double invDensity) {
         // Check for infinite mass
         if (invDensity <= 0) {		// Just set zeros for both mass and inertia tensor
             Body->InverseMass = 0;
@@ -94,7 +93,7 @@ public:
 	// Performs the division of the given block into four, writing the eight new blocks into the given blocks array. 
 	// The blocks array can be a pointer to the same location as the target pointer: since the original block is always deleted, this effectively reuses its storage.
 	// The algorithm is structured to allow this reuse.
-    void divideBlock(const cyclone::Contact& contact,
+    void DivideBlock(const cyclone::Contact& contact,
         Block* target, Block* blocks)
     {
         // Find out if we're block one or two in the contact structure, and therefore what the contact normal is.
@@ -122,8 +121,8 @@ public:
         tempBody.AngularDamping					= body->AngularDamping			;
         tempBody.InverseInertiaTensor			= body->InverseInertiaTensor	;
         tempBody.calculateDerivedData();
-
-		target->exists							= false;	// Remove the old block
+		
+		target->Exists							= false;	// Remove the old block
         double								invDensity								= HalfSize.magnitude()*8 * body->InverseMass;	// Work out the inverse density of the old block
 
         // Now split the block into eight.
@@ -172,10 +171,10 @@ public:
             blocks[i].Body->clearAccumulators();
             blocks[i].Body->calculateDerivedData();
             blocks[i].Offset					= cyclone::Matrix4();
-            blocks[i].exists					= true;
+            blocks[i].Exists					= true;
             blocks[i].HalfSize					= halfSize;
 
-            blocks[i].calculateMassProperties(invDensity);	// Finally calculate the mass and inertia tensor of the new block
+            blocks[i].CalculateMassProperties(invDensity);	// Finally calculate the mass and inertia tensor of the new block
         }
     }
 };
@@ -242,7 +241,7 @@ void FractureDemo::GenerateContacts()
 	cyclone::Matrix4									transform, otherTransform;
 	cyclone::Vector3									position, otherPosition;
 	for (Block *block = Blocks; block < Blocks + MAX_BLOCKS; ++block) {
-		if (!block->exists) 
+		if (!block->Exists) 
 			continue;
 
 		// Check for collisions with the ground plane
@@ -263,7 +262,7 @@ void FractureDemo::GenerateContacts()
 
 		// Check for collisions with each other box
 		for (Block *other = block+1; other < Blocks + MAX_BLOCKS; other++) {
-			if (!other->exists) 
+			if (!other->Exists) 
 				continue;
 			if (!CData.HasMoreContacts()) 
 				return;
@@ -282,9 +281,9 @@ void FractureDemo::GenerateContacts()
 void FractureDemo::Reset()
 {
     // Only the first block exists
-    Blocks[0].exists = true;
+    Blocks[0].Exists = true;
     for (Block *block = Blocks + 1; block < Blocks + MAX_BLOCKS; block++)
-        block->exists = false;
+        block->Exists = false;
 
     // Set the first block
 	Blocks[0].HalfSize				= {4,4,4};
@@ -328,7 +327,7 @@ void FractureDemo::Reset()
 void FractureDemo::Update() {
 	RigidBodyApplication::Update();
 	if (Hit) {	// Handle fractures.
-		Blocks[0].divideBlock(
+		Blocks[0].DivideBlock(
 			CData.ContactArray[Fracture_contact],
 			Blocks,
 			Blocks+1
@@ -340,7 +339,7 @@ void FractureDemo::Update() {
 void FractureDemo::UpdateObjects(double duration)
 {
 	for (Block *block = Blocks; block < Blocks + MAX_BLOCKS; block++)
-		if (block->exists) {
+		if (block->Exists) {
 			block->Body->integrate(duration);
 			block->CalculateInternals();
 		}
@@ -366,7 +365,7 @@ void FractureDemo::Display() {
 
 	glEnable(GL_NORMALIZE);
 	for (Block *block = Blocks; block < Blocks + MAX_BLOCKS; block++)
-	    if (block->exists) 
+	    if (block->Exists) 
 			block->Render();
 
 	glDisable(GL_NORMALIZE);

@@ -29,10 +29,10 @@ public:
 	virtual					~FlightSimDemo			()						{}
 							FlightSimDemo			();
 
-	virtual const char*		GetTitle				();	// Returns the window title for the demo.
-	virtual void			Display					();	// Display the particles. */
-	virtual void			Update					();	// Update the particle positions. */
-	virtual void			Key						(unsigned char key);	// Handle a key press. */
+	virtual const char*		GetTitle				()						{ return "Cyclone > Flight Sim Demo"; }
+	virtual void			Display					();		// Display the particles.
+	virtual void			Update					();		// Update the particle positions. 
+	virtual void			Key						(unsigned char key);	// Handle a key press. 
 
 	virtual void			Mouse					(int, int, int, int)	{}	// Called when GLUT detects a mouse button press.
 	virtual void			MouseDrag				(int, int)				{}	// Called when GLUT detects a mouse drag.
@@ -147,8 +147,7 @@ void FlightSimDemo::Display()
     int bx = int(pos.x);
     int bz = int(pos.z);
     glBegin(GL_QUADS);
-    for (int x = -20; x <= 20; x++) for (int z = -20; z <= 20; z++)
-    {
+    for (int x = -20; x <= 20; x++) for (int z = -20; z <= 20; z++) {
         glVertex3f(bx+x-0.1f, 0, bz+z-0.1f);
         glVertex3f(bx+x-0.1f, 0, bz+z+0.1f);
         glVertex3f(bx+x+0.1f, 0, bz+z+0.1f);
@@ -212,8 +211,7 @@ void FlightSimDemo::Update()
 
     // Do a very basic collision detection and response with the ground.
     cyclone::Vector3 pos = Aircraft.Position;
-    if (pos.y < 0.0f)
-    {
+    if (pos.y < 0.0f) {
         pos.y = 0.0f;
         Aircraft.Position = pos;
 
@@ -224,7 +222,6 @@ void FlightSimDemo::Update()
     Application::Update();
 }
 
-const char* FlightSimDemo::GetTitle() { return "Cyclone > Flight Sim Demo"; }
 
 void FlightSimDemo::Key(unsigned char key) {
     switch(key) {

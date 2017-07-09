@@ -58,7 +58,7 @@ struct FireworkRule {
 	}
 
 	// Set all the rule parameters in one go.
-	void						setParameters			(uint32_t type, double minAge, double maxAge, const cyclone::Vector3 &minVelocity, const cyclone::Vector3 &maxVelocity, double damping)				{
+	void						SetParameters			(uint32_t type, double minAge, double maxAge, const cyclone::Vector3 &minVelocity, const cyclone::Vector3 &maxVelocity, double damping)				{
 		FireworkRule::Type			= type;
 		FireworkRule::MinAge		= minAge;
 		FireworkRule::MaxAge		= maxAge;
@@ -126,7 +126,7 @@ void FireworksDemo::InitFireworkRules()
 {
     // Go through the firework types and create their rules.
     Rules[0].Init(2);
-    Rules[0].setParameters(
+    Rules[0].SetParameters(
         1,				// type
         0.5f, 1.4f,		// age range
         {-5, 25, -5},	// min velocity
@@ -137,7 +137,7 @@ void FireworksDemo::InitFireworkRules()
     Rules[0].Payloads[1].Set(5, 5);
 
     Rules[1].Init(1);
-    Rules[1].setParameters(
+    Rules[1].SetParameters(
         2,				// type
         0.5f, 1.0f,		// age range
         {-5, 10, -5},	// min velocity
@@ -147,68 +147,68 @@ void FireworksDemo::InitFireworkRules()
     Rules[1].Payloads[0].Set(4, 2);
 
     Rules[2].Init(0);
-    Rules[2].setParameters(
-        3, // type
-        0.5f, 1.5f, // age range
-        {-5, -5, -5}, // min velocity
-        { 5,  5,  5}, // max velocity
-        0.1 // damping
+    Rules[2].SetParameters(
+        3,				// type
+        0.5f, 1.5f,		// age range
+        {-5, -5, -5},	// min velocity
+        { 5,  5,  5},	// max velocity
+        0.1				// damping
         );
 
     Rules[3].Init(0);
-    Rules[3].setParameters(
-        4, // type
-        0.25f, 0.5f, // age range
-        {-20, 5, -5}, // min velocity
-        { 20, 5,  5}, // max velocity
-        0.2 // damping
+    Rules[3].SetParameters(
+        4,				// type
+        0.25f, 0.5f,	// age range
+        {-20, 5, -5},	// min velocity
+        { 20, 5,  5},	// max velocity
+        0.2				// damping
         );
 
     Rules[4].Init(1);
-    Rules[4].setParameters(
-        5, // type
-        0.5f, 1.0f, // age range
-        {-20, 2, -5}, // min velocity
-        { 20, 18, 5}, // max velocity
-        0.01 // damping
+    Rules[4].SetParameters(
+        5,				// type
+        0.5f, 1.0f,		// age range
+        {-20, 2, -5},	// min velocity
+        { 20, 18, 5},	// max velocity
+        0.01			// damping
         );
     Rules[4].Payloads[0].Set(3, 5);
 
     Rules[5].Init(0);
-    Rules[5].setParameters(
-        6, // type
-        3, 5, // age range
-        {-5, 5, -5}, // min velocity
-        { 5, 10, 5}, // max velocity
-        0.95 // damping
+    Rules[5].SetParameters(
+        6,				// type
+        3, 5,			// age range
+        {-5, 5, -5},	// min velocity
+        { 5, 10, 5},	// max velocity
+        0.95			// damping
         );
 
     Rules[6].Init(1);
-    Rules[6].setParameters(
-        7, // type
-        4, 5, // age range
-        {-5, 50, -5}, // min velocity
-        { 5, 60,  5}, // max velocity
-        0.01 // damping
+    Rules[6].SetParameters(
+        7,				// type
+        4, 5,			// age range
+        {-5, 50, -5},	// min velocity
+        { 5, 60,  5},	// max velocity
+        0.01			// damping
         );
     Rules[6].Payloads[0].Set(8, 10);
 
     Rules[7].Init(0);
-    Rules[7].setParameters(
-        8, // type
-        0.25f, 0.5f, // age range
-        {-1, -1, -1}, // min velocity
-        { 1,  1,  1}, // max velocity
-        0.01 // damping
+    Rules[7].SetParameters(
+        8,				// type
+        0.25f, 0.5f,	// age range
+        {-1, -1, -1},	// min velocity
+        { 1,  1,  1},	// max velocity
+        0.01			// damping
         );
 
     Rules[8].Init(0);
-    Rules[8].setParameters(
-        9, // type
-        3, 5, // age range
-        {-15, 10, -5}, // min velocity
-        { 15, 15,  5}, // max velocity
-        0.95 // damping
+    Rules[8].SetParameters(
+        9,				// type
+        3, 5,			// age range
+        {-15, 10, -5},	// min velocity
+        { 15, 15,  5},	// max velocity
+        0.95			// damping
         );
 }
 
@@ -217,15 +217,15 @@ void FireworksDemo::InitGraphics() {
     glClearColor(0.0f, 0.0f, 0.1f, 1.0f);	// But override the clear color
 }
 
-void FireworksDemo::Create(unsigned type, const Firework *parent)
+void FireworksDemo::Create(uint32_t type, const Firework *parent)
 {
     FireworkRule *rule = Rules + (type - 1);	// Get the rule needed to create this firework
     rule->create(Fireworks+NextFirework, parent);	// Create the firework
     NextFirework = (NextFirework + 1) % MaxFireworks;	// Increment the index for the next firework
 }
 
-void FireworksDemo::Create(unsigned type, unsigned number, const Firework *parent) {
-    for (unsigned i = 0; i < number; i++)
+void FireworksDemo::Create(uint32_t type, uint32_t number, const Firework *parent) {
+    for (uint32_t i = 0; i < number; i++)
         Create(type, parent);
 }
 
