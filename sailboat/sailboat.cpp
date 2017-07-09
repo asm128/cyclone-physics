@@ -37,19 +37,19 @@ public:
 	, Sail			(cyclone::Matrix3(0,0,0, 0,0,0, 0,0,-1.0f), {2.0f, 0, 0}, &WindSpeed)
 {
 	// Set up the boat's rigid body.
-	Sailboat.Position						= {0, 1.6f, 0};
-	Sailboat.Orientation					= {1, 0, 0, 0};
-	Sailboat.Velocity						= {};
-	Sailboat.Rotation						= {};
+	Sailboat.Pivot.Position					= {0, 1.6f, 0};
+	Sailboat.Pivot.Orientation				= {1, 0, 0, 0};
+	Sailboat.Force.Velocity					= {};
+	Sailboat.Force.Rotation					= {};
 
-	Sailboat.setMass(200.0f);
+	Sailboat.Mass.setMass(200.0f);
 	cyclone::Matrix3							it;
 	it.setBlockInertiaTensor({2, 1, 1}, 100.0f);
-	Sailboat.setInertiaTensor(it);
+	Sailboat.Mass.setInertiaTensor(it);
 
-	Sailboat.setDamping(0.8f, 0.8f);
+	Sailboat.Mass.setDamping(0.8f, 0.8f);
 
-	Sailboat.Acceleration					= cyclone::Vector3::GRAVITY;
+	Sailboat.Force.Acceleration				= cyclone::Vector3::GRAVITY;
 	Sailboat.CalculateDerivedData();
 
 	Sailboat.setAwake();
@@ -122,7 +122,7 @@ void									SailboatDemo::Display				()									{
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
-	cyclone::Vector3							pos									= Sailboat.Position;
+	cyclone::Vector3							pos									= Sailboat.Pivot.Position;
 	cyclone::Vector3							offset								= {4.0f, 0, 0};
 	offset									= Sailboat.TransformMatrix.transformDirection(offset);
 	gluLookAt(pos.x+offset.x, pos.y+5.0f, pos.z+offset.z,
@@ -153,7 +153,7 @@ void									SailboatDemo::Display				()									{
 	glPopMatrix();
 
 	char										buffer[256]							= {};
-	sprintf_s(buffer, "Speed %.1f", Sailboat.Velocity.magnitude() );
+	sprintf_s(buffer, "Speed %.1f", Sailboat.Force.Velocity.magnitude() );
 	glColor3f(0,0,0);
 	RenderText(10.0f, 24.0f, buffer);
 

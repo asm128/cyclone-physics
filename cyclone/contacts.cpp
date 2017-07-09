@@ -9,8 +9,7 @@ using namespace cyclone;
 
 // Contact implementation
 
-void Contact::setBodyData(RigidBody* one, RigidBody *two, double friction, double restitution)
-{
+void Contact::setBodyData(RigidBody* one, RigidBody *two, double friction, double restitution) {
     Contact::Body[0]		= one;
     Contact::Body[1]		= two;
     Contact::Friction		= friction;
@@ -88,8 +87,8 @@ inline void Contact::calculateContactBasis()
 
 Vector3 Contact::calculateLocalVelocity(uint32_t bodyIndex, double duration) {
     RigidBody											* thisBody						= Body[bodyIndex];
-    Vector3												velocity						= thisBody->Rotation % RelativeContactPosition[bodyIndex];	// Work out the velocity of the contact point.
-    velocity										+= thisBody->Velocity;
+    Vector3												velocity						= thisBody->Force.Rotation % RelativeContactPosition[bodyIndex];	// Work out the velocity of the contact point.
+    velocity										+= thisBody->Force.Velocity;
 	Vector3												contactVelocity					= ContactToWorld.transformTranspose(velocity);	// Turn the velocity into contact-coordinates.
     Vector3												accVelocity						= thisBody->LastFrameAcceleration * duration;	// Calculate the ammount of velocity that is due to forces without reactions.
     accVelocity										= ContactToWorld.transformTranspose(accVelocity);	// Calculate the velocity in contact-coordinates.
@@ -122,9 +121,9 @@ void Contact::calculateInternals(double duration) {
 		swapBodies();
 	
 	calculateContactBasis();	// Calculate an set of axis at the contact point.
-	RelativeContactPosition[0]		= ContactPoint - Body[0]->Position;	// Store the relative position of the contact relative to each body
+	RelativeContactPosition[0]		= ContactPoint - Body[0]->Pivot.Position;	// Store the relative position of the contact relative to each body
 	if (Body[1]) 
-		RelativeContactPosition[1]		= ContactPoint - Body[1]->Position;
+		RelativeContactPosition[1]		= ContactPoint - Body[1]->Pivot.Position;
 	
 	ContactVelocity					= calculateLocalVelocity(0, duration);	// Find the relative velocity of the bodies at the contact point.
 	if (Body[1]) {
@@ -137,15 +136,14 @@ void Contact::applyVelocityChange	(Vector3 velocityChange[2]
 									,Vector3 rotationChange[2]
 									)
 {
-    // Get hold of the inverse mass and inverse inertia tensor, both in world coordinates.
-    Matrix3 inverseInertiaTensor[2];
-    inverseInertiaTensor[0] = Body[0]->InverseInertiaTensorWorld;
-    if (Body[1])
-        inverseInertiaTensor[1] = Body[1]->InverseInertiaTensorWorld;
+	// Get hold of the inverse mass and inverse inertia tensor, both in world coordinates.
+	Matrix3						inverseInertiaTensor[2];
+	inverseInertiaTensor[0]	= Body[0]->InverseInertiaTensorWorld;
+	if (Body[1])
+	    inverseInertiaTensor[1]	= Body[1]->InverseInertiaTensorWorld;
 
-    // We will calculate the impulse for each contact axis
-    Vector3 impulseContact;
 
+	Vector3						impulseContact;	// We will calculate the impulse for each contact axis
 	if (Friction == (double)0.0)
 		impulseContact			= calculateFrictionlessImpulse(inverseInertiaTensor);	// Use the short format for frictionless contacts
 	else {
@@ -153,25 +151,25 @@ void Contact::applyVelocityChange	(Vector3 velocityChange[2]
 	}
 
 	Vector3						impulse				= ContactToWorld.transform(impulseContact);	// Convert impulse to world coordinates
-    Vector3						impulsiveTorque0		= RelativeContactPosition[0] % impulse;	// Split in the impulse into linear and rotational components
-    rotationChange[0] = inverseInertiaTensor[0].transform(impulsiveTorque0);
-    velocityChange[0].clear();
-    velocityChange[0].addScaledVector(impulse, Body[0]->InverseMass);
+	Vector3						impulsiveTorque0		= RelativeContactPosition[0] % impulse;	// Split in the impulse into linear and rotational components
+	rotationChange[0] = inverseInertiaTensor[0].transform(impulsiveTorque0);
+	velocityChange[0].clear();
+	velocityChange[0].addScaledVector(impulse, Body[0]->Mass.InverseMass);
 
-    // Apply the changes
-    Body[0]->Velocity		+= velocityChange[0];
-    Body[0]->Rotation		+= rotationChange[0];
+	// Apply the changes
+	Body[0]->Force.Velocity	+= velocityChange[0];
+	Body[0]->Force.Rotation	+= rotationChange[0];
 
-    if (Body[1]) {	// Work out body one's linear and angular changes
-        Vector3						impulsiveTorque1		= impulse % RelativeContactPosition[1];
-        rotationChange[1]		= inverseInertiaTensor[1].transform(impulsiveTorque1);
-        velocityChange[1].clear();
-        velocityChange[1].addScaledVector(impulse, - Body[1]->InverseMass);
+	if (Body[1]) {	// Work out body one's linear and angular changes
+		Vector3						impulsiveTorque1		= impulse % RelativeContactPosition[1];
+		rotationChange[1]		= inverseInertiaTensor[1].transform(impulsiveTorque1);
+		velocityChange[1].clear();
+		velocityChange[1].addScaledVector(impulse, - Body[1]->Mass.InverseMass);
 
-        // And apply them.
-        Body[1]->Velocity		+= velocityChange[1];
-        Body[1]->Rotation		+= rotationChange[1];
-    }
+		// And apply them.
+		Body[1]->Force.Rotation	+= rotationChange[1];
+		Body[1]->Force.Velocity	+= velocityChange[1];
+	}
 }
 
 inline Vector3 Contact::calculateFrictionlessImpulse(Matrix3 * inverseInertiaTensor) {
@@ -183,7 +181,7 @@ inline Vector3 Contact::calculateFrictionlessImpulse(Matrix3 * inverseInertiaTen
     deltaVelWorld0				= deltaVelWorld0 % RelativeContactPosition[0];
 
     double							deltaVelocity							= deltaVelWorld0 * ContactNormal;	// Work out the change in velocity in contact coordiantes.
-    deltaVelocity				+= Body[0]->InverseMass;	// Add the linear component of velocity change
+    deltaVelocity				+= Body[0]->Mass.InverseMass;	// Add the linear component of velocity change
 	if (Body[1]) {	// Check if we need to the second body's data
         
 		// Go through the same transformation sequence again
@@ -192,7 +190,7 @@ inline Vector3 Contact::calculateFrictionlessImpulse(Matrix3 * inverseInertiaTen
         deltaVelWorld1				= deltaVelWorld1 % RelativeContactPosition[1];
 
         deltaVelocity				+= deltaVelWorld1 * ContactNormal;	// Add the change in velocity due to rotation
-        deltaVelocity				+= Body[1]->InverseMass;	// Add the change in velocity due to linear motion
+        deltaVelocity				+= Body[1]->Mass.InverseMass;	// Add the change in velocity due to linear motion
     }
     // Calculate the required size of the impulse
     impulseContact.x			= DesiredDeltaVelocity / deltaVelocity;
@@ -202,7 +200,7 @@ inline Vector3 Contact::calculateFrictionlessImpulse(Matrix3 * inverseInertiaTen
 }
 
 inline Vector3 Contact::calculateFrictionImpulse(Matrix3 * inverseInertiaTensor) {
-    double							inverseMass			= Body[0]->InverseMass;
+    double							inverseMass			= Body[0]->Mass.InverseMass;
     Matrix3							impulseToTorque;
     impulseToTorque.setSkewSymmetric(RelativeContactPosition[0]);	// The equivalent of a cross product in matrices is multiplication by a skew symmetric matrix - we build the matrix for converting between linear and angular quantities.
 
@@ -223,7 +221,7 @@ inline Vector3 Contact::calculateFrictionImpulse(Matrix3 * inverseInertiaTensor)
         deltaVelWorld2		*= -1;
 
         deltaVelWorld		+= deltaVelWorld2;			// Add to the total delta velocity.
-        inverseMass			+= Body[1]->InverseMass;	// Add to the inverse mass
+        inverseMass			+= Body[1]->Mass.InverseMass;	// Add to the inverse mass
     }
 
     // Do a change of basis to convert into contact coordinates.
@@ -251,8 +249,8 @@ inline Vector3 Contact::calculateFrictionImpulse(Matrix3 * inverseInertiaTensor)
 
     // Check for exceeding friction
     double planarImpulse = real_sqrt(
-        impulseContact.y*impulseContact.y +
-        impulseContact.z*impulseContact.z
+        impulseContact.y * impulseContact.y +
+        impulseContact.z * impulseContact.z
         );
     if (planarImpulse > impulseContact.x * Friction)
     {
@@ -292,7 +290,7 @@ void Contact::applyPositionChange	( Vector3 linearChange	[2]
 			angularInertiaWorld			= inverseInertiaTensor.transform(angularInertiaWorld);
 			angularInertiaWorld			= angularInertiaWorld % RelativeContactPosition[i];
 			angularInertia	[i]			= angularInertiaWorld * ContactNormal;
-			linearInertia	[i]			= Body[i]->InverseMass;	// The linear component is simply the inverse mass
+			linearInertia	[i]			= Body[i]->Mass.InverseMass;	// The linear component is simply the inverse mass
 			totalInertia				+= linearInertia[i] + angularInertia[i];	// Keep track of the total inertia from all components
 
 			// We break the loop here so that the totalInertia value is completely calculated (by both iterations) before continuing.
@@ -342,14 +340,14 @@ void Contact::applyPositionChange	( Vector3 linearChange	[2]
 			linearChange[i] = ContactNormal * linearMove[i];	// Velocity change is easier - it is just the linear movement along the contact normal.
 
 			// Now we can start to apply the values we've calculated. Apply the linear movement
-			Vector3 pos = Body[i]->Position;
+			Vector3 pos = Body[i]->Pivot.Position;
 			pos.addScaledVector(ContactNormal, linearMove[i]);
-			Body[i]->Position = pos;
+			Body[i]->Pivot.Position = pos;
 
 			// And the change in orientation
-			Quaternion q = Body[i]->Orientation;
+			Quaternion q = Body[i]->Pivot.Orientation;
 			q.addScaledVector(angularChange[i], 1.0);
-			Body[i]->Orientation = q;
+			Body[i]->Pivot.Orientation = q;
 
 			// We need to calculate the derived data for any body that is asleep, so that the changes are reflected in the object's data. 
 			// Otherwise the resolution will not change the position of the object, and the next collision detection round will have the same penetration.

@@ -60,24 +60,24 @@ public:
 		,	::cyclone::Vector3		velocity
 		)
     {
-        Body->Position					= position;
-        Body->Orientation				= orientation;
-        Body->Velocity					= velocity;
-		Body->Rotation					= {};
+        Body->Pivot.Position			= position;
+        Body->Pivot.Orientation			= orientation;
+        Body->Force.Velocity			= velocity;
+		Body->Force.Rotation			= {};
         Radius							= radius;
 
         double								mass					= 4.0f*0.3333f*3.1415f * radius*radius*radius;
-        Body->setMass(mass);
+        Body->Mass.setMass(mass);
 
         ::cyclone::Matrix3					tensor;
         double								coeff					= 0.4f * mass * radius * radius;
         tensor.setInertiaTensorCoeffs(coeff,coeff,coeff);
-        Body->setInertiaTensor(tensor);
+        Body->Mass.setInertiaTensor(tensor);
 
-        Body->LinearDamping				= 0.95f;
-        Body->AngularDamping			= 0.8f;
+        Body->Mass.LinearDamping		= 0.95f;
+        Body->Mass.AngularDamping		= 0.8f;
         Body->clearAccumulators	();
-		Body->Acceleration				= {0, -10.0f, 0};
+		Body->Force.Acceleration		= {0, -10.0f, 0};
 
         //body->setCanSleep(false);
         Body->setAwake();
@@ -144,24 +144,24 @@ public:
 		, const cyclone::Vector3	& velocity
 		)
 	{
-		Body->Position					= position;
-		Body->setOrientation(orientation);
-		Body->Velocity					= velocity;
-		Body->Rotation					= {};
+		Body->Pivot.Position			= position;
+		Body->Pivot.setOrientation(orientation);
+		Body->Force.Velocity			= velocity;
+		Body->Force.Rotation			= {};
 		HalfSize						= extents;
 		
 		double						mass					= HalfSize.x * HalfSize.y * HalfSize.z * 8.0f;
-		Body->setMass(mass);
+		Body->Mass.setMass(mass);
 		
 		cyclone::Matrix3					tensor;
 		tensor.setBlockInertiaTensor(HalfSize, mass);
-		Body->setInertiaTensor(tensor);
-		Body->LinearDamping				= 0.95f;
-		Body->AngularDamping			= 0.8f;
-		Body->clearAccumulators		();
-		Body->Acceleration				= {0, -10.0f, 0};
-		Body->setAwake				();
-		Body->CalculateDerivedData	();
+		Body->Mass.setInertiaTensor(tensor);
+		Body->Mass.LinearDamping		= 0.95f;
+		Body->Mass.AngularDamping		= 0.8f;
+		Body->clearAccumulators			();
+		Body->Force.Acceleration		= {0, -10.0f, 0};
+		Body->setAwake					();
+		Body->CalculateDerivedData		();
 	}
 	
 	// Positions the box at a random location.
@@ -211,7 +211,7 @@ public:
 
 void ExplosionDemo::Fire()
 {
-    cyclone::Vector3 pos = BallData[0].Body->Position;
+    cyclone::Vector3 pos = BallData[0].Body->Pivot.Position;
     pos.normalise();
 
     BallData[0].Body->addForce(pos * -1000.0f);
@@ -416,11 +416,11 @@ void ExplosionDemo::Display()
 void ExplosionDemo::MouseDrag(int x, int y)
 {
     if (EditMode) {
-		BoxData[0].Body->Position = BoxData[0].Body->Position + cyclone::Vector3{(x-Last_x) * 0.125f, 0, (y-Last_y) * 0.125f};
+		BoxData[0].Body->Pivot.Position = BoxData[0].Body->Pivot.Position + cyclone::Vector3{(x-Last_x) * 0.125f, 0, (y-Last_y) * 0.125f};
         BoxData[0].Body->CalculateDerivedData();
     }
     else if (UpMode) {
-		BoxData[0].Body->Position = BoxData[0].Body->Position + cyclone::Vector3{0, (y-Last_y) * 0.125f, 0};
+		BoxData[0].Body->Pivot.Position = BoxData[0].Body->Pivot.Position + cyclone::Vector3{0, (y-Last_y) * 0.125f, 0};
         BoxData[0].Body->CalculateDerivedData();
     }
     else {

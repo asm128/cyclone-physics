@@ -6,8 +6,6 @@
 #include <assert.h>
 
 using namespace cyclone;
-// Internal function that checks the validity of an inverse inertia tensor.
-static inline constexpr	void			_checkInverseInertiaTensor				(const Matrix3 &/*iitWorld*/)															{}	// TODO: Perform a validity check in an assert.
 
 // Internal function to do an intertia tensor transform by a quaternion.
 // Note that the implementation of this function was created by an automated code-generator and optimizer.
@@ -58,9 +56,9 @@ static inline	void					_calculateTransformMatrix				(Matrix4 &transformMatrix, c
 }
 
 void									RigidBody::CalculateDerivedData			()																						{
-	Orientation.normalise();
-	_calculateTransformMatrix	(TransformMatrix, Position, Orientation);	// Calculate the transform matrix for the body.
-	_transformInertiaTensor		(InverseInertiaTensorWorld, Orientation, InverseInertiaTensor, TransformMatrix);	// Calculate the inertiaTensor in world space.
+	Pivot.Orientation.normalise();
+	_calculateTransformMatrix	(TransformMatrix, Pivot.Position, Pivot.Orientation);	// Calculate the transform matrix for the body.
+	_transformInertiaTensor		(InverseInertiaTensorWorld, Pivot.Orientation, Mass.InverseInertiaTensor, TransformMatrix);	// Calculate the inertiaTensor in world space.
 }
 
 void									RigidBody::integrate					(double duration)																		{
@@ -68,27 +66,27 @@ void									RigidBody::integrate					(double duration)																		{
 		return;
 	
 	// Calculate linear acceleration from force inputs.
-	LastFrameAcceleration					= Acceleration;
-	LastFrameAcceleration.addScaledVector(AccumulatedForce, InverseMass);
+	LastFrameAcceleration					= Force.Acceleration;
+	LastFrameAcceleration.addScaledVector(AccumulatedForce, Mass.InverseMass);
 
 	Vector3										angularAcceleration						= InverseInertiaTensorWorld.transform(AccumulatedTorque);	// Calculate angular acceleration from torque inputs.
 	
 	// Adjust velocities
-	Velocity.addScaledVector(LastFrameAcceleration, duration);	// Update linear velocity from both acceleration and impulse.
-	Rotation.addScaledVector(angularAcceleration, duration);	// Update angular velocity from both acceleration and impulse.
+	Force.Velocity.addScaledVector(LastFrameAcceleration, duration);	// Update linear velocity from both acceleration and impulse.
+	Force.Rotation.addScaledVector(angularAcceleration, duration);	// Update angular velocity from both acceleration and impulse.
 	
 	// Impose drag.
-	Velocity								*= real_pow(LinearDamping, duration);
-	Rotation								*= real_pow(AngularDamping, duration);
+	Force.Velocity								*= real_pow(Mass.LinearDamping, duration);
+	Force.Rotation								*= real_pow(Mass.AngularDamping, duration);
 	
 	// Adjust positions
-	Position	.addScaledVector(Velocity, duration);	// Update linear position.
-	Orientation	.addScaledVector(Rotation, duration);	// Update angular position.
+	Pivot.Position		.addScaledVector(Force.Velocity, duration);	// Update linear position.
+	Pivot.Orientation	.addScaledVector(Force.Rotation, duration);	// Update angular position.
 	CalculateDerivedData();			// Normalise the orientation, and update the matrices with the new position and orientation
 	clearAccumulators();			// Clear accumulators.
 	
 	if (CanSleep) {	// Update the kinetic energy store, and possibly put the body to sleep.
-		double										currentMotion	= Velocity.scalarProduct(Velocity) + Rotation.scalarProduct(Rotation);
+		double										currentMotion	= Force.Velocity.scalarProduct(Force.Velocity) + Force.Rotation.scalarProduct(Force.Rotation);
 		double										bias			= real_pow(0.5, duration);
 		Motion									= bias * Motion + (1 - bias) * currentMotion;
 		if (Motion < sleepEpsilon) 
@@ -98,50 +96,17 @@ void									RigidBody::integrate					(double duration)																		{
 		}
 }
 
-void									RigidBody::setInertiaTensor				(const Matrix3 &inertiaTensor)															{
-	InverseInertiaTensor.setInverse(inertiaTensor);
-	_checkInverseInertiaTensor(InverseInertiaTensor);
-}
-
-void									RigidBody::setInverseInertiaTensor		(const Matrix3 &inverseInertiaTensor)													{
-	_checkInverseInertiaTensor(inverseInertiaTensor);
-	RigidBody::InverseInertiaTensor			= inverseInertiaTensor;
-}
-
 void									RigidBody::getOrientation				(double matrix[9])																const	{
-	matrix[0]								= TransformMatrix.data[0];
-	matrix[1]								= TransformMatrix.data[1];
-	matrix[2]								= TransformMatrix.data[2];
-
-	matrix[3]								= TransformMatrix.data[4];
-	matrix[4]								= TransformMatrix.data[5];
-	matrix[5]								= TransformMatrix.data[6];
-
-	matrix[6]								= TransformMatrix.data[8];
-	matrix[7]								= TransformMatrix.data[9];
-	matrix[8]								= TransformMatrix.data[10];
+	matrix[0] = TransformMatrix.data[0]; matrix[1] = TransformMatrix.data[1]; matrix[2] = TransformMatrix.data[2];
+	matrix[3] = TransformMatrix.data[4]; matrix[4] = TransformMatrix.data[5]; matrix[5] = TransformMatrix.data[6];
+	matrix[6] = TransformMatrix.data[8]; matrix[7] = TransformMatrix.data[9]; matrix[8] = TransformMatrix.data[10];
 }
 
 void									RigidBody::getGLTransform				(float matrix[16])																const	{
-	matrix[0]								= (float)TransformMatrix.data[0];
-	matrix[1]								= (float)TransformMatrix.data[4];
-	matrix[2]								= (float)TransformMatrix.data[8];
-	matrix[3]								= 0;
-	
-	matrix[4]								= (float)TransformMatrix.data[1];
-	matrix[5]								= (float)TransformMatrix.data[5];
-	matrix[6]								= (float)TransformMatrix.data[9];
-	matrix[7]								= 0;
-	
-	matrix[8]								= (float)TransformMatrix.data[2];
-	matrix[9]								= (float)TransformMatrix.data[6];
-	matrix[10]								= (float)TransformMatrix.data[10];
-	matrix[11]								= 0;
-	
-	matrix[12]								= (float)TransformMatrix.data[3];
-	matrix[13]								= (float)TransformMatrix.data[7];
-	matrix[14]								= (float)TransformMatrix.data[11];
-	matrix[15]								= 1;
+	matrix[0]	= (float)TransformMatrix.data[0]; matrix[1]		= (float)TransformMatrix.data[4]; matrix[2]		= (float)TransformMatrix.data[8];	matrix[3]	= 0;
+	matrix[4]	= (float)TransformMatrix.data[1]; matrix[5]		= (float)TransformMatrix.data[5]; matrix[6]		= (float)TransformMatrix.data[9];	matrix[7]	= 0;
+	matrix[8]	= (float)TransformMatrix.data[2]; matrix[9]		= (float)TransformMatrix.data[6]; matrix[10]	= (float)TransformMatrix.data[10];	matrix[11]	= 0;
+	matrix[12]	= (float)TransformMatrix.data[3]; matrix[13]	= (float)TransformMatrix.data[7]; matrix[14]	= (float)TransformMatrix.data[11];	matrix[15]	= 1;
 }
 
 void									RigidBody::setAwake						(const bool awake)										{
@@ -150,8 +115,8 @@ void									RigidBody::setAwake						(const bool awake)										{
 		Motion									= sleepEpsilon * 2.0f;	// Add a bit of motion to avoid it falling asleep immediately.
 	} else {
 		IsAwake									= false;
-		Velocity.clear();
-		Rotation.clear();
+		Force.Velocity.clear();
+		Force.Rotation.clear();
 	}
 }
 
@@ -161,10 +126,9 @@ void									RigidBody::setCanSleep					(const bool canSleep)									{
 		setAwake();
 }
 
-
 void									RigidBody::addForceAtPoint				(const Vector3 &force, const Vector3 &point)			{
 	Vector3										pt										= point;	
-	pt										-= Position;	// Convert to coordinates relative to center of mass.
+	pt										-= Pivot.Position;	// Convert to coordinates relative to center of mass.
 
 	AccumulatedForce						+= force;
 	AccumulatedTorque						+= pt % force;

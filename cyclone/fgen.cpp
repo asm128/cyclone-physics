@@ -79,7 +79,7 @@ void Spring::UpdateForce(RigidBody* body, double duration)
 void Aero::UpdateForce				(RigidBody *body, double duration)							{ Aero::UpdateForceFromTensor(body, duration, Tensor); }
 void Aero::UpdateForceFromTensor	(RigidBody *body, double duration, const Matrix3 &tensor)	{
     // Calculate total velocity (windspeed and body's velocity).
-    Vector3 velocity = body->Velocity;
+    Vector3 velocity = body->Force.Velocity;
     velocity += *Windspeed;
 
     Vector3 bodyVel = body->TransformMatrix.transformInverseDirection(velocity);		// Calculate the velocity in body coordinates

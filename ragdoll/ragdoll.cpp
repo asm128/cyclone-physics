@@ -48,29 +48,29 @@ public:
 
     // Sets the bone to a specific location.
     void							setState							(const cyclone::Vector3 &position, const cyclone::Vector3 &extents)					{
-        Body->Position					= position;
-        Body->Orientation				= {};
-        Body->Velocity					= {};
-        Body->Rotation					= {};
-        HalfSize						= extents;
+		Body->Pivot.Position			= position;
+		Body->Pivot.Orientation			= {};
+		Body->Force.Velocity			= {};
+		Body->Force.Rotation			= {};
+		HalfSize						= extents;
 
-        double								mass								= HalfSize.x * HalfSize.y * HalfSize.z * 8.0f;
-        Body->setMass(mass);
+		double								mass								= HalfSize.x * HalfSize.y * HalfSize.z * 8.0f;
+		Body->Mass.setMass(mass);
 
-        cyclone::Matrix3					tensor;
-        tensor.setBlockInertiaTensor(HalfSize, mass);
-        Body->setInertiaTensor(tensor);
+		cyclone::Matrix3					tensor;
+		tensor.setBlockInertiaTensor(HalfSize, mass);
+		Body->Mass.setInertiaTensor(tensor);
 
-        Body->LinearDamping				= 0.95f;
-        Body->AngularDamping			= 0.8f;
-        Body->clearAccumulators();
-        Body->Acceleration				= ::cyclone::Vector3::GRAVITY;
+		Body->Mass.LinearDamping		= 0.95f;
+		Body->Mass.AngularDamping		= 0.8f;
+		Body->clearAccumulators();
+		Body->Force.Acceleration		= ::cyclone::Vector3::GRAVITY;
 
-        Body->setCanSleep(false);
-        Body->setAwake();
+		Body->setCanSleep(false);
+		Body->setAwake();
 
-        Body->CalculateDerivedData();
-        CalculateInternals();
+		Body->CalculateDerivedData();
+		CalculateInternals();
     }
 
 };

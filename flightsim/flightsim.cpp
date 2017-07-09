@@ -64,14 +64,14 @@ FlightSimDemo::FlightSimDemo()
     // Set up the aircraft rigid body.
     ResetPlane();
 
-    Aircraft.setMass(2.5f);
+    Aircraft.Mass.setMass(2.5f);
     cyclone::Matrix3 it;
 	it.setBlockInertiaTensor({2,1,1}, 1);
-    Aircraft.setInertiaTensor(it);
+    Aircraft.Mass.setInertiaTensor(it);
 
-    Aircraft.setDamping(0.8f, 0.8f);
+    Aircraft.Mass.setDamping(0.8f, 0.8f);
 
-    Aircraft.Acceleration = ::cyclone::Vector3::GRAVITY;
+    Aircraft.Force.Acceleration = ::cyclone::Vector3::GRAVITY;
     Aircraft.CalculateDerivedData();
 
     Aircraft.setAwake();
@@ -85,11 +85,11 @@ FlightSimDemo::FlightSimDemo()
 
 void FlightSimDemo::ResetPlane()
 {
-	Aircraft.Position		= {};
-	Aircraft.Orientation	= {1,0,0,0};
+	Aircraft.Pivot.Position			= {};
+	Aircraft.Pivot.Orientation		= {1,0,0,0};
 
-	Aircraft.Velocity		= {};
-	Aircraft.Rotation		= {};
+	Aircraft.Force.Velocity			= {};
+	Aircraft.Force.Rotation			= {};
 }
 
 static void drawAircraft() {
@@ -134,8 +134,8 @@ void FlightSimDemo::Display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
 
-    cyclone::Vector3						pos			= Aircraft.Position;
-	cyclone::Vector3						offset		= { 4.0f + Aircraft.Velocity.magnitude(), 0, 0 };
+    cyclone::Vector3						pos			= Aircraft.Pivot.Position;
+	cyclone::Vector3						offset		= { 4.0f + Aircraft.Force.Velocity.magnitude(), 0, 0 };
     offset								= Aircraft.TransformMatrix.transformDirection(offset);
     gluLookAt(pos.x+offset.x, pos.y+5.0f, pos.z+offset.z,
               pos.x, pos.y, pos.z,
@@ -177,8 +177,8 @@ void FlightSimDemo::Display() {
     sprintf_s(
         buffer,
         "Altitude: %.1f | Speed %.1f",
-        Aircraft.Position.y,
-        Aircraft.Velocity.magnitude()
+        Aircraft.Pivot.Position.y,
+        Aircraft.Force.Velocity.magnitude()
         );
     glColor3f(0,0,0);
     RenderText(10.0f, 24.0f, buffer);
@@ -207,12 +207,12 @@ void FlightSimDemo::Update() {
     Aircraft.integrate		(duration);	// Update the aircraft's physics.
 
     // Do a very basic collision detection and response with the ground.
-    cyclone::Vector3 pos = Aircraft.Position;
+    cyclone::Vector3 pos = Aircraft.Pivot.Position;
     if (pos.y < 0.0f) {
         pos.y = 0.0f;
-        Aircraft.Position = pos;
+        Aircraft.Pivot.Position = pos;
 
-        if (Aircraft.Velocity.y < -10.0f)
+        if (Aircraft.Force.Velocity.y < -10.0f)
             ResetPlane();
     }
 

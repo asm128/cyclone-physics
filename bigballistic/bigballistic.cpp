@@ -16,120 +16,120 @@ enum ShotType
 	};
 
 class AmmoRound : public cyclone::CollisionSphere {
-	cyclone::RigidBody					_ammoRoundBody;
+	cyclone::RigidBody					_ammoRoundBody					= {};
 public:
-	ShotType							type;
-	uint32_t							startTime;
+	ShotType							type							= UNUSED;
+	uint32_t							startTime						= 0;
 
 									    AmmoRound						()							{ Body = &_ammoRoundBody; }
-    // Draws the box, excluding its shadow. 
-    void								render							()							{
-        // Get the OpenGL transformation
-        GLfloat mat[16];
-        Body->getGLTransform(mat);
-
-        glPushMatrix();
-        glMultMatrixf(mat);
-        glutSolidSphere(Radius, 20, 20);
-        glPopMatrix();
-    }
-
-    // Sets the box to a specific location.
-    void								setState						(ShotType shotType)			{
-        type								= shotType;
-
-        // Set the properties of the particle
-        switch(type) {
-        case PISTOL:
-            Body->setMass(1.5f);
-            Body->Velocity						= {0.0f, 0.0f, 20.0f};
-            Body->Acceleration					= {0.0f, -0.5f, 0.0f};
-            Body->setDamping(0.99f, 0.8f);
-            Radius								= 0.2f;
-            break;
-
-        case ARTILLERY:
-            Body->setMass(200.0f); // 200.0kg
-            Body->Velocity						= {0.0f, 30.0f, 40.0f}; // 50m/s
-            Body->Acceleration					= {0.0f, -21.0f, 0.0f};
-            Body->setDamping(0.99f, 0.8f);
-            Radius								= 0.4f;
-            break;
-
-        case FIREBALL:
-            Body->setMass(4.0f); // 4.0kg - mostly blast damage
-            Body->Velocity						= {0.0f, -0.5f, 10.0}; // 10m/s
-            Body->Acceleration					= {0.0f,  0.3f, 0.0f}; // Floats up
-            Body->setDamping(0.9f, 0.8f);
-            Radius								= 0.6f;
-            break;
-
-        case LASER:
-            // Note that this is the kind of laser bolt seen in films,
-            // not a realistic laser beam!
-            Body->setMass(0.1f); // 0.1kg - almost no weight
-            Body->Velocity						= {0.0f, 0.0f, 100.0f	}; // 100m/s
-            Body->Acceleration					= {0.0f, 0.0f, 0.0f		}; // No gravity
-            Body->setDamping(0.99f, 0.8f);
-            Radius								= 0.2f;
-            break;
-        }
-
-        Body->setCanSleep(false);
-        Body->setAwake();
-
-        cyclone::Matrix3 tensor;
-        double coeff = 0.4 * Body->getMass() * Radius * Radius;
-        tensor.setInertiaTensorCoeffs(coeff,coeff,coeff);
-        Body->setInertiaTensor(tensor);
-
-        // Set the data common to all particle types
-		Body->Position = {0.0f, 1.5f, 0.0f};
-        startTime = TimingData::get().LastFrameTimestamp;
-
-        // Clear the force accumulators
-        Body->CalculateDerivedData();
-        CalculateInternals();
-    }
-};
-
-class Box : public cyclone::CollisionBox {
-	cyclone::RigidBody						_boxBody;
-public:
-											Box					()						{ Body = &_boxBody; }
-
-	// Draws the box, excluding its shadow.
-	void									render				()						{
+	// Draws the box, excluding its shadow. 
+	void								render							()							{
 	    // Get the OpenGL transformation
 	    GLfloat mat[16];
 	    Body->getGLTransform(mat);
 
 	    glPushMatrix();
 	    glMultMatrixf(mat);
-	    glScalef(HalfSize.x * 2, HalfSize.y * 2, HalfSize.z * 2);
-	    glutSolidCube(1.0f);
+	    glutSolidSphere(Radius, 20, 20);
 	    glPopMatrix();
 	}
 
 	// Sets the box to a specific location.
-	void									setState			(double z)					{
-		Body->Position							= {0, 3, z};
-		Body->setOrientation(1,0,0,0);
-		Body->Velocity							= {};
-		Body->Rotation							= {};
+	void								setState						(ShotType shotType)			{
+	    type								= shotType;
+
+	    // Set the properties of the particle
+	    switch(type) {
+	    case PISTOL:
+	        Body->Mass.setMass(1.5f);
+	        Body->Force.Velocity				= {0.0f, 0.0f, 20.0f};
+	        Body->Force.Acceleration			= {0.0f, -0.5f, 0.0f};
+	        Body->Mass.setDamping(0.99f, 0.8f);
+	        Radius								= 0.2f;
+	        break;
+
+	    case ARTILLERY:
+	        Body->Mass.setMass(200.0f); // 200.0kg
+	        Body->Force.Velocity				= {0.0f, 30.0f, 40.0f}; // 50m/s
+	        Body->Force.Acceleration			= {0.0f, -21.0f, 0.0f};
+	        Body->Mass.setDamping(0.99f, 0.8f);
+	        Radius								= 0.4f;
+	        break;
+
+	    case FIREBALL:
+	        Body->Mass.setMass(4.0f); // 4.0kg - mostly blast damage
+	        Body->Force.Velocity				= {0.0f, -0.5f, 10.0}; // 10m/s
+	        Body->Force.Acceleration			= {0.0f,  0.3f, 0.0f}; // Floats up
+	        Body->Mass.setDamping(0.9f, 0.8f);
+	        Radius								= 0.6f;
+	        break;
+
+	    case LASER:
+	        // Note that this is the kind of laser bolt seen in films,
+	        // not a realistic laser beam!
+	        Body->Mass.setMass(0.1f); // 0.1kg - almost no weight
+	        Body->Force.Velocity				= {0.0f, 0.0f, 100.0f	}; // 100m/s
+	        Body->Force.Acceleration			= {0.0f, 0.0f, 0.0f		}; // No gravity
+	        Body->Mass.setDamping(0.99f, 0.8f);
+	        Radius								= 0.2f;
+	        break;
+	    }
+
+	    Body->setCanSleep(false);
+	    Body->setAwake();
+
+	    cyclone::Matrix3 tensor;
+	    double coeff = 0.4 * Body->Mass.getMass() * Radius * Radius;
+	    tensor.setInertiaTensorCoeffs(coeff,coeff,coeff);
+	    Body->Mass.setInertiaTensor(tensor);
+
+	    // Set the data common to all particle types
+		Body->Pivot.Position = {0.0f, 1.5f, 0.0f};
+	    startTime = TimingData::get().LastFrameTimestamp;
+
+	    // Clear the force accumulators
+	    Body->CalculateDerivedData();
+	    CalculateInternals();
+	}
+};
+
+class Box : public cyclone::CollisionBox {
+	cyclone::RigidBody						_boxBody						= {};
+public:
+											Box								()							{ Body = &_boxBody; }
+
+	// Draws the box, excluding its shadow.
+	void									render							()							{
+		// Get the OpenGL transformation
+		GLfloat										mat[16]							= {};
+		Body->getGLTransform(mat);
+
+		glPushMatrix();
+		glMultMatrixf(mat);
+		glScalef(HalfSize.x * 2, HalfSize.y * 2, HalfSize.z * 2);
+		glutSolidCube(1.0f);
+		glPopMatrix();
+	}
+
+	// Sets the box to a specific location.
+	void									setState						(double z)					{
+		Body->Pivot.Position					= {0, 3, z};
+		Body->Pivot.Orientation					= {1, 0, 0, 0};
+		Body->Force.Velocity					= {};
+		Body->Force.Rotation					= {};
 		HalfSize								= {1, 1, 1};
 
-		double										mass				= HalfSize.x * HalfSize.y * HalfSize.z * 8.0f;
-		Body->setMass(mass);
+		double										mass							= HalfSize.x * HalfSize.y * HalfSize.z * 8.0f;
+		Body->Mass.setMass(mass);
 
 		::cyclone::Matrix3							tensor;
 		tensor.setBlockInertiaTensor(HalfSize, mass);
-		Body->setInertiaTensor(tensor);
+		Body->Mass.setInertiaTensor(tensor);
 
-		Body->LinearDamping						= 0.95f;
-		Body->AngularDamping					= 0.8f;
+		Body->Mass.LinearDamping				= 0.95f;
+		Body->Mass.AngularDamping				= 0.8f;
 		Body->clearAccumulators	();
-		Body->Acceleration						= {0, -10.0f, 0};
+		Body->Force.Acceleration				= {0, -10.0f, 0};
 
 		Body->setCanSleep(false);
 		Body->setAwake();
@@ -142,26 +142,26 @@ public:
 
 // The main demo class definition.
 class BigBallisticDemo : public RigidBodyApplication {
-	const static uint32_t	AmmoRounds						= 256;							// Holds the maximum number of  rounds that can be fired.
-	const static uint32_t	Boxes							= 2;							// Holds the number of boxes in the simulation.
+	const static uint32_t					AmmoRounds						= 256;							// Holds the maximum number of  rounds that can be fired.
+	const static uint32_t					Boxes							= 2;							// Holds the number of boxes in the simulation.
 
-	AmmoRound				Ammo			[AmmoRounds]	= {};							// Holds the particle data.
-	Box						BoxData			[Boxes]			= {};							// Holds the box data. 
-	ShotType				CurrentShotType					= {};							// Holds the current shot type. 
+	AmmoRound								Ammo			[AmmoRounds]	= {};							// Holds the particle data.
+	Box										BoxData			[Boxes]			= {};							// Holds the box data. 
+	ShotType								CurrentShotType					= {};							// Holds the current shot type. 
 
-	virtual void			Reset							();								// Resets the position of all the boxes and primes the explosion. 
-	virtual void			GenerateContacts				();								// Build the contacts for the current situation. 
-	virtual void			UpdateObjects					(double duration);		// Processes the objects in the simulation forward in time. 
-	void					Fire							();								// Dispatches a round. 
+	virtual void							Reset							();								// Resets the position of all the boxes and primes the explosion. 
+	virtual void							GenerateContacts				();								// Build the contacts for the current situation. 
+	virtual void							UpdateObjects					(double duration);		// Processes the objects in the simulation forward in time. 
+	void									Fire							();								// Dispatches a round. 
 
 public:
-							BigBallisticDemo				();		// Creates a new demo object. 
+											BigBallisticDemo				();		// Creates a new demo object. 
 
-	virtual const char*		GetTitle						()										{ return "Cyclone > Big Ballistic Demo"; }	// Returns the window title for the demo. 
-	virtual void			InitGraphics					();																					// Sets up the rendering.
-	virtual void			Display							();																					// Display world.
-	virtual void			Mouse							(int button, int state, int x, int y);												// Handle a mouse click.
-	virtual void			Key								(unsigned char key);																// Handle a keypress.
+	virtual const char*						GetTitle						()										{ return "Cyclone > Big Ballistic Demo"; }	// Returns the window title for the demo. 
+	virtual void							InitGraphics					();																					// Sets up the rendering.
+	virtual void							Display							();																					// Display world.
+	virtual void							Mouse							(int button, int state, int x, int y);												// Handle a mouse click.
+	virtual void							Key								(unsigned char key);																// Handle a keypress.
 };
 
 // Method definitions
@@ -218,9 +218,9 @@ void BigBallisticDemo::UpdateObjects(double duration) {
 			shot->CalculateInternals();
 	
 			// Check if the particle is now invalid
-			if (shot->Body->Position.y < 0.0f ||
-				shot->startTime+5000 < TimingData::get().LastFrameTimestamp ||
-				shot->Body->Position.z > 200.0f)
+			if (shot->Body->Pivot.Position.y < 0.0f ||
+				shot->startTime + 5000 < TimingData::get().LastFrameTimestamp ||
+				shot->Body->Pivot.Position.z > 200.0f)
 			{
 				shot->type = UNUSED;	// We simply set the shot type to be unused, so the memory it occupies can be reused by another shot.
 			}

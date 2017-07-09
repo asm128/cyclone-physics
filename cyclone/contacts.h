@@ -114,13 +114,13 @@ namespace cyclone {
 		// Think about the number of iterations as a bound: if you specify a large number, sometimes the algorithm WILL use it, and you may drop lots of frames.
 		// 
 		// @param duration The duration of the previous integration step. This is used to compensate for forces applied.
-       void					resolveContacts						(Contact *contactArray	, uint32_t numContacts, double duration);
+		void				resolveContacts						(Contact *contactArray	, uint32_t numContacts, double duration);
 
-    protected:
-        void				prepareContacts						(Contact *contactArray	, uint32_t numContacts, double duration);	// Sets up contacts ready for processing. This makes sure their internal data is configured correctly and the correct set of bodies is made alive.
-        void				adjustVelocities					(Contact *contactArray	, uint32_t numContacts, double duration);	// Resolves the velocity issues with the given array of constraints, using the given number of iterations.
-        void				adjustPositions						(Contact *contacts		, uint32_t numContacts, double duration);	// Resolves the positional issues with the given array of constraints, using the given number of iterations.
-    };
+	protected:
+		void				prepareContacts						(Contact *contactArray	, uint32_t numContacts, double duration);	// Sets up contacts ready for processing. This makes sure their internal data is configured correctly and the correct set of bodies is made alive.
+		void				adjustVelocities					(Contact *contactArray	, uint32_t numContacts, double duration);	// Resolves the velocity issues with the given array of constraints, using the given number of iterations.
+		void				adjustPositions						(Contact *contacts		, uint32_t numContacts, double duration);	// Resolves the positional issues with the given array of constraints, using the given number of iterations.
+	};
 
 	// This is the basic polymorphic interface for contact generators applying to rigid bodies.
 	class ContactGenerator {
