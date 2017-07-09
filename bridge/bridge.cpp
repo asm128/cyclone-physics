@@ -49,20 +49,19 @@ BridgeDemo::BridgeDemo() : MassAggregateApplication(12) {
             4,
             cyclone::real(i%2)*2.0f-1.0f
 		};
-		ParticleArray[i].Velocity		= {};
-        ParticleArray[i].Damping		= 0.9f;
-        ParticleArray[i].Acceleration	= cyclone::Vector3::GRAVITY;
-        ParticleArray[i].ClearAccumulator();
+		ParticleArray[i].Velocity			= {};
+        ParticleArray[i].Damping			= 0.9f;
+        ParticleArray[i].Acceleration		= cyclone::Vector3::GRAVITY;
+		ParticleArray[i].AccumulatedForce	= {};
     }
 
     // Add the links
     cables = new cyclone::ParticleCable[CABLE_COUNT];
-    for (unsigned i = 0; i < 10; i++)
-    {
-        cables[i].particle[0] = &ParticleArray[i];
-        cables[i].particle[1] = &ParticleArray[i+2];
-        cables[i].maxLength = 1.9f;
-        cables[i].restitution = 0.3f;
+    for (unsigned i = 0; i < 10; i++) {
+        cables[i].particle[0]				= &ParticleArray[i];
+        cables[i].particle[1]				= &ParticleArray[i+2];
+        cables[i].maxLength					= 1.9f;
+        cables[i].restitution				= 0.3f;
         World.getContactGenerators().push_back(&cables[i]);
     }
 

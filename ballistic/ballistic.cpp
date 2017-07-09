@@ -83,41 +83,41 @@ void BallisticDemo::Fire() {
 	switch(CurrentShotType)	{ // Set the properties of the particle
     case PISTOL:
         shot->particle.SetMass(2.0f); // 2.0kg
-        shot->particle.Velocity		= {0.0f, 0.0f, 35.0f}; // 35m/s
-        shot->particle.Acceleration	= {0.0f, -1.0f, 0.0f};
-        shot->particle.Damping		= 0.99f;
+        shot->particle.Velocity				= {0.0f, 0.0f, 35.0f}; // 35m/s
+        shot->particle.Acceleration			= {0.0f, -1.0f, 0.0f};
+        shot->particle.Damping				= 0.99f;
         break;
 
     case ARTILLERY:
         shot->particle.SetMass(200.0f); // 200.0kg
-        shot->particle.Velocity		= {0.0f, 30.0f, 40.0f}; // 50m/s
-        shot->particle.Acceleration	= {0.0f, -20.0f, 0.0f};
-        shot->particle.Damping		= 0.99f;
+        shot->particle.Velocity				= {0.0f, 30.0f, 40.0f}; // 50m/s
+        shot->particle.Acceleration			= {0.0f, -20.0f, 0.0f};
+        shot->particle.Damping				= 0.99f;
         break;
 
     case FIREBALL:
         shot->particle.SetMass(1.0f);					// 1.0kg - mostly blast damage
-        shot->particle.Velocity		= {0.0f, 0.0f, 10.0f};	// 5m/s
-        shot->particle.Acceleration	= {0.0f, 0.6f, 0.0f };		// Floats up
-        shot->particle.Damping		= (0.9f);
+        shot->particle.Velocity				= {0.0f, 0.0f, 10.0f};	// 5m/s
+        shot->particle.Acceleration			= {0.0f, 0.6f, 0.0f };		// Floats up
+        shot->particle.Damping				= (0.9f);
         break;						
 									
     case LASER:						
         							
         shot->particle.SetMass(0.1f);					// 0.1kg - almost no weight
-        shot->particle.Velocity		= {0.0f, 0.0f, 100.0f	};	// 100m/s
-        shot->particle.Acceleration	= {};		// No gravity
-        shot->particle.Damping		= (0.99f);
+        shot->particle.Velocity				= {0.0f, 0.0f, 100.0f	};	// 100m/s
+        shot->particle.Acceleration			= {};		// No gravity
+        shot->particle.Damping				= (0.99f);
         break; // Note that this is the kind of laser bolt seen in films, not a realistic laser beam!
     }
 
     // Set the data common to all particle types
-	shot->particle.Position = {0.0f, 1.5f, 0.0f};
-    shot->startTime = TimingData::get().lastFrameTimestamp;
-    shot->type = CurrentShotType;
+	shot->particle.Position				= {0.0f, 1.5f, 0.0f};
+    shot->startTime						= TimingData::get().lastFrameTimestamp;
+    shot->type							= CurrentShotType;
 
     // Clear the force accumulators
-    shot->particle.ClearAccumulator();
+	shot->particle.AccumulatedForce		= {};
 }
 
 void BallisticDemo::Update()

@@ -238,7 +238,7 @@ BlobDemo::BlobDemo()
         blobs[i].Damping			= 0.2f;
         blobs[i].Acceleration		= cyclone::Vector3::GRAVITY * 0.4f;
         blobs[i].SetMass			(1.0f);
-        blobs[i].ClearAccumulator();
+        blobs[i].AccumulatedForce	= {};
 
         world.getParticles().push_back(blobs + i);
         world.getForceRegistry().add(blobs + i, &blobForceGenerator);
@@ -256,7 +256,7 @@ void BlobDemo::Reset()
         unsigned me = (i+BLOB_COUNT/2) % BLOB_COUNT;
 		blobs[i].Position			= (p->start + delta * (cyclone::real(me)*0.8f*fraction+0.1f) + cyclone::Vector3{0, 1.0f+r.randomReal(), 0});
 		blobs[i].Velocity			= {};
-        blobs[i].ClearAccumulator();
+		blobs[i].AccumulatedForce	= {};
     }
 }
 
@@ -332,7 +332,7 @@ void BlobDemo::Update()
 	xAxis *= pow(0.1f, duration);
 	yAxis *= pow(0.1f, duration);
 	
-	blobs[0].AddForce(cyclone::Vector3{xAxis, yAxis, 0} * 10.0f);	// Move the controlled blob
+	blobs[0].AccumulatedForce	+= cyclone::Vector3{xAxis, yAxis, 0} * 10.0f;	// Move the controlled blob
 	world.runPhysics(duration);	// Run the simulation
 	
 	// Bring all the particles back to 2d

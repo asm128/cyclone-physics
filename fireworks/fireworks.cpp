@@ -100,7 +100,7 @@ struct FireworkRule {
 
         firework->Acceleration = (cyclone::Vector3::GRAVITY);
 
-        firework->ClearAccumulator();
+		firework->AccumulatedForce	= {};
     }
 };
 

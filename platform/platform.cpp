@@ -37,19 +37,19 @@ public:
 PlatformDemo::PlatformDemo() : MassAggregateApplication(6)
 {
     // Create the masses and connections.
-    ParticleArray[0].Position = {0,0,1	};
-    ParticleArray[1].Position = {0,0,-1	};
-    ParticleArray[2].Position = {-3,2,1	};
-    ParticleArray[3].Position = {-3,2,-1};
-    ParticleArray[4].Position = {4,2,1	};
-    ParticleArray[5].Position = {4,2,-1	};
+    ParticleArray[0].Position			= {0,0,1	};
+    ParticleArray[1].Position			= {0,0,-1	};
+    ParticleArray[2].Position			= {-3,2,1	};
+    ParticleArray[3].Position			= {-3,2,-1};
+    ParticleArray[4].Position			= {4,2,1	};
+    ParticleArray[5].Position			= {4,2,-1	};
     for (unsigned i = 0; i < 6; i++)
     {
         ParticleArray[i].SetMass(BASE_MASS);
-		ParticleArray[i].Velocity		= {};
-        ParticleArray[i].Damping		= 0.9f;
-        ParticleArray[i].Acceleration	= cyclone::Vector3::GRAVITY;
-        ParticleArray[i].ClearAccumulator();
+		ParticleArray[i].Velocity			= {};
+        ParticleArray[i].Damping			= 0.9f;
+        ParticleArray[i].Acceleration		= cyclone::Vector3::GRAVITY;
+		ParticleArray[i].AccumulatedForce	= {};
     }
 
     Rods = new cyclone::ParticleRod[ROD_COUNT];
