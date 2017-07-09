@@ -57,7 +57,7 @@ static inline	void					_calculateTransformMatrix				(Matrix4 &transformMatrix, c
 	transformMatrix.data[11]				= position.z;
 }
 
-void									RigidBody::calculateDerivedData			()																						{
+void									RigidBody::CalculateDerivedData			()																						{
 	Orientation.normalise();
 	_calculateTransformMatrix	(TransformMatrix, Position, Orientation);	// Calculate the transform matrix for the body.
 	_transformInertiaTensor		(InverseInertiaTensorWorld, Orientation, InverseInertiaTensor, TransformMatrix);	// Calculate the inertiaTensor in world space.
@@ -84,7 +84,7 @@ void									RigidBody::integrate					(double duration)																		{
 	// Adjust positions
 	Position	.addScaledVector(Velocity, duration);	// Update linear position.
 	Orientation	.addScaledVector(Rotation, duration);	// Update angular position.
-	calculateDerivedData();			// Normalise the orientation, and update the matrices with the new position and orientation
+	CalculateDerivedData();			// Normalise the orientation, and update the matrices with the new position and orientation
 	clearAccumulators();			// Clear accumulators.
 	
 	if (CanSleep) {	// Update the kinetic energy store, and possibly put the body to sleep.
@@ -120,12 +120,6 @@ void									RigidBody::getOrientation				(double matrix[9])																cons
 	matrix[6]								= TransformMatrix.data[8];
 	matrix[7]								= TransformMatrix.data[9];
 	matrix[8]								= TransformMatrix.data[10];
-}
-
-void									RigidBody::getTransform					(double matrix[16])																const	{
-	::memcpy(matrix, TransformMatrix.data, sizeof(double)*12);
-	matrix[12]								= matrix[13] = matrix[14] = 0;
-	matrix[15]								= 1;
 }
 
 void									RigidBody::getGLTransform				(float matrix[16])																const	{

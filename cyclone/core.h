@@ -47,12 +47,9 @@
 // -- Legal
 //
 // This documentation is distributed under license. Use of this documentation implies agreement with all terms and conditions of the accompanying software and documentation license.
-
-
 #include "precision.h"
 
 #include <math.h>
-#include <cstdint>
 
 #ifndef CYCLONE_CORE_H
 #define CYCLONE_CORE_H
@@ -60,63 +57,63 @@
 // The cyclone namespace includes all cyclone functions and classes. It is defined as a namespace to allow function and class names to be simple without causing conflicts.
 namespace cyclone {
 
-    // Holds the value for energy under which a body will be put to sleep. This is a global value for the whole solution. 
+	// Holds the value for energy under which a body will be put to sleep. This is a global value for the whole solution. 
 	// By default it is 0.1, which is fine for simulation when gravity is about 20 units per second squared, masses are about one, and other forces are around that of gravity. 
 	// It may need tweaking if your simulation is drastically different to this.
-    extern	double					sleepEpsilon;
+	extern				double			sleepEpsilon;
 
-    // Sets the current sleep epsilon value to use from this point on: the kinetic energy under which a body may be put to sleep. Bodies are put to sleep if they appear to have a stable kinetic energy less than this value. 
+	// Sets the current sleep epsilon value to use from this point on: the kinetic energy under which a body may be put to sleep. Bodies are put to sleep if they appear to have a stable kinetic energy less than this value. 
 	// For simulations that often have low values (such as slow moving, or light objects), this may need reducing.
-    // The value is global; all bodies will use it.
-			void					setSleepEpsilon			(double value);
-			double					getSleepEpsilon			();	// Gets the current value of the sleep epsilon parameter. Returns the current value of the parameter.
+	// The value is global; all bodies will use it.
+						void			setSleepEpsilon			(double value);
+						double			getSleepEpsilon			();	// Gets the current value of the sleep epsilon parameter. Returns the current value of the parameter.
 
 	// Holds a vector in 3 dimensions. Four data members are allocated to ensure alignment in an array.
 	// This class contains a lot of inline methods for basic mathematics. The implementations are included in the header file.
 	struct Vector3 {
-				double					x						;	// Holds the value along the x axis. 
-				double					y						;	// Holds the value along the y axis. 
-				double					z						;	// Holds the value along the z axis. 
+							double			x						;	// Holds the value along the x axis. 
+							double			y						;	// Holds the value along the y axis. 
+							double			z						;	// Holds the value along the z axis. 
 
-		static	const Vector3			GRAVITY;
-		static	const Vector3			HIGH_GRAVITY;
-		static	const Vector3			UP;
-		static	const Vector3			RIGHT;
-		static	const Vector3			OUT_OF_SCREEN;
-		static	const Vector3			X;
-		static	const Vector3			Y;
-		static	const Vector3			Z;
+		static				const Vector3	GRAVITY;
+		static				const Vector3	HIGH_GRAVITY;
+		static				const Vector3	UP;
+		static				const Vector3	RIGHT;
+		static				const Vector3	OUT_OF_SCREEN;
+		static				const Vector3	X;
+		static				const Vector3	Y;
+		static				const Vector3	Z;
 
-		inline constexpr				Vector3					(double _x = 0, double _y = 0, double _z = 0)						: x(_x), y(_y), z(_z)														{}
+		inline constexpr					Vector3					(double _x = 0, double _y = 0, double _z = 0)						: x(_x), y(_y), z(_z)														{}
 
-        inline constexpr bool			operator==				(const Vector3& other)							const	noexcept	{ return x == other.x && y == other.y && z == other.z;						}	// Checks if the two vectors have identical components.
-        inline constexpr bool			operator!=				(const Vector3& other)							const	noexcept	{ return !(*this == other);													}	// Checks if the two vectors have non-identical components.
+		inline constexpr	bool			operator==				(const Vector3& other)							const	noexcept	{ return x == other.x && y == other.y && z == other.z;						}	// Checks if the two vectors have identical components.
+		inline constexpr	bool			operator!=				(const Vector3& other)							const	noexcept	{ return !(*this == other);													}	// Checks if the two vectors have non-identical components.
 
-		const double&					operator[]				(uint32_t i)									const				{ if(2 < i) throw("Damn lammers."); return (&x)[i];							}
-		double&							operator[]				(uint32_t i)														{ if(2 < i) throw("Damn lammers."); return (&x)[i];							}
+							const double&	operator[]				(uint32_t i)									const				{ if(2 < i) throw("Invalid vector element."); return (&x)[i];				}
+							double&			operator[]				(uint32_t i)														{ if(2 < i) throw("Invalid vector element."); return (&x)[i];				}
 
-		Vector3							operator+				(const Vector3& v)								const	noexcept	{ return {x + v.x, y + v.y, z + v.z};										}	// Returns the value of the given vector added to this.
-		Vector3							operator-				(const Vector3& v)								const	noexcept	{ return {x - v.x, y - v.y, z - v.z};										}	// Returns the value of the given vector subtracted from this.
-		Vector3							operator*				(const double value)							const	noexcept	{ return {x * value, y * value, z * value};									}	// Returns a copy of this vector scaled the given value.
-		double							operator*				(const Vector3 &vector)							const	noexcept	{ return x * vector.x + y * vector.y + z * vector.z;						}	// Calculates and returns the scalar product of this vector with the given vector.
-		bool							operator<				(const Vector3& other)							const	noexcept	{ return x  < other.x && y  < other.y && z  < other.z;						}	// Checks if this vector is component-by-component less than the other. This does not behave like a single-value comparison: !(a < b) does not imply (b >= a).
-		bool							operator>				(const Vector3& other)							const	noexcept	{ return x  > other.x && y  > other.y && z  > other.z;						}	// Checks if this vector is component-by-component less than the other. This does not behave like a single-value comparison: !(a < b) does not imply (b >= a).
-		bool							operator<=				(const Vector3& other)							const	noexcept	{ return x <= other.x && y <= other.y && z <= other.z;						}	// Checks if this vector is component-by-component less than the other. This does not behave like a single-value comparison: !(a <= b) does not imply (b > a).
-		bool							operator>=				(const Vector3& other)							const	noexcept	{ return x >= other.x && y >= other.y && z >= other.z;						}	// Checks if this vector is component-by-component less than the other. This does not behave like a single-value comparison: !(a <= b) does not imply (b > a).
-		void							operator+=				(const Vector3& v)										noexcept	{ x += v.x; y += v.y; z += v.z;												}	// Adds the given vector to this. 
-		void							operator-=				(const Vector3& v)										noexcept	{ x -= v.x; y -= v.y; z -= v.z;												}	// Subtracts the given vector from this. 
-		void							operator*=				(const double value)									noexcept	{ x *= value; y *= value; z *= value;										}	// Multiplies this vector by the given scalar.
-		void							operator%=				(const Vector3 &vector)									noexcept	{ *this = vectorProduct(vector);											}	// Updates this vector to be the vector product of its current value and the given vector.
-		Vector3							operator%				(const Vector3 &vector)							const	noexcept	{ return vectorProduct(vector);												}
+							Vector3			operator+				(const Vector3& v)								const	noexcept	{ return {x + v.x, y + v.y, z + v.z};										}	// Returns the value of the given vector added to this.
+							Vector3			operator-				(const Vector3& v)								const	noexcept	{ return {x - v.x, y - v.y, z - v.z};										}	// Returns the value of the given vector subtracted from this.
+							Vector3			operator*				(const double value)							const	noexcept	{ return {x * value, y * value, z * value};									}	// Returns a copy of this vector scaled the given value.
+							double			operator*				(const Vector3 &vector)							const	noexcept	{ return x * vector.x + y * vector.y + z * vector.z;						}	// Calculates and returns the scalar product of this vector with the given vector.
+							bool			operator<				(const Vector3& other)							const	noexcept	{ return x  < other.x && y  < other.y && z  < other.z;						}	// Checks if this vector is component-by-component less than the other. This does not behave like a single-value comparison: !(a < b) does not imply (b >= a).
+							bool			operator>				(const Vector3& other)							const	noexcept	{ return x  > other.x && y  > other.y && z  > other.z;						}	// Checks if this vector is component-by-component less than the other. This does not behave like a single-value comparison: !(a < b) does not imply (b >= a).
+							bool			operator<=				(const Vector3& other)							const	noexcept	{ return x <= other.x && y <= other.y && z <= other.z;						}	// Checks if this vector is component-by-component less than the other. This does not behave like a single-value comparison: !(a <= b) does not imply (b > a).
+							bool			operator>=				(const Vector3& other)							const	noexcept	{ return x >= other.x && y >= other.y && z >= other.z;						}	// Checks if this vector is component-by-component less than the other. This does not behave like a single-value comparison: !(a <= b) does not imply (b > a).
+							void			operator+=				(const Vector3& v)										noexcept	{ x +=   v.x; y +=   v.y; z +=   v.z;										}	// Adds the given vector to this. 
+							void			operator-=				(const Vector3& v)										noexcept	{ x -=   v.x; y -=   v.y; z -=   v.z;										}	// Subtracts the given vector from this. 
+							void			operator*=				(const double value)									noexcept	{ x *= value; y *= value; z *= value;										}	// Multiplies this vector by the given scalar.
+							inline void		operator%=				(const Vector3 &vector)									noexcept	{ *this = vectorProduct(vector);											}	// Updates this vector to be the vector product of its current value and the given vector.
+							inline Vector3	operator%				(const Vector3 &vector)							const	noexcept	{ return vectorProduct(vector);												}
 
- 		void							clear					()														noexcept	{ x = y = z = 0;															}	// Zero all the components of the vector.
-		void							invert					()														noexcept	{ x = -x; y = -y; z = -z;													}	// Flips all the components of the vector.
-		double							squareMagnitude			()												const	noexcept	{ return x * x + y * y + z * z;												}	// Gets the squared magnitude of this vector.
-		inline double					magnitude				()												const	noexcept	{ double sqLen = squareMagnitude(); return sqLen ? real_sqrt(sqLen) : 0;	}	// Gets the magnitude of this vector.
-		double							scalarProduct			(const Vector3 &vector)							const	noexcept	{ return x * vector.x + y * vector.y + z * vector.z;						}	// Calculates and returns the scalar product of this vector with the given vector.
-		Vector3							componentProduct		(const Vector3 &vector)							const	noexcept	{ return {x * vector.x, y * vector.y, z * vector.z};						}	// Calculates and returns a component-wise product of this vector with the given vector.
-		void							componentProductUpdate	(const Vector3 &vector)									noexcept	{ x *= vector.x; y *= vector.y; z *= vector.z;								}	// Performs a component-wise product with the given vector and sets this vector to its result.
-		Vector3							vectorProduct			(const Vector3 &vector)							const	noexcept	{	// Calculates and returns the vector product of this vector with the given vector.
+ 							void			clear					()														noexcept	{ x = y = z = 0;															}	// Zero all the components of the vector.
+							void			invert					()														noexcept	{ x = -x; y = -y; z = -z;													}	// Flips all the components of the vector.
+							double			squareMagnitude			()												const	noexcept	{ return x * x + y * y + z * z;												}	// Gets the squared magnitude of this vector.
+							inline double	magnitude				()												const	noexcept	{ double sqLen = squareMagnitude(); return sqLen ? real_sqrt(sqLen) : 0;	}	// Gets the magnitude of this vector.
+							double			scalarProduct			(const Vector3 &vector)							const	noexcept	{ return x * vector.x + y * vector.y + z * vector.z;						}	// Calculates and returns the scalar product of this vector with the given vector.
+							Vector3			componentProduct		(const Vector3 &vector)							const	noexcept	{ return {x * vector.x, y * vector.y, z * vector.z};						}	// Calculates and returns a component-wise product of this vector with the given vector.
+							void			componentProductUpdate	(const Vector3 &vector)									noexcept	{ x *= vector.x; y *= vector.y; z *= vector.z;								}	// Performs a component-wise product with the given vector and sets this vector to its result.
+							Vector3			vectorProduct			(const Vector3 &vector)							const	noexcept	{	// Calculates and returns the vector product of this vector with the given vector.
 			return 
 				{	y * vector.z - z * vector.y
 				,	z * vector.x - x * vector.z
@@ -124,31 +121,29 @@ namespace cyclone {
 				};	
 		}	
 		// Adds the given vector to this, scaled by the given amount.
-		void							addScaledVector			(const Vector3& vector, double scale)					noexcept	{
-			x								+= vector.x * scale;
-			y								+= vector.y * scale;
-			z								+= vector.z * scale;
+							void			addScaledVector			(const Vector3& vector, double scale)					noexcept	{
+			x									+= vector.x * scale;
+			y									+= vector.y * scale;
+			z									+= vector.z * scale;
 		}
 		// Limits the size of the vector to the given maximum.
-		void							trim					(double size)														{
+							void			trim					(double size)														{
 			if (squareMagnitude() > size*size) {
 				normalise();
-				x								*= size;
-				y								*= size;
-				z								*= size;
+				x									*= size;
+				y									*= size;
+				z									*= size;
 			}
 		}
-
 		// Turns a non-zero vector into a vector of unit length.
-		void							normalise				()																	{
-			double								l						= magnitude();
+							void			normalise				()																	{
+			double									l						= magnitude();
 			if(l > 0)
-				(*this) *= ((double)1) / l;
+				(*this)								*= 1.0 / l;
 		}
-
 		// Returns the normalised version of a vector.
-		Vector3							unit					()												const				{
-			Vector3								result					= *this;
+							Vector3			unit					()												const				{
+			Vector3									result					= *this;
 			result.normalise();
 			return result;
 		}
@@ -256,7 +251,7 @@ namespace cyclone {
 		}
 
 	    // Transform the given vector by this matrix.
-		Vector3			operator*						(const Vector3 &vector)																						const	{
+		Vector3			operator*					(const Vector3 &vector)																								const	{
 			return 
 				{	vector.x * data[0] + vector.y * data[1] + vector.z * data[2] + data[3]
 				,	vector.x * data[4] + vector.y * data[5] + vector.z * data[6] + data[7]
@@ -264,18 +259,18 @@ namespace cyclone {
 				};
 		}
 
-		void			setInverse			(const Matrix4 &matrixToInvert);		// Sets the matrix to be the inverse of the given matrix. matrixToInvert: The matrix to invert and use to set this.
-		void			invert				()																																{ setInverse(*this);		}
-		Vector3			transform			(const Vector3 &vector)																									const	{ return (*this) * vector;	}	// Transform the given vector by this matrix.
-		double			getDeterminant		()																														const;
-		Matrix4			inverse				()																														const	{ // Returns a new matrix containing the inverse of this matrix. 
+		void			setInverse					(const Matrix4 &matrixToInvert);		// Sets the matrix to be the inverse of the given matrix. matrixToInvert: The matrix to invert and use to set this.
+		void			invert						()																															{ setInverse(*this);		}
+		Vector3			transform					(const Vector3 &vector)																								const	{ return (*this) * vector;	}	// Transform the given vector by this matrix.
+		double			getDeterminant				()																													const;
+		Matrix4			inverse						()																													const	{ // Returns a new matrix containing the inverse of this matrix. 
 			Matrix4 result;
 			result.setInverse(*this);
 			return result;
 		}
 
 		// Transform the given direction vector by this matrix. When a direction is converted between frames of reference, there is no translation required.
-		Vector3			transformDirection		(const Vector3 &vector)																								const	{
+		Vector3			transformDirection			(const Vector3 &vector)																								const	{
 			return 
 				{	vector.x * data[0] + vector.y * data[1] + vector.z * data[2]
 				,	vector.x * data[4] + vector.y * data[5] + vector.z * data[6]
@@ -286,7 +281,7 @@ namespace cyclone {
 		// Transform the given direction vector by the transformational inverse of this matrix.
 		// This function relies on the fact that the inverse of a pure rotation matrix is its transpose. It separates the translational and rotation components, transposes the rotation, and multiplies out. If the matrix is not a scale and shear free transform matrix, then this function will not give correct results.
 		// When a direction is converted between frames of reference, there is no translation required.
-		Vector3		transformInverseDirection	(const Vector3 &vector)																								const	{
+		Vector3			transformInverseDirection	(const Vector3 &vector)																								const	{
 			return 
 				{	vector.x * data[0] + vector.y * data[4] + vector.z * data[8]
 				,	vector.x * data[1] + vector.y * data[5] + vector.z * data[9]
@@ -295,10 +290,10 @@ namespace cyclone {
 		}
 
 		// Transform the given vector by the transformational inverse of this matrix.
-		// @note This function relies on the fact that the inverse of a pure rotation matrix is its transpose. It separates the translational and rotation components, transposes the rotation, and multiplies out. 
+		// This function relies on the fact that the inverse of a pure rotation matrix is its transpose. It separates the translational and rotation components, transposes the rotation, and multiplies out. 
 		// If the matrix is not a scale and shear free transform matrix, then this function will not give correct results.
-		Vector3		transformInverse			(const Vector3 &vector)																								const	{
-		    Vector3						tmp				= vector;
+		Vector3		transformInverse			(const Vector3 &vector)																									const	{
+			Vector3						tmp				= vector;
 			tmp.x					-= data[3];
 			tmp.y					-= data[7];
 			tmp.z					-= data[11];
@@ -309,9 +304,9 @@ namespace cyclone {
 				};
 		}
 		// Gets a vector representing one axis (i.e. one column) in the matrix. i: The row to return. Row 3 corresponds to the position of the transform matrix.
-		Vector3		getAxisVector				(int i)																												const	{ return {data[i], data[i+4], data[i+8]}; }	
+		Vector3		getAxisVector				(int i)																													const	{ return {data[i], data[i+4], data[i+8]}; }	
 		// Sets this matrix to be the rotation matrix corresponding to the given quaternion.
-		void		setOrientationAndPos		(const Quaternion &q, const Vector3 &pos)																					{
+		void		setOrientationAndPos		(const Quaternion &q, const Vector3 &pos)																						{
 		    data[0] = 1 - (2*q.j*q.j + 2*q.k*q.k);
 		    data[1] = 2*q.i*q.j + 2*q.k*q.r;
 		    data[2] = 2*q.i*q.k - 2*q.j*q.r;
@@ -436,31 +431,31 @@ namespace cyclone {
 
 		// Sets the matrix to be the inverse of the given matrix.
 		void		setInverse				(const Matrix3 &m)																								{
-		    double t4 = m.data[0]*m.data[4];
-		    double t6 = m.data[0]*m.data[5];
-		    double t8 = m.data[1]*m.data[3];
-		    double t10 = m.data[2]*m.data[3];
-		    double t12 = m.data[1]*m.data[6];
-		    double t14 = m.data[2]*m.data[6];
+			double t4	= m.data[0] * m.data[4];
+			double t6	= m.data[0] * m.data[5];
+			double t8	= m.data[1] * m.data[3];
+			double t10	= m.data[2] * m.data[3];
+			double t12	= m.data[1] * m.data[6];
+			double t14	= m.data[2] * m.data[6];
 
-		    // Calculate the determinant
-		    double t16 = (t4*m.data[8] - t6*m.data[7] - t8*m.data[8]+
-		                t10*m.data[7] + t12*m.data[5] - t14*m.data[4]);
+			// Calculate the determinant
+			double t16 = (t4*m.data[8] - t6*m.data[7] - t8*m.data[8]+
+			            t10*m.data[7] + t12*m.data[5] - t14*m.data[4]);
 
-		    // Make sure the determinant is non-zero.
-		    if (t16 == (double)0.0f) 
+			// Make sure the determinant is non-zero.
+			if (t16 == (double)0.0f) 
 				return;
-		    double t17 = 1/t16;
+			double t17 = 1/t16;
 
-		    data[0] = (m.data[4]*m.data[8]-m.data[5]*m.data[7])*t17;
-		    data[1] = -(m.data[1]*m.data[8]-m.data[2]*m.data[7])*t17;
-		    data[2] = (m.data[1]*m.data[5]-m.data[2]*m.data[4])*t17;
-		    data[3] = -(m.data[3]*m.data[8]-m.data[5]*m.data[6])*t17;
-		    data[4] = (m.data[0]*m.data[8]-t14)*t17;
-		    data[5] = -(t6-t10)*t17;
-		    data[6] = (m.data[3]*m.data[7]-m.data[4]*m.data[6])*t17;
-		    data[7] = -(m.data[0]*m.data[7]-t12)*t17;
-		    data[8] = (t4-t8)*t17;
+			data[0] = (m.data[4]*m.data[8]-m.data[5]*m.data[7])*t17;
+			data[1] = -(m.data[1]*m.data[8]-m.data[2]*m.data[7])*t17;
+			data[2] = (m.data[1]*m.data[5]-m.data[2]*m.data[4])*t17;
+			data[3] = -(m.data[3]*m.data[8]-m.data[5]*m.data[6])*t17;
+			data[4] = (m.data[0]*m.data[8]-t14)*t17;
+			data[5] = -(t6-t10)*t17;
+			data[6] = (m.data[3]*m.data[7]-m.data[4]*m.data[6])*t17;
+			data[7] = -(m.data[0]*m.data[7]-t12)*t17;
+			data[8] = (t4-t8)*t17;
 		}
 
 		// Returns a new matrix containing the inverse of this matrix.

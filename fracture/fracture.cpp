@@ -61,7 +61,7 @@ public:
     //    //body->setCanSleep(false);
     //    Body->setAwake();
 	//
-    //    Body->calculateDerivedData();
+    //    Body->CalculateDerivedData();
     //}
 
 	// Calculates and sets the mass and inertia tensor of this block, assuming it has the given constant density.
@@ -120,7 +120,7 @@ public:
         tempBody.LinearDamping					= body->LinearDamping			;
         tempBody.AngularDamping					= body->AngularDamping			;
         tempBody.InverseInertiaTensor			= body->InverseInertiaTensor	;
-        tempBody.calculateDerivedData();
+        tempBody.CalculateDerivedData();
 		
 		target->Exists							= false;	// Remove the old block
         double								invDensity								= HalfSize.magnitude()*8 * body->InverseMass;	// Work out the inverse density of the old block
@@ -169,7 +169,7 @@ public:
             blocks[i].Body->setAwake			(true);
             blocks[i].Body->Acceleration		= (cyclone::Vector3::GRAVITY);
             blocks[i].Body->clearAccumulators();
-            blocks[i].Body->calculateDerivedData();
+            blocks[i].Body->CalculateDerivedData();
             blocks[i].Offset					= cyclone::Matrix4();
             blocks[i].Exists					= true;
             blocks[i].HalfSize					= halfSize;
@@ -296,7 +296,7 @@ void FractureDemo::Reset()
     it.setBlockInertiaTensor(Blocks[0].HalfSize, 100.0f);
     Blocks[0].Body->setInertiaTensor(it);
     Blocks[0].Body->setDamping(0.9f, 0.9f);
-    Blocks[0].Body->calculateDerivedData();
+    Blocks[0].Body->CalculateDerivedData();
     Blocks[0].CalculateInternals();
 
     Blocks[0].Body->Acceleration = cyclone::Vector3::GRAVITY;
@@ -315,7 +315,7 @@ void FractureDemo::Reset()
         -20.0f
 	};
 	Ball.Body->Rotation = {};
-    Ball.Body->calculateDerivedData();
+    Ball.Body->CalculateDerivedData();
     Ball.Body->setAwake(true);
     Ball.CalculateInternals();
 

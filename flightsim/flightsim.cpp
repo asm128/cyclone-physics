@@ -72,7 +72,7 @@ FlightSimDemo::FlightSimDemo()
     Aircraft.setDamping(0.8f, 0.8f);
 
     Aircraft.Acceleration = ::cyclone::Vector3::GRAVITY;
-    Aircraft.calculateDerivedData();
+    Aircraft.CalculateDerivedData();
 
     Aircraft.setAwake();
     Aircraft.setCanSleep(false);

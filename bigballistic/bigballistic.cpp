@@ -88,7 +88,7 @@ public:
         startTime = TimingData::get().LastFrameTimestamp;
 
         // Clear the force accumulators
-        Body->calculateDerivedData();
+        Body->CalculateDerivedData();
         CalculateInternals();
     }
 };
@@ -134,7 +134,7 @@ public:
 		Body->setCanSleep(false);
 		Body->setAwake();
 
-		Body->calculateDerivedData();
+		Body->CalculateDerivedData();
 		CalculateInternals();
 	}
 };

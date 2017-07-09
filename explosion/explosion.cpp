@@ -82,7 +82,7 @@ public:
         //body->setCanSleep(false);
         Body->setAwake();
 
-        Body->calculateDerivedData();
+        Body->CalculateDerivedData();
     }
 
     // Positions the box at a random location.
@@ -161,7 +161,7 @@ public:
 		Body->clearAccumulators		();
 		Body->Acceleration				= {0, -10.0f, 0};
 		Body->setAwake				();
-		Body->calculateDerivedData	();
+		Body->CalculateDerivedData	();
 	}
 	
 	// Positions the box at a random location.
@@ -417,11 +417,11 @@ void ExplosionDemo::MouseDrag(int x, int y)
 {
     if (EditMode) {
 		BoxData[0].Body->Position = BoxData[0].Body->Position + cyclone::Vector3{(x-Last_x) * 0.125f, 0, (y-Last_y) * 0.125f};
-        BoxData[0].Body->calculateDerivedData();
+        BoxData[0].Body->CalculateDerivedData();
     }
     else if (UpMode) {
 		BoxData[0].Body->Position = BoxData[0].Body->Position + cyclone::Vector3{0, (y-Last_y) * 0.125f, 0};
-        BoxData[0].Body->calculateDerivedData();
+        BoxData[0].Body->CalculateDerivedData();
     }
     else {
         RigidBodyApplication::MouseDrag(x, y);

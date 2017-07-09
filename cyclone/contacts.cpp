@@ -357,7 +357,7 @@ void Contact::applyPositionChange	( Vector3 linearChange	[2]
 			// We need to calculate the derived data for any body that is asleep, so that the changes are reflected in the object's data. 
 			// Otherwise the resolution will not change the position of the object, and the next collision detection round will have the same penetration.
 			if (!Body[i]->IsAwake) 
-				Body[i]->calculateDerivedData();
+				Body[i]->CalculateDerivedData();
 		}
 }
 

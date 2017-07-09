@@ -21,7 +21,7 @@ void World::startFrame() {
 	while (reg) {
 		// Remove all forces from the accumulator
 		reg->body->clearAccumulators();
-		reg->body->calculateDerivedData();
+		reg->body->CalculateDerivedData();
 		reg				= reg->next;	// Get the next registration
 	}
 }

@@ -58,7 +58,7 @@ SailboatDemo::SailboatDemo()
     Sailboat.setDamping(0.8f, 0.8f);
 
     Sailboat.Acceleration = cyclone::Vector3::GRAVITY;
-    Sailboat.calculateDerivedData();
+    Sailboat.CalculateDerivedData();
 
     Sailboat.setAwake();
     Sailboat.setCanSleep(false);
